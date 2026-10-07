@@ -59,7 +59,7 @@ input[type=number]{flex:1;min-width:0;width:100%;border:0;background:transparent
 .col input[type=number]{font-size:1rem;padding-block:6px}
 .del{all:unset;cursor:pointer;width:36px;height:36px;display:grid;place-items:center;border-radius:8px;color:var(--bad);font-size:1.3rem}
 .del:focus-visible{outline:2px solid var(--bad)}
-.plan svg{display:block;width:100%;height:auto;max-height:62vh;touch-action:none}
+.plan svg{direction:ltr;display:block;width:100%;height:auto;max-height:62vh;touch-action:none}
 .legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;color:var(--muted);margin-top:8px}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-inline-end:5px}
 .verdict{font-weight:700;margin:8px 0 0}
@@ -70,7 +70,15 @@ input[type=number]{flex:1;min-width:0;width:100%;border:0;background:transparent
 .size{grid-column:1;color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums}
 .pill{grid-row:1/span 2;grid-column:2;align-self:center;font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
 .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
-.custom{margin:4px 0 8px}
+.srow{display:grid;grid-template-columns:1fr auto;gap:8px 10px;padding:12px 8px;border-bottom:1px solid var(--line);border-radius:10px}
+.srow[aria-current="true"]{background:var(--felt-soft)}
+.pick{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
+.pick:focus-visible{outline:2px solid var(--felt);outline-offset:2px}
+.srow .pill{grid-row:auto;grid-column:auto;align-self:start}
+.sdims{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:end}
+.sdims input[type=number]{font-size:1rem;padding-block:6px}
+.nameIn{all:unset;font-weight:700;border-bottom:1px dashed var(--line);min-width:0}
+.btn.sm{padding:7px 10px;font-size:.85rem}
 .note{font-size:.8rem;color:var(--muted);margin:0}
 .tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
 .tools .btn{padding:7px 12px;font-size:.9rem}
@@ -153,23 +161,13 @@ input[type=number]{flex:1;min-width:0;width:100%;border:0;background:transparent
   </section>
 
   <section>
-    <h2>סוג השולחן</h2>
-    <p class="hint" style="margin:0 0 8px">בוחרים סוג, ואז "הוספת שולחן" או "מלא את החדר". הסטטוס ברשימה הוא לשולחן אחד בחדר ריק.</p>
+    <h2>גדלי שולחנות</h2>
+    <p class="hint" style="margin:0 0 8px">המידות הן של השולחן כולו, בס״מ, וכל מידה ניתנת לשינוי. "+ לחדר" מוסיף שולחן בגודל הזה. אפשר לשלב כמה גדלים באותו חדר. "מלא את החדר" משתמש בגודל המסומן. הסטטוס הוא לשולחן אחד בחדר ריק.</p>
     <div class="list" id="list"></div>
-    <div class="custom card" id="customBox" hidden>
-      <div class="grid2">
-        <label for="cLen">אורך משטח המשחק
-          <span class="field"><input id="cLen" type="number" inputmode="numeric" min="50" max="500" value="230"><span class="unit">ס״מ</span></span>
-        </label>
-        <label for="cWid">רוחב משטח המשחק
-          <span class="field"><input id="cWid" type="number" inputmode="numeric" min="30" max="300" value="115"><span class="unit">ס״מ</span></span>
-        </label>
-      </div>
-      <p class="hint">מודדים את הבד בין הגומיות. המסגרת מחושבת אוטומטית (כ־13 ס״מ מכל צד).</p>
-    </div>
+    <div class="btns"><button type="button" class="btn" id="addSize">+ גודל חדש</button></div>
   </section>
 
-  <p class="note">החישוב לביליארד וסנוקר: משטח המשחק ועוד אורך מקל (147 ס״מ) מכל צד. "צפוף" אומר שאפשר לשחק עם מקל קצר של 122 ס״מ. המידות משוערות; כדאי לוודא מול דגם ספציפי.</p>
+  <p class="note">החישוב לביליארד וסנוקר: משטח המשחק (השולחן פחות כ־13 ס״מ מסגרת מכל צד) ועוד אורך מקל של 147 ס״מ מכל צד. "צפוף" אומר שאפשר לשחק עם מקל קצר של 122 ס״מ. המידות משוערות; כדאי לוודא מול דגם ספציפי.</p>
 </div>
 
 <script>
@@ -177,15 +175,21 @@ const CUE=147, SHORT=122, RAIL=13, CELL=5;
 const $=id=>document.getElementById(id);
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,+v||0));
 
-const items=[
-  {name:"ביליארד 7 פיט", play:[198,99], outer:[213,122], cue:true},
-  {name:"ביליארד 8 פיט", play:[224,112], outer:[244,137], cue:true},
-  {name:"ביליארד 9 פיט (תחרותי)", play:[254,127], outer:[280,155], cue:true},
-  {name:"סנוקר 12 פיט", play:[357,178], outer:[382,203], cue:true},
-  {name:"כדורגל שולחן", outer:[145,75], need:[225,275], tight:[185,235]},
-  {name:"הוקי אוויר 7 פיט", outer:[213,121], need:[393,241], tight:[333,201]},
-  {name:"מידה משלך", custom:true, cue:true, play:[230,115]},
+// Table sizes are the whole table in cm. Billiard and snooker get cue room around the playing surface;
+// foosball and air hockey get a fixed amount of standing room.
+const KIND={cue:null, foos:{n:[80,200],t:[40,160]}, air:{n:[180,120],t:[120,80]}};
+const DEFAULT_SIZES=[
+  {name:"ביליארד 7 פיט", kind:"cue", L:213, W:122},
+  {name:"ביליארד 8 פיט", kind:"cue", L:244, W:137},
+  {name:"ביליארד 9 פיט (תחרותי)", kind:"cue", L:280, W:155},
+  {name:"סנוקר 12 פיט", kind:"cue", L:382, W:203},
+  {name:"כדורגל שולחן", kind:"foos", L:145, W:75},
+  {name:"הוקי אוויר 7 פיט", kind:"air", L:213, W:121},
 ];
+let items;
+try{ items=JSON.parse(localStorage.getItem("tf-sizes-v1")); }catch(e){}
+if(!Array.isArray(items)||!items.length) items=DEFAULT_SIZES.map(x=>({...x}));
+const saveSizes=()=>{ try{ localStorage.setItem("tf-sizes-v1",JSON.stringify(items.map(({name,kind,L,W,custom})=>({name,kind,L,W,custom})))); }catch(e){} };
 
 const SHAPES={
   rect:{label:"מלבן", icon:"M3 6h18v12H3z", cut:null},
@@ -259,10 +263,14 @@ function place(d,G){
   }
   return best;
 }
-function prep(it){
-  if(it.custom){it.play=[clamp($("cLen").value,50,500),clamp($("cWid").value,30,300)];it.outer=[it.play[0]+2*RAIL,it.play[1]+2*RAIL];}
-  if(it.cue){it.need=[it.play[0]+2*CUE,it.play[1]+2*CUE]; it.tight=[it.play[0]+2*SHORT,it.play[1]+2*SHORT];}
+function sizeDims(kind,L,W){
+  const O=[L,W];
+  if(kind==="cue"){const P=[Math.max(20,L-2*RAIL),Math.max(20,W-2*RAIL)];
+    return {O,PL:P,N:[P[0]+2*CUE,P[1]+2*CUE],T:[P[0]+2*SHORT,P[1]+2*SHORT]};}
+  const k=KIND[kind];
+  return {O,PL:[L*.82,W*.7],N:[L+k.n[0],W+k.n[1]],T:[L+k.t[0],W+k.t[1]]};
 }
+function prep(it){ const d=sizeDims(it.kind,it.L,it.W); it.outer=d.O; it.need=d.N; it.tight=d.T; }
 function status(it,G){
   let p=place(it.need,G); if(p) return {cls:"ok",txt:"נכנס בנוחות",p};
   p=place(it.tight,G); if(p) return {cls:"warn",txt:"צפוף",p};
@@ -312,16 +320,10 @@ $("addCol").onclick=()=>{
 
 /* ---------- placed tables ---------- */
 // Each placed table keeps its own size, so one can be changed without touching the others.
-function makeTable(it){
-  prep(it);
-  return it.cue
-    ? {name:it.name, cue:true, play:[...it.play], cx:0, cy:0, rot:false}
-    : {name:it.name, cue:false, outer:[...it.outer], nm:[it.need[0]-it.outer[0],it.need[1]-it.outer[1]], tm:[it.tight[0]-it.outer[0],it.tight[1]-it.outer[1]], cx:0, cy:0, rot:false};
-}
+function makeTable(it){ return {name:it.name, kind:it.kind, L:it.L, W:it.W, cx:0, cy:0, rot:false}; }
 function dims(t,rot=t.rot){
-  const r=d=>rot?[d[1],d[0]]:d;
-  if(t.cue){const P=t.play;return {O:r([P[0]+2*RAIL,P[1]+2*RAIL]),PL:r(P),N:r([P[0]+2*CUE,P[1]+2*CUE]),T:r([P[0]+2*SHORT,P[1]+2*SHORT])};}
-  const O=t.outer;return {O:r(O),PL:r([O[0]*.82,O[1]*.7]),N:r([O[0]+t.nm[0],O[1]+t.nm[1]]),T:r([O[0]+t.tm[0],O[1]+t.tm[1]])};
+  const D=sizeDims(t.kind,t.L,t.W), r=d=>rot?[d[1],d[0]]:d;
+  return {O:r(D.O),PL:r(D.PL),N:r(D.N),T:r(D.T)};
 }
 const box=(cx,cy,d)=>({x:cx-d[0]/2,y:cy-d[1]/2,w:d[0],h:d[1]});
 const hit=(a,b)=>a.x<b.x+b.w-1&&b.x<a.x+a.w-1&&a.y<b.y+b.h-1&&b.y<a.y+a.h-1;
@@ -360,8 +362,9 @@ function findSpot(t,G,tight){
   return best;
 }
 // Distance from a point along an axis to the nearest wall or column.
-function rayDist(x,y,dx,dy,P){
+function rayDist(x,y,dx,dy,P,self){
   const segs=[];
+  for(const o of state.tables){ if(o===self) continue; const b=box(o.cx,o.cy,dims(o).O); const q=[[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]]; for(let i=0;i<4;i++) segs.push([q[i],q[(i+1)%4]]); }
   for(let i=0;i<P.length;i++) segs.push([P[i],P[(i+1)%P.length]]);
   for(const c of state.cols){const q=[[c.x,c.y],[c.x+c.w,c.y],[c.x+c.w,c.y+c.h],[c.x,c.y+c.h]];for(let i=0;i<4;i++) segs.push([q[i],q[(i+1)%4]]);}
   let best=Infinity;
@@ -374,22 +377,50 @@ function rayDist(x,y,dx,dy,P){
 
 /* ---------- drawing ---------- */
 let G=null, P=null, selT=null;
-function drawList(){
-  items.forEach(prep);
-  P=roomPoints(); G=buildGrid(P);
-  $("customBox").hidden=!items[state.sel].custom;
+function renderSizes(){
   const list=$("list"); list.innerHTML="";
   items.forEach((it,i)=>{
-    const s=status(it,G), b=document.createElement("button");
-    b.className="row"; b.setAttribute("aria-pressed", i===state.sel);
-    b.innerHTML=`<span class="name">${it.name}</span><span class="pill ${s.cls}">${s.txt}</span>
-      <span class="size">${it.custom?`משטח ${it.play[0]}×${it.play[1]} · `:""}צריך ${it.need[0]}×${it.need[1]} ס״מ</span>`;
-    b.onclick=()=>{state.sel=i;drawList();};
-    list.appendChild(b);
+    const row=document.createElement("div");
+    row.className="srow"; row.setAttribute("aria-current", i===state.sel);
+    row.innerHTML=`<button type="button" class="pick">${it.custom
+        ? `<input class="nameIn" id="sn${i}" value="" aria-label="שם הגודל">`
+        : `<span class="name">${it.name}</span>`}<span class="size" id="sz${i}"></span></button>
+      <span class="pill" id="sp${i}"></span>
+      <div class="sdims">
+        <label for="sL${i}">אורך<span class="field"><input id="sL${i}" type="number" inputmode="numeric" min="40" max="600" value="${it.L}"><span class="unit">ס״מ</span></span></label>
+        <label for="sW${i}">רוחב<span class="field"><input id="sW${i}" type="number" inputmode="numeric" min="30" max="400" value="${it.W}"><span class="unit">ס״מ</span></span></label>
+        <button type="button" class="btn solid sm" id="sa${i}">+ לחדר</button>
+        ${it.custom?`<button type="button" class="del" id="sd${i}" aria-label="מחיקת הגודל">✕</button>`:"<span></span>"}
+      </div>`;
+    list.appendChild(row);
+    if(it.custom){const n=$("sn"+i); n.value=it.name; n.oninput=()=>{it.name=n.value||"שולחן מותאם"; saveSizes();}; n.onclick=e=>e.stopPropagation();}
+    row.querySelector(".pick").onclick=()=>{state.sel=i; renderSizes(); updateSizes();};
+    const upd=()=>{it.L=clamp($("sL"+i).value,40,600); it.W=clamp($("sW"+i).value,30,400); saveSizes(); updateSizes();};
+    $("sL"+i).oninput=upd; $("sW"+i).oninput=upd;
+    $("sa"+i).onclick=()=>{state.sel=i; renderSizes(); updateSizes(); addTable(it);};
+    if(it.custom) $("sd"+i).onclick=()=>{items.splice(i,1); state.sel=Math.min(state.sel,items.length-1); saveSizes(); renderSizes(); updateSizes();};
   });
 }
+function updateSizes(){
+  items.forEach((it,i)=>{
+    prep(it);
+    const s=status(it,G);
+    const pill=$("sp"+i); pill.className="pill "+s.cls; pill.textContent=s.txt;
+    $("sz"+i).textContent=`צריך ${it.need[0]}×${it.need[1]} ס״מ`;
+  });
+}
+function drawList(){
+  P=roomPoints(); G=buildGrid(P);
+  if(!$("sp0")||$("list").children.length!==items.length) renderSizes();
+  updateSizes();
+}
+$("addSize").onclick=()=>{
+  items.push({name:"שולחן מותאם", kind:"cue", L:230, W:130, custom:true});
+  state.sel=items.length-1; saveSizes(); renderSizes(); updateSizes();
+  $("sn"+state.sel)?.focus();
+};
 function drawPlan(){
-  const maxX=G.maxX, maxY=G.maxY, pad=30;
+  const maxX=G.maxX, maxY=G.maxY, pad=Math.max(30,Math.max(maxX,maxY)*.07);
   const vw=maxX+pad*2, sw=vw/220, fs=sw*9;
   const svg=$("svg");
   svg.setAttribute("viewBox",`${-pad} ${-pad} ${vw} ${maxY+pad*2}`);
@@ -402,7 +433,7 @@ function drawPlan(){
     const D=dims(t), z=box(t.cx,t.cy,D.N), o=box(t.cx,t.cy,D.O), p=box(t.cx,t.cy,D.PL);
     const sel=t===selT;
     zonesSvg+=`<rect x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" fill="none" stroke="${col[st]}" stroke-width="${sw*(sel?1.4:.8)}" stroke-dasharray="${sw*4} ${sw*3}"/>`;
-    const sizeTxt=t.cue?`${t.play[0]}×${t.play[1]}`:`${t.outer[0]}×${t.outer[1]}`;
+    const sizeTxt=`${t.L}×${t.W}`;
     const tfs=Math.min(fs*1.1, Math.min(D.PL[0],D.PL[1])/4);
     tablesSvg+=`<g data-t="${k}" style="cursor:grab">
       <rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*3}" fill="var(--wood)" stroke="${sel?"var(--ink)":"none"}" stroke-width="${sw*1.5}"/>
@@ -414,7 +445,7 @@ function drawPlan(){
     if(sel||state.tables.length===1){
       // dimension lines from each side of the table body to the nearest wall or column
       for(const [dx,dy,sx,sy] of [[-1,0,o.x,t.cy],[1,0,o.x+o.w,t.cy],[0,-1,t.cx,o.y],[0,1,t.cx,o.y+o.h]]){
-        const d=rayDist(sx,sy,dx,dy,P); if(!isFinite(d)) continue;
+        const d=rayDist(sx,sy,dx,dy,P,t); if(!isFinite(d)) continue;
         const ex=sx+dx*d, ey=sy+dy*d, mx=(sx+ex)/2, my=(sy+ey)/2;
         dimsSvg+=`<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="var(--ink)" stroke-width="${sw*.6}"/>
           <circle cx="${ex}" cy="${ey}" r="${sw*1.4}" fill="var(--ink)"/>
@@ -427,8 +458,8 @@ function drawPlan(){
     zonesSvg + tablesSvg +
     state.cols.map((c,i)=>`<rect data-col="${i}" x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" fill="var(--pillar)" stroke="var(--ink)" stroke-width="${sw*.6}" style="cursor:grab"/>`).join("") +
     dimsSvg +
-    `<text x="${maxX/2}" y="${-pad*.25}" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant">${Math.round(maxX)} ס״מ</text>` +
-    `<text transform="translate(${-pad*.3} ${maxY/2}) rotate(-90)" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant">${Math.round(maxY)} ס״מ</text>`;
+    `<text x="${maxX/2}" y="${-pad*.25}" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant" direction="rtl">${Math.round(maxX)} ס״מ</text>` +
+    `<text transform="translate(${-pad*.3} ${maxY/2}) rotate(-90)" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant" direction="rtl">${Math.round(maxY)} ס״מ</text>`;
   const n=state.tables.length;
   $("summary").textContent = n===0 ? "החדר ריק. בחרו סוג שולחן ולחצו על הוספה."
     : `בחדר ${n} שולחנות: ${counts.ok} בנוחות`+(counts.warn?`, ${counts.warn} צפופים`:"")+(counts.bad?`, ${counts.bad} לא נכנסים`:"")+".";
@@ -441,26 +472,26 @@ function renderSel(){
   const box=$("selTools");
   box.hidden=!selT;
   if(!selT) return;
-  const k=state.tables.indexOf(selT)+1, d=selT.cue?selT.play:selT.outer;
-  const lab=selT.cue?"משטח המשחק":"השולחן";
+  const k=state.tables.indexOf(selT)+1;
   $("selName").textContent=`שולחן ${k} · ${selT.name}`;
   let f=$("selDims");
   if(!f){f=document.createElement("div");f.id="selDims";f.className="grid2";f.style.width="100%";box.prepend(f);}
-  f.innerHTML=`<label for="selLen">אורך ${lab}<span class="field"><input id="selLen" type="number" inputmode="numeric" min="50" max="600" value="${d[0]}"><span class="unit">ס״מ</span></span></label>
-    <label for="selWid">רוחב ${lab}<span class="field"><input id="selWid" type="number" inputmode="numeric" min="30" max="400" value="${d[1]}"><span class="unit">ס״מ</span></span></label>`;
-  const upd=()=>{const arr=selT.cue?selT.play:selT.outer; arr[0]=clamp($("selLen").value,50,600); arr[1]=clamp($("selWid").value,30,400); drawPlan();};
+  f.innerHTML=`<label for="selLen">אורך השולחן<span class="field"><input id="selLen" type="number" inputmode="numeric" min="40" max="600" value="${selT.L}"><span class="unit">ס״מ</span></span></label>
+    <label for="selWid">רוחב השולחן<span class="field"><input id="selWid" type="number" inputmode="numeric" min="30" max="400" value="${selT.W}"><span class="unit">ס״מ</span></span></label>`;
+  const upd=()=>{selT.L=clamp($("selLen").value,40,600); selT.W=clamp($("selWid").value,30,400); drawPlan();};
   $("selLen").oninput=upd; $("selWid").oninput=upd;
 }
 function select(t){ selT=t; renderSel(); drawPlan(); }
 
-$("addTable").onclick=()=>{
-  const t=makeTable(items[state.sel]);
+function addTable(it){
+  const t=makeTable(it);
   const tight=$("tightMode").checked;
   const s=findSpot(t,G,tight)||(!tight&&findSpot(t,G,true));
   if(s){t.cx=s.cx;t.cy=s.cy;t.rot=s.rot;}
   else {t.cx=G.maxX/2;t.cy=G.maxY/2;t.rot=G.maxX<G.maxY;}
   state.tables.push(t); select(t);
-};
+}
+$("addTable").onclick=()=>addTable(items[state.sel]);
 $("fillRoom").onclick=()=>{
   const tight=$("tightMode").checked;
   state.tables=state.tables.filter(t=>tableStatus(t,G)!=="bad");
@@ -511,7 +542,6 @@ svgEl.addEventListener("click",e=>{ if(!e.target.closest("[data-t]")&&!drag) sel
 /* ---------- inputs ---------- */
 [["dimL","L",100,2000],["dimW","W",100,2000],["dimA","a",0,2000],["dimB","b",0,2000]].forEach(([id,k,a,b])=>
   $(id).addEventListener("input",e=>{state[k]=clamp(e.target.value,a,b);draw();}));
-["cLen","cWid"].forEach(id=>$(id).addEventListener("input",draw));
 
 /* ---------- sketch upload and analysis ---------- */
 let sketchBlob=null, sample=null;
@@ -563,6 +593,23 @@ syncInputs(); renderCols(); drawList();
 drawPlan();
 </script>
 
-<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}</script>
+<script>
+/* Auto-update: when a newer version is published, reload into it. */
+const APP_VERSION="5";
+async function checkUpdate(){
+  try{
+    const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
+    const v=(await r.json()).version;
+    if(v && v!==APP_VERSION){
+      if(window.caches){ for(const k of await caches.keys()) await caches.delete(k); }
+      const reg=await navigator.serviceWorker?.getRegistration(); await reg?.update();
+      location.reload();
+    }
+  }catch(e){}
+}
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+checkUpdate();
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") checkUpdate(); });
+</script>
 </body>
 </html>
