@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f6b4a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="שולחן לחדר">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" href="icon-192.png">
+<style>body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
+<title>איזה שולחן נכנס לחדר?</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Secular+One&family=Assistant:wght@400;600;700&display=swap">
+<style>
+/* Layout: one narrow column — room shape and size, to-scale floor plan, then the table list as selectable rows */
+:root{
+  --bg:#f3f5f2; --surface:#ffffff; --ink:#1c2420; --muted:#5f6b64; --line:#d6ddd8;
+  --felt:#1f6b4a; --felt-soft:#e2efe8; --wood:#8a5a34; --zone:#2f7d5b;
+  --ok:#1f7a45; --warn:#b26a00; --bad:#b3322a;
+  --display:"Secular One","Assistant",system-ui,sans-serif;
+  --body:"Assistant",system-ui,-apple-system,"Segoe UI",sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#121815; --surface:#1a221e; --ink:#e7eee9; --muted:#9aa8a0; --line:#2c3832;
+  --felt:#3fa274; --felt-soft:#1d3329; --wood:#c08a5c; --zone:#56b88a;
+  --ok:#57c483; --warn:#f0a940; --bad:#ef6b61; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#121815; --surface:#1a221e; --ink:#e7eee9; --muted:#9aa8a0; --line:#2c3832;
+  --felt:#3fa274; --felt-soft:#1d3329; --wood:#c08a5c; --zone:#56b88a;
+  --ok:#57c483; --warn:#f0a940; --bad:#ef6b61; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:24px 40px;display:flex;flex-direction:column;gap:20px}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(1.6rem,6vw,2.1rem);line-height:1.15;margin:0;text-wrap:balance}
+h2{font-size:.8rem;letter-spacing:.04em;color:var(--muted);margin:0 0 8px;font-weight:700}
+.lede{margin:6px 0 0;color:var(--muted)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;font-weight:600;color:var(--muted)}
+.field{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding-inline:12px}
+.field:focus-within{border-color:var(--felt);outline:2px solid var(--felt-soft)}
+input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:600 1.25rem var(--body);padding-block:9px;font-variant-numeric:tabular-nums;outline:none}
+.unit{color:var(--muted);font-size:.9rem}
+.seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;margin-bottom:12px}
+.seg button{all:unset;flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px;border-radius:9px;cursor:pointer;font-weight:700;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:var(--felt);color:#fff}
+.seg button:focus-visible{outline:2px solid var(--felt);outline-offset:2px}
+.seg svg{width:20px;height:20px}
+.sub{margin-top:12px}
+.hint{font-size:.8rem;color:var(--muted);margin:6px 0 0}
+.plan{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
+.plan svg{display:block;width:100%;height:auto;max-height:60vh}
+.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;color:var(--muted);margin-top:8px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-inline-end:5px}
+.verdict{font-weight:700;margin:8px 0 0}
+.list{display:flex;flex-direction:column;border-top:1px solid var(--line)}
+.row{all:unset;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 8px;border-bottom:1px solid var(--line);border-radius:8px}
+.row:focus-visible{outline:2px solid var(--felt)}
+.row[aria-pressed="true"]{background:var(--felt-soft)}
+.name{font-weight:700}
+.size{grid-column:1;color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums}
+.pill{grid-row:1/span 2;grid-column:2;align-self:center;font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
+.ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
+.custom{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;margin:4px 0 8px}
+.note{font-size:.8rem;color:var(--muted);margin:0}
+</style>
+
+</head>
+<body>
+<div class="wrap" dir="rtl">
+  <header>
+    <h1>איזה שולחן נכנס לחדר?</h1>
+    <p class="lede">בחרו את צורת החדר והכניסו מידות. נראה מיד אילו שולחנות מתאימים, כולל המקום שצריך מסביב למקל.</p>
+  </header>
+
+  <section>
+    <h2>צורת החדר</h2>
+    <div class="seg" role="group" aria-label="צורת החדר">
+      <button type="button" id="shapeRect" aria-pressed="true">
+        <svg viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" fill="none" stroke="currentColor" stroke-width="2"/></svg>מלבן</button>
+      <button type="button" id="shapeL" aria-pressed="false">
+        <svg viewBox="0 0 20 20"><path d="M2 4h9v5h7v7H2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>צורת L</button>
+    </div>
+    <div class="grid2">
+      <label for="len">אורך החדר
+        <span class="field"><input id="len" type="number" inputmode="numeric" min="100" max="2000" value="560"><span class="unit">ס״מ</span></span>
+      </label>
+      <label for="wid">רוחב החדר
+        <span class="field"><input id="wid" type="number" inputmode="numeric" min="100" max="2000" value="440"><span class="unit">ס״מ</span></span>
+      </label>
+    </div>
+    <div class="sub" id="lBox" hidden>
+      <div class="grid2">
+        <label for="cutL">אורך הפינה החסרה
+          <span class="field"><input id="cutL" type="number" inputmode="numeric" min="0" value="180"><span class="unit">ס״מ</span></span>
+        </label>
+        <label for="cutW">רוחב הפינה החסרה
+          <span class="field"><input id="cutW" type="number" inputmode="numeric" min="0" value="140"><span class="unit">ס״מ</span></span>
+        </label>
+      </div>
+      <p class="hint">הפינה החסרה היא החלק שנחתך מהמלבן, למשל פינת מטבח או חדר מדרגות.</p>
+    </div>
+  </section>
+
+  <section class="plan" aria-label="תוכנית החדר בקנה מידה">
+    <svg id="svg" role="img"></svg>
+    <p class="verdict" id="verdict"></p>
+    <div class="legend">
+      <span><i style="background:var(--felt)"></i>השולחן</span>
+      <span><i style="border:2px dashed var(--zone)"></i>מרחב משחק נדרש</span>
+    </div>
+  </section>
+
+  <section>
+    <h2>שולחנות</h2>
+    <div class="list" id="list"></div>
+    <div class="custom" id="customBox" hidden>
+      <div class="grid2">
+        <label for="cLen">אורך משטח המשחק
+          <span class="field"><input id="cLen" type="number" inputmode="numeric" min="50" max="500" value="230"><span class="unit">ס״מ</span></span>
+        </label>
+        <label for="cWid">רוחב משטח המשחק
+          <span class="field"><input id="cWid" type="number" inputmode="numeric" min="30" max="300" value="115"><span class="unit">ס״מ</span></span>
+        </label>
+      </div>
+      <p class="hint">מודדים את הבד בין הגומיות. המסגרת מחושבת אוטומטית (כ־13 ס״מ מכל צד).</p>
+    </div>
+  </section>
+
+  <p class="note">החישוב לביליארד וסנוקר: משטח המשחק ועוד אורך מקל (147 ס״מ) מכל צד. "צפוף" אומר שאפשר לשחק עם מקל קצר של 122 ס״מ. המידות משוערות; כדאי לוודא מול דגם ספציפי.</p>
+</div>
+
+<script>
+const CUE = 147, SHORT = 122, RAIL = 13;
+const items = [
+  {name:"ביליארד 7 פיט", play:[198,99], outer:[213,122], cue:true},
+  {name:"ביליארד 8 פיט", play:[224,112], outer:[244,137], cue:true},
+  {name:"ביליארד 9 פיט (תחרותי)", play:[254,127], outer:[280,155], cue:true},
+  {name:"סנוקר 12 פיט", play:[357,178], outer:[382,203], cue:true},
+  {name:"כדורגל שולחן", outer:[145,75], need:[225,275], tight:[185,235]},
+  {name:"הוקי אוויר 7 פיט", outer:[213,121], need:[393,241], tight:[333,201]},
+  {name:"מידה משלך", custom:true, cue:true, play:[230,115]},
+];
+const $=id=>document.getElementById(id);
+const num=(id,min,max)=>Math.min(max,Math.max(min,+$(id).value||0));
+let sel=1, shape="rect";
+
+function prep(it){
+  if(it.custom){ it.play=[num("cLen",50,500), num("cWid",30,300)]; }
+  if(it.custom) it.outer=[it.play[0]+2*RAIL, it.play[1]+2*RAIL];
+  if(it.cue){
+    it.need=[it.play[0]+2*CUE, it.play[1]+2*CUE];
+    it.tight=[it.play[0]+2*SHORT, it.play[1]+2*SHORT];
+  }
+}
+
+// The room as a list of maximal rectangles {x,y,w,h}. Any table zone that fits the room fits inside one of them.
+function room(){
+  const L=num("len",100,2000), W=num("wid",100,2000);
+  if(shape==="rect") return {L,W,cl:0,cw:0,rects:[{x:0,y:0,w:L,h:W}]};
+  const cl=Math.min(num("cutL",0,2000), L-50), cw=Math.min(num("cutW",0,2000), W-50);
+  return {L,W,cl,cw,rects:[{x:0,y:cw,w:L,h:W-cw},{x:0,y:0,w:L-cl,h:W}]};
+}
+function place(d,R){
+  for(const r of R.rects) for(const [a,b] of [[d[0],d[1]],[d[1],d[0]]])
+    if(a<=r.w && b<=r.h) return {cx:r.x+r.w/2, cy:r.y+r.h/2, rot:a<b};
+  return null;
+}
+function status(it,R){
+  let p=place(it.need,R); if(p) return {cls:"ok",txt:"נכנס בנוחות",p};
+  p=place(it.tight,R); if(p) return {cls:"warn",txt:"צפוף",p};
+  const big=R.rects.reduce((m,r)=>r.w*r.h>m.w*m.h?r:m);
+  return {cls:"bad",txt:"לא נכנס",p:{cx:big.x+big.w/2, cy:big.y+big.h/2, rot:big.w<big.h}};
+}
+
+function draw(){
+  items.forEach(prep);
+  const R=room();
+  $("lBox").hidden = shape!=="L";
+  $("customBox").hidden = !items[sel].custom;
+  $("shapeRect").setAttribute("aria-pressed", shape==="rect");
+  $("shapeL").setAttribute("aria-pressed", shape==="L");
+
+  const list=$("list"); list.innerHTML="";
+  items.forEach((it,i)=>{
+    const s=status(it,R);
+    const b=document.createElement("button");
+    b.className="row"; b.setAttribute("aria-pressed", i===sel);
+    b.innerHTML=`<span class="name">${it.name}</span><span class="pill ${s.cls}">${s.txt}</span>
+      <span class="size">${it.custom?`משטח ${it.play[0]}×${it.play[1]} · `:""}צריך ${it.need[0]}×${it.need[1]} ס״מ</span>`;
+    b.onclick=()=>{sel=i;draw();};
+    list.appendChild(b);
+  });
+
+  const it=items[sel], s=status(it,R), p=s.p;
+  const sz=d=>p.rot?[d[1],d[0]]:d;
+  const N=sz(it.need), O=sz(it.outer), P=it.play?sz(it.play):[O[0]*.82,O[1]*.7];
+  const pad=20;
+  const x0=Math.min(0,p.cx-N[0]/2)-pad, y0=Math.min(0,p.cy-N[1]/2)-pad;
+  const x1=Math.max(R.L,p.cx+N[0]/2)+pad, y1=Math.max(R.W,p.cy+N[1]/2)+pad;
+  const vw=x1-x0, sw=vw/220;
+  const rect=(d,extra)=>`<rect x="${p.cx-d[0]/2}" y="${p.cy-d[1]/2}" width="${d[0]}" height="${d[1]}" ${extra}/>`;
+  const {L,W,cl,cw}=R;
+  const poly = shape==="rect"
+    ? `M0 0H${L}V${W}H0Z`
+    : `M0 0H${L-cl}V${cw}H${L}V${W}H0Z`;
+  const zoneColor={ok:"var(--zone)",warn:"var(--warn)",bad:"var(--bad)"}[s.cls];
+  const fs=sw*9;
+  const svg=$("svg");
+  svg.setAttribute("viewBox",`${x0} ${y0} ${vw} ${y1-y0}`);
+  svg.setAttribute("aria-label",`חדר ${L} על ${W} ס״מ עם ${it.name}`);
+  svg.innerHTML =
+    `<path d="${poly}" fill="var(--bg)" stroke="var(--ink)" stroke-width="${sw*2}" stroke-linejoin="round"/>` +
+    rect(N,`fill="none" stroke="${zoneColor}" stroke-width="${sw}" stroke-dasharray="${sw*4} ${sw*3}"`) +
+    rect(O,`fill="var(--wood)" rx="${sw*3}"`) +
+    rect(P,`fill="var(--felt)"`) +
+    `<text x="${L/2}" y="${W-fs*.6}" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant">${L} ס״מ</text>` +
+    `<text transform="translate(${fs*1.1} ${W/2}) rotate(-90)" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant">${W} ס״מ</text>`;
+  const v=$("verdict"); v.className="verdict "+s.cls;
+  v.textContent = `${it.name}: ${s.txt}` + (s.cls==="bad"?" גם עם מקל קצר":"");
+}
+
+$("shapeRect").onclick=()=>{shape="rect";draw();};
+$("shapeL").onclick=()=>{shape="L";draw();};
+["len","wid","cutL","cutW","cLen","cWid"].forEach(id=>$(id).oninput=draw);
+draw();
+</script>
+
+<script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}</script>
+</body>
+</html>
