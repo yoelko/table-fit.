@@ -13,56 +13,71 @@
 <title>איזה שולחן נכנס לחדר?</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Secular+One&family=Assistant:wght@400;600;700&display=swap">
 <style>
-/* Layout: one narrow column — room shape and size, to-scale floor plan, then the table list as selectable rows */
+/* Layout: one narrow column — sketch upload, room shape and size, columns, to-scale floor plan, then the table list */
 :root{
   --bg:#f3f5f2; --surface:#ffffff; --ink:#1c2420; --muted:#5f6b64; --line:#d6ddd8;
-  --felt:#1f6b4a; --felt-soft:#e2efe8; --wood:#8a5a34; --zone:#2f7d5b;
+  --felt:#1f6b4a; --felt-soft:#e2efe8; --wood:#8a5a34; --zone:#2f7d5b; --pillar:#55606a;
   --ok:#1f7a45; --warn:#b26a00; --bad:#b3322a;
   --display:"Secular One","Assistant",system-ui,sans-serif;
   --body:"Assistant",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#121815; --surface:#1a221e; --ink:#e7eee9; --muted:#9aa8a0; --line:#2c3832;
-  --felt:#3fa274; --felt-soft:#1d3329; --wood:#c08a5c; --zone:#56b88a;
+  --felt:#3fa274; --felt-soft:#1d3329; --wood:#c08a5c; --zone:#56b88a; --pillar:#8d99a3;
   --ok:#57c483; --warn:#f0a940; --bad:#ef6b61; color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#121815; --surface:#1a221e; --ink:#e7eee9; --muted:#9aa8a0; --line:#2c3832;
-  --felt:#3fa274; --felt-soft:#1d3329; --wood:#c08a5c; --zone:#56b88a;
+  --felt:#3fa274; --felt-soft:#1d3329; --wood:#c08a5c; --zone:#56b88a; --pillar:#8d99a3;
   --ok:#57c483; --warn:#f0a940; --bad:#ef6b61; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
-.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:24px 40px;display:flex;flex-direction:column;gap:20px}
+.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:24px 40px;display:flex;flex-direction:column;gap:22px}
 h1{font-family:var(--display);font-weight:400;font-size:clamp(1.6rem,6vw,2.1rem);line-height:1.15;margin:0;text-wrap:balance}
 h2{font-size:.8rem;letter-spacing:.04em;color:var(--muted);margin:0 0 8px;font-weight:700}
 .lede{margin:6px 0 0;color:var(--muted)}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;font-weight:600;color:var(--muted)}
-.field{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding-inline:12px}
+label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;font-weight:600;color:var(--muted);min-width:0}
+.field{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding-inline:10px}
 .field:focus-within{border-color:var(--felt);outline:2px solid var(--felt-soft)}
-input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:600 1.25rem var(--body);padding-block:9px;font-variant-numeric:tabular-nums;outline:none}
-.unit{color:var(--muted);font-size:.9rem}
-.seg{display:flex;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;margin-bottom:12px}
-.seg button{all:unset;flex:1;display:flex;align-items:center;justify-content:center;gap:8px;padding:8px;border-radius:9px;cursor:pointer;font-weight:700;color:var(--muted)}
+input[type=number]{flex:1;min-width:0;width:100%;border:0;background:transparent;color:var(--ink);font:600 1.2rem var(--body);padding-block:8px;font-variant-numeric:tabular-nums;outline:none}
+.unit{color:var(--muted);font-size:.85rem}
+.seg{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;margin-bottom:12px}
+.seg button{all:unset;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:9px;cursor:pointer;font-weight:700;font-size:.85rem;color:var(--muted);text-align:center}
 .seg button[aria-pressed="true"]{background:var(--felt);color:#fff}
-.seg button:focus-visible{outline:2px solid var(--felt);outline-offset:2px}
-.seg svg{width:20px;height:20px}
-.sub{margin-top:12px}
+.seg button:focus-visible,.btn:focus-visible,.row:focus-visible{outline:2px solid var(--felt);outline-offset:2px}
+.seg svg{width:24px;height:24px}
 .hint{font-size:.8rem;color:var(--muted);margin:6px 0 0}
-.plan{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px}
-.plan svg{display:block;width:100%;height:auto;max-height:60vh}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+.btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:700;padding:9px 14px;border-radius:10px;border:1.5px solid var(--felt);color:var(--felt)}
+.btn.solid{background:var(--felt);color:#fff}
+.btn[disabled]{opacity:.5;cursor:default}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.sketch-img{display:block;max-width:100%;max-height:260px;margin-top:10px;border-radius:8px;border:1px solid var(--line)}
+.status{font-size:.9rem;margin:8px 0 0}
+.col{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:8px;align-items:end;padding-block:10px;border-bottom:1px solid var(--line)}
+.col label{font-size:.75rem}
+.col input[type=number]{font-size:1rem;padding-block:6px}
+.del{all:unset;cursor:pointer;width:36px;height:36px;display:grid;place-items:center;border-radius:8px;color:var(--bad);font-size:1.3rem}
+.del:focus-visible{outline:2px solid var(--bad)}
+.plan svg{display:block;width:100%;height:auto;max-height:62vh;touch-action:none}
 .legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;color:var(--muted);margin-top:8px}
 .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-inline-end:5px}
 .verdict{font-weight:700;margin:8px 0 0}
 .list{display:flex;flex-direction:column;border-top:1px solid var(--line)}
 .row{all:unset;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 8px;border-bottom:1px solid var(--line);border-radius:8px}
-.row:focus-visible{outline:2px solid var(--felt)}
 .row[aria-pressed="true"]{background:var(--felt-soft)}
 .name{font-weight:700}
 .size{grid-column:1;color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums}
 .pill{grid-row:1/span 2;grid-column:2;align-self:center;font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
 .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
-.custom{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px;margin:4px 0 8px}
+.custom{margin:4px 0 8px}
 .note{font-size:.8rem;color:var(--muted);margin:0}
+.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
+.tools .btn{padding:7px 12px;font-size:.9rem}
+.check{flex-direction:row;align-items:center;gap:6px;font-size:.85rem;color:var(--ink)}
+.check input{width:18px;height:18px;accent-color:var(--felt)}
+.summary{font-weight:700;margin:10px 0 0;font-variant-numeric:tabular-nums}
+@media (max-width:420px){.col{grid-template-columns:1fr 1fr auto}.col .wide{grid-column:span 1}}
 </style>
 
 </head>
@@ -70,51 +85,78 @@ input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:6
 <div class="wrap" dir="rtl">
   <header>
     <h1>איזה שולחן נכנס לחדר?</h1>
-    <p class="lede">בחרו את צורת החדר והכניסו מידות. נראה מיד אילו שולחנות מתאימים, כולל המקום שצריך מסביב למקל.</p>
+    <p class="lede">העלו שרטוט או הכניסו מידות, ונראה מיד אילו שולחנות מתאימים, כולל המקום שצריך מסביב למקל.</p>
   </header>
+
+  <section class="card">
+    <h2>שרטוט עם מידות</h2>
+    <p class="hint" style="margin:0">צלמו או העלו שרטוט של החדר עם המידות כתובות עליו, אפילו ביד.</p>
+    <div class="btns">
+      <label class="btn" for="sketchFile" style="flex-direction:row">העלאת שרטוט
+        <input id="sketchFile" type="file" accept="image/*" hidden>
+      </label>
+      <button type="button" class="btn solid" id="analyze" hidden>נתח את השרטוט</button>
+    </div>
+    <img id="sketchImg" class="sketch-img" alt="השרטוט שהועלה" hidden>
+    <p class="status" id="sketchStatus" hidden></p>
+  </section>
 
   <section>
     <h2>צורת החדר</h2>
-    <div class="seg" role="group" aria-label="צורת החדר">
-      <button type="button" id="shapeRect" aria-pressed="true">
-        <svg viewBox="0 0 20 20"><rect x="2" y="4" width="16" height="12" fill="none" stroke="currentColor" stroke-width="2"/></svg>מלבן</button>
-      <button type="button" id="shapeL" aria-pressed="false">
-        <svg viewBox="0 0 20 20"><path d="M2 4h9v5h7v7H2z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>צורת L</button>
-    </div>
+    <div class="seg" role="group" aria-label="צורת החדר" id="shapes"></div>
     <div class="grid2">
-      <label for="len">אורך החדר
-        <span class="field"><input id="len" type="number" inputmode="numeric" min="100" max="2000" value="560"><span class="unit">ס״מ</span></span>
+      <label for="dimL">אורך החדר
+        <span class="field"><input id="dimL" type="number" inputmode="numeric" min="100" max="2000"><span class="unit">ס״מ</span></span>
       </label>
-      <label for="wid">רוחב החדר
-        <span class="field"><input id="wid" type="number" inputmode="numeric" min="100" max="2000" value="440"><span class="unit">ס״מ</span></span>
+      <label for="dimW">רוחב החדר
+        <span class="field"><input id="dimW" type="number" inputmode="numeric" min="100" max="2000"><span class="unit">ס״מ</span></span>
       </label>
     </div>
-    <div class="sub" id="lBox" hidden>
-      <div class="grid2">
-        <label for="cutL">אורך הפינה החסרה
-          <span class="field"><input id="cutL" type="number" inputmode="numeric" min="0" value="180"><span class="unit">ס״מ</span></span>
-        </label>
-        <label for="cutW">רוחב הפינה החסרה
-          <span class="field"><input id="cutW" type="number" inputmode="numeric" min="0" value="140"><span class="unit">ס״מ</span></span>
-        </label>
-      </div>
-      <p class="hint">הפינה החסרה היא החלק שנחתך מהמלבן, למשל פינת מטבח או חדר מדרגות.</p>
+    <div class="grid2" id="cutBox" style="margin-top:12px">
+      <label for="dimA"><span id="labA"></span>
+        <span class="field"><input id="dimA" type="number" inputmode="numeric" min="0"><span class="unit">ס״מ</span></span>
+      </label>
+      <label for="dimB"><span id="labB"></span>
+        <span class="field"><input id="dimB" type="number" inputmode="numeric" min="0"><span class="unit">ס״מ</span></span>
+      </label>
     </div>
-  </section>
-
-  <section class="plan" aria-label="תוכנית החדר בקנה מידה">
-    <svg id="svg" role="img"></svg>
-    <p class="verdict" id="verdict"></p>
-    <div class="legend">
-      <span><i style="background:var(--felt)"></i>השולחן</span>
-      <span><i style="border:2px dashed var(--zone)"></i>מרחב משחק נדרש</span>
-    </div>
+    <p class="hint" id="shapeHint"></p>
   </section>
 
   <section>
-    <h2>שולחנות</h2>
+    <h2>עמודים בחדר</h2>
+    <div id="cols"></div>
+    <div class="btns"><button type="button" class="btn" id="addCol">+ הוספת עמוד</button></div>
+    <p class="hint">המיקום נמדד מהקיר השמאלי ומהקיר העליון בציור. אפשר גם לגרור עמוד בציור עם האצבע.</p>
+  </section>
+
+  <section class="card plan" aria-label="תוכנית החדר בקנה מידה">
+    <svg id="svg" role="img"></svg>
+    <p class="summary" id="summary"></p>
+    <div class="tools">
+      <button type="button" class="btn solid" id="addTable">+ הוספת שולחן</button>
+      <button type="button" class="btn" id="fillRoom">מלא את החדר</button>
+      <button type="button" class="btn" id="clearRoom">ניקוי</button>
+      <label class="check" for="tightMode"><input type="checkbox" id="tightMode">לאפשר מקל קצר</label>
+    </div>
+    <div class="tools" id="selTools" hidden>
+      <span id="selName" style="font-weight:700"></span>
+      <button type="button" class="btn" id="rotTable">סיבוב 90°</button>
+      <button type="button" class="btn" id="delTable" style="border-color:var(--bad);color:var(--bad)">מחיקה</button>
+    </div>
+    <div class="legend">
+      <span><i style="background:var(--felt)"></i>שולחן (גוררים עם האצבע, לחיצה בוחרת)</span>
+      <span><i style="border:2px dashed var(--zone)"></i>מרחב משחק</span>
+      <span><i style="background:var(--pillar)"></i>עמוד</span>
+    </div>
+    <p class="hint">מרחבי המשחק של שולחנות סמוכים יכולים לחפוף, כמו במועדונים, אבל שולחן אחר או עמוד לא יכולים להיכנס לתוכם.</p>
+  </section>
+
+  <section>
+    <h2>סוג השולחן</h2>
+    <p class="hint" style="margin:0 0 8px">בוחרים סוג, ואז "הוספת שולחן" או "מלא את החדר". הסטטוס ברשימה הוא לשולחן אחד בחדר ריק.</p>
     <div class="list" id="list"></div>
-    <div class="custom" id="customBox" hidden>
+    <div class="custom card" id="customBox" hidden>
       <div class="grid2">
         <label for="cLen">אורך משטח המשחק
           <span class="field"><input id="cLen" type="number" inputmode="numeric" min="50" max="500" value="230"><span class="unit">ס״מ</span></span>
@@ -131,8 +173,11 @@ input{flex:1;min-width:0;border:0;background:transparent;color:var(--ink);font:6
 </div>
 
 <script>
-const CUE = 147, SHORT = 122, RAIL = 13;
-const items = [
+const CUE=147, SHORT=122, RAIL=13, CELL=5;
+const $=id=>document.getElementById(id);
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,+v||0));
+
+const items=[
   {name:"ביליארד 7 פיט", play:[198,99], outer:[213,122], cue:true},
   {name:"ביליארד 8 פיט", play:[224,112], outer:[244,137], cue:true},
   {name:"ביליארד 9 פיט (תחרותי)", play:[254,127], outer:[280,155], cue:true},
@@ -141,89 +186,381 @@ const items = [
   {name:"הוקי אוויר 7 פיט", outer:[213,121], need:[393,241], tight:[333,201]},
   {name:"מידה משלך", custom:true, cue:true, play:[230,115]},
 ];
-const $=id=>document.getElementById(id);
-const num=(id,min,max)=>Math.min(max,Math.max(min,+$(id).value||0));
-let sel=1, shape="rect";
 
+const SHAPES={
+  rect:{label:"מלבן", icon:"M3 6h18v12H3z", cut:null},
+  L:{label:"צורת L", icon:"M3 6h10v5h8v7H3z", cut:["אורך הפינה החסרה","רוחב הפינה החסרה"],
+     hint:"הפינה החסרה היא החלק שנחתך מהמלבן בפינה הימנית העליונה, למשל פינת מטבח.",
+     pts:(L,W,a,b)=>[[0,0],[L-a,0],[L-a,b],[L,b],[L,W],[0,W]]},
+  U:{label:"צורת U", icon:"M3 6h6v5h6V6h6v12H3z", cut:["רוחב השקע","עומק השקע"],
+     hint:"שקע באמצע הקיר העליון, למשל ארון קיר בנוי או חדר מדרגות.",
+     pts:(L,W,a,b)=>{const x0=(L-a)/2,x1=(L+a)/2;return [[0,0],[x0,0],[x0,b],[x1,b],[x1,0],[L,0],[L,W],[0,W]]}},
+  diag:{label:"פינה באלכסון", icon:"M3 6h12l6 5v7H3z", cut:["אורך הקיר שנחתך","רוחב הקיר שנחתך"],
+     hint:"פינה ימנית עליונה שנחתכה בקיר אלכסוני.",
+     pts:(L,W,a,b)=>[[0,0],[L-a,0],[L,b],[L,W],[0,W]]},
+};
+
+const state={
+  shape:"rect", L:560, W:440, a:180, b:140,
+  custom:null,               // points from an analysed sketch
+  cols:[], sel:1, tables:[],
+};
+
+/* ---------- room geometry ---------- */
+function roomPoints(){
+  if(state.custom) return state.custom;
+  const {L,W}=state;
+  if(state.shape==="rect") return [[0,0],[L,0],[L,W],[0,W]];
+  const a=Math.min(state.a,L-50), b=Math.min(state.b,W-50);
+  return SHAPES[state.shape].pts(L,W,Math.max(0,a),Math.max(0,b));
+}
+function inPoly(x,y,P){
+  let c=false;
+  for(let i=0,j=P.length-1;i<P.length;j=i++){
+    const [xi,yi]=P[i],[xj,yj]=P[j];
+    if((yi>y)!==(yj>y) && x<(xj-xi)*(y-yi)/(yj-yi)+xi) c=!c;
+  }
+  return c;
+}
+// A 5 cm grid of the floor: blocked where outside the walls or under a column.
+// A prefix sum lets us test any rectangle for free floor in constant time.
+function buildGrid(P){
+  const maxX=Math.max(...P.map(p=>p[0])), maxY=Math.max(...P.map(p=>p[1]));
+  const nx=Math.ceil(maxX/CELL), ny=Math.ceil(maxY/CELL);
+  const S=new Int32Array((nx+1)*(ny+1));
+  for(let j=0;j<ny;j++){
+    let rowSum=0; const y=(j+.5)*CELL;
+    for(let i=0;i<nx;i++){
+      const x=(i+.5)*CELL;
+      let blocked=!inPoly(x,y,P);
+      if(!blocked) for(const c of state.cols) if(x>c.x&&x<c.x+c.w&&y>c.y&&y<c.y+c.h){blocked=true;break;}
+      rowSum+=blocked?1:0;
+      S[(j+1)*(nx+1)+i+1]=S[j*(nx+1)+i+1]+rowSum;
+    }
+  }
+  return {nx,ny,S,maxX,maxY};
+}
+function freeRect(G,i,j,w,h){
+  const n=G.nx+1, S=G.S;
+  return S[(j+h)*n+i+w]-S[j*n+i+w]-S[(j+h)*n+i]+S[j*n+i]===0;
+}
+// Find where a w×h zone fits, closest to the middle of the room. Tries both orientations.
+function place(d,G){
+  let best=null, bestD=Infinity;
+  const tx=G.maxX/2, ty=G.maxY/2;
+  for(const [dw,dh] of [[d[0],d[1]],[d[1],d[0]]]){
+    const w=Math.ceil(dw/CELL), h=Math.ceil(dh/CELL);
+    if(w>G.nx||h>G.ny) continue;
+    for(let j=0;j+h<=G.ny;j++) for(let i=0;i+w<=G.nx;i++){
+      if(!freeRect(G,i,j,w,h)) continue;
+      const cx=(i+w/2)*CELL, cy=(j+h/2)*CELL, dd=(cx-tx)**2+(cy-ty)**2;
+      if(dd<bestD){bestD=dd; best={cx,cy,rot:dw<dh};}
+    }
+  }
+  return best;
+}
 function prep(it){
-  if(it.custom){ it.play=[num("cLen",50,500), num("cWid",30,300)]; }
-  if(it.custom) it.outer=[it.play[0]+2*RAIL, it.play[1]+2*RAIL];
-  if(it.cue){
-    it.need=[it.play[0]+2*CUE, it.play[1]+2*CUE];
-    it.tight=[it.play[0]+2*SHORT, it.play[1]+2*SHORT];
+  if(it.custom){it.play=[clamp($("cLen").value,50,500),clamp($("cWid").value,30,300)];it.outer=[it.play[0]+2*RAIL,it.play[1]+2*RAIL];}
+  if(it.cue){it.need=[it.play[0]+2*CUE,it.play[1]+2*CUE]; it.tight=[it.play[0]+2*SHORT,it.play[1]+2*SHORT];}
+}
+function status(it,G){
+  let p=place(it.need,G); if(p) return {cls:"ok",txt:"נכנס בנוחות",p};
+  p=place(it.tight,G); if(p) return {cls:"warn",txt:"צפוף",p};
+  return {cls:"bad",txt:"לא נכנס",p:{cx:G.maxX/2,cy:G.maxY/2,rot:G.maxX<G.maxY}};
+}
+
+/* ---------- controls ---------- */
+function renderShapes(){
+  const box=$("shapes"); box.innerHTML="";
+  for(const [k,s] of Object.entries(SHAPES)){
+    const b=document.createElement("button");
+    b.type="button"; b.setAttribute("aria-pressed", !state.custom && state.shape===k);
+    b.innerHTML=`<svg viewBox="0 0 24 24"><path d="${s.icon}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>${s.label}`;
+    b.onclick=()=>{state.shape=k; state.custom=null; syncInputs(); draw();};
+    box.appendChild(b);
   }
 }
+function syncInputs(){
+  const s=SHAPES[state.shape];
+  $("dimL").value=state.L; $("dimW").value=state.W; $("dimA").value=state.a; $("dimB").value=state.b;
+  const showCut=!state.custom && !!s.cut;
+  $("cutBox").hidden=!showCut;
+  if(showCut){$("labA").textContent=s.cut[0]; $("labB").textContent=s.cut[1];}
+  $("dimL").disabled=$("dimW").disabled=!!state.custom;
+  $("shapeHint").textContent = state.custom
+    ? "הצורה נלקחה מהשרטוט. לחיצה על אחת הצורות למעלה תחזיר לעריכה ידנית."
+    : (s.hint||"");
+  renderShapes();
+}
+function renderCols(){
+  const box=$("cols"); box.innerHTML="";
+  state.cols.forEach((c,i)=>{
+    const row=document.createElement("div"); row.className="col";
+    const f=(k,lab)=>`<label for="col${i}${k}">${lab}<span class="field"><input id="col${i}${k}" type="number" inputmode="numeric" min="0" value="${Math.round(c[k])}"></span></label>`;
+    row.innerHTML=f("x","מהקיר השמאלי")+f("y","מהקיר העליון")+f("w","רוחב")+f("h","עומק")+
+      `<button type="button" class="del" aria-label="מחיקת עמוד ${i+1}">✕</button>`;
+    ["x","y","w","h"].forEach(k=>row.querySelector(`#col${i}${k}`).oninput=e=>{c[k]=clamp(e.target.value,k==="w"||k==="h"?5:0,2000);draw();});
+    row.querySelector(".del").onclick=()=>{state.cols.splice(i,1);renderCols();draw();};
+    box.appendChild(row);
+  });
+}
+$("addCol").onclick=()=>{
+  const P=roomPoints(), mx=Math.max(...P.map(p=>p[0])), my=Math.max(...P.map(p=>p[1]));
+  state.cols.push({x:Math.round(mx*.25),y:Math.round(my*.3),w:40,h:40});
+  renderCols(); draw();
+};
 
-// The room as a list of maximal rectangles {x,y,w,h}. Any table zone that fits the room fits inside one of them.
-function room(){
-  const L=num("len",100,2000), W=num("wid",100,2000);
-  if(shape==="rect") return {L,W,cl:0,cw:0,rects:[{x:0,y:0,w:L,h:W}]};
-  const cl=Math.min(num("cutL",0,2000), L-50), cw=Math.min(num("cutW",0,2000), W-50);
-  return {L,W,cl,cw,rects:[{x:0,y:cw,w:L,h:W-cw},{x:0,y:0,w:L-cl,h:W}]};
+/* ---------- placed tables ---------- */
+// Each placed table keeps its own size, so one can be changed without touching the others.
+function makeTable(it){
+  prep(it);
+  return it.cue
+    ? {name:it.name, cue:true, play:[...it.play], cx:0, cy:0, rot:false}
+    : {name:it.name, cue:false, outer:[...it.outer], nm:[it.need[0]-it.outer[0],it.need[1]-it.outer[1]], tm:[it.tight[0]-it.outer[0],it.tight[1]-it.outer[1]], cx:0, cy:0, rot:false};
 }
-function place(d,R){
-  for(const r of R.rects) for(const [a,b] of [[d[0],d[1]],[d[1],d[0]]])
-    if(a<=r.w && b<=r.h) return {cx:r.x+r.w/2, cy:r.y+r.h/2, rot:a<b};
-  return null;
+function dims(t,rot=t.rot){
+  const r=d=>rot?[d[1],d[0]]:d;
+  if(t.cue){const P=t.play;return {O:r([P[0]+2*RAIL,P[1]+2*RAIL]),PL:r(P),N:r([P[0]+2*CUE,P[1]+2*CUE]),T:r([P[0]+2*SHORT,P[1]+2*SHORT])};}
+  const O=t.outer;return {O:r(O),PL:r([O[0]*.82,O[1]*.7]),N:r([O[0]+t.nm[0],O[1]+t.nm[1]]),T:r([O[0]+t.tm[0],O[1]+t.tm[1]])};
 }
-function status(it,R){
-  let p=place(it.need,R); if(p) return {cls:"ok",txt:"נכנס בנוחות",p};
-  p=place(it.tight,R); if(p) return {cls:"warn",txt:"צפוף",p};
-  const big=R.rects.reduce((m,r)=>r.w*r.h>m.w*m.h?r:m);
-  return {cls:"bad",txt:"לא נכנס",p:{cx:big.x+big.w/2, cy:big.y+big.h/2, rot:big.w<big.h}};
+const box=(cx,cy,d)=>({x:cx-d[0]/2,y:cy-d[1]/2,w:d[0],h:d[1]});
+const hit=(a,b)=>a.x<b.x+b.w-1&&b.x<a.x+a.w-1&&a.y<b.y+b.h-1&&b.y<a.y+a.h-1;
+function gridFree(G,r){
+  const i0=Math.round(r.x/CELL),j0=Math.round(r.y/CELL),i1=Math.round((r.x+r.w)/CELL),j1=Math.round((r.y+r.h)/CELL);
+  if(i0<0||j0<0||i1>G.nx||j1>G.ny||i1<=i0||j1<=j0) return false;
+  return freeRect(G,i0,j0,i1-i0,j1-j0);
+}
+function tableStatus(t,G){
+  const D=dims(t), body=box(t.cx,t.cy,D.O);
+  const others=state.tables.filter(o=>o!==t).map(o=>box(o.cx,o.cy,dims(o).O));
+  if(!gridFree(G,body)||others.some(o=>hit(o,body))) return "bad";
+  const zoneOk=d=>{const z=box(t.cx,t.cy,d);return gridFree(G,z)&&!others.some(o=>hit(o,z));};
+  return zoneOk(D.N)?"ok":zoneOk(D.T)?"warn":"bad";
+}
+// First free spot scanning from the top-left corner, so repeated adds pack the room in rows.
+function findSpot(t,G,tight){
+  let best=null;
+  const bodies=state.tables.map(o=>box(o.cx,o.cy,dims(o).O));
+  const zones=state.tables.map(o=>{const D=dims(o);return box(o.cx,o.cy,tight?D.T:D.N);});
+  for(const rot of [false,true]){
+    const D=dims(t,rot), Z=tight?D.T:D.N;
+    const w=Math.ceil(Z[0]/CELL), h=Math.ceil(Z[1]/CELL);
+    for(let j=0;j+h<=G.ny;j+=2){
+      if(best&&j>best.j) break;
+      for(let i=0;i+w<=G.nx;i+=2){
+        if(!freeRect(G,i,j,w,h)) continue;
+        const cx=i*CELL+Z[0]/2, cy=j*CELL+Z[1]/2;
+        const z=box(cx,cy,Z), b=box(cx,cy,D.O);
+        if(bodies.some(o=>hit(o,z))||zones.some(o=>hit(o,b))) continue;
+        if(!best||j<best.j||(j===best.j&&i<best.i)) best={i,j,cx,cy,rot};
+        break;
+      }
+    }
+  }
+  return best;
+}
+// Distance from a point along an axis to the nearest wall or column.
+function rayDist(x,y,dx,dy,P){
+  const segs=[];
+  for(let i=0;i<P.length;i++) segs.push([P[i],P[(i+1)%P.length]]);
+  for(const c of state.cols){const q=[[c.x,c.y],[c.x+c.w,c.y],[c.x+c.w,c.y+c.h],[c.x,c.y+c.h]];for(let i=0;i<4;i++) segs.push([q[i],q[(i+1)%4]]);}
+  let best=Infinity;
+  for(const [p,q] of segs){
+    if(dx){ if((p[1]>y)===(q[1]>y)) continue; const sx=p[0]+(y-p[1])*(q[0]-p[0])/(q[1]-p[1]); const d=(sx-x)*dx; if(d>=-.5&&d<best) best=Math.max(0,d); }
+    else  { if((p[0]>x)===(q[0]>x)) continue; const sy=p[1]+(x-p[0])*(q[1]-p[1])/(q[0]-p[0]); const d=(sy-y)*dy; if(d>=-.5&&d<best) best=Math.max(0,d); }
+  }
+  return best;
 }
 
-function draw(){
+/* ---------- drawing ---------- */
+let G=null, P=null, selT=null;
+function drawList(){
   items.forEach(prep);
-  const R=room();
-  $("lBox").hidden = shape!=="L";
-  $("customBox").hidden = !items[sel].custom;
-  $("shapeRect").setAttribute("aria-pressed", shape==="rect");
-  $("shapeL").setAttribute("aria-pressed", shape==="L");
-
+  P=roomPoints(); G=buildGrid(P);
+  $("customBox").hidden=!items[state.sel].custom;
   const list=$("list"); list.innerHTML="";
   items.forEach((it,i)=>{
-    const s=status(it,R);
-    const b=document.createElement("button");
-    b.className="row"; b.setAttribute("aria-pressed", i===sel);
+    const s=status(it,G), b=document.createElement("button");
+    b.className="row"; b.setAttribute("aria-pressed", i===state.sel);
     b.innerHTML=`<span class="name">${it.name}</span><span class="pill ${s.cls}">${s.txt}</span>
       <span class="size">${it.custom?`משטח ${it.play[0]}×${it.play[1]} · `:""}צריך ${it.need[0]}×${it.need[1]} ס״מ</span>`;
-    b.onclick=()=>{sel=i;draw();};
+    b.onclick=()=>{state.sel=i;drawList();};
     list.appendChild(b);
   });
-
-  const it=items[sel], s=status(it,R), p=s.p;
-  const sz=d=>p.rot?[d[1],d[0]]:d;
-  const N=sz(it.need), O=sz(it.outer), P=it.play?sz(it.play):[O[0]*.82,O[1]*.7];
-  const pad=20;
-  const x0=Math.min(0,p.cx-N[0]/2)-pad, y0=Math.min(0,p.cy-N[1]/2)-pad;
-  const x1=Math.max(R.L,p.cx+N[0]/2)+pad, y1=Math.max(R.W,p.cy+N[1]/2)+pad;
-  const vw=x1-x0, sw=vw/220;
-  const rect=(d,extra)=>`<rect x="${p.cx-d[0]/2}" y="${p.cy-d[1]/2}" width="${d[0]}" height="${d[1]}" ${extra}/>`;
-  const {L,W,cl,cw}=R;
-  const poly = shape==="rect"
-    ? `M0 0H${L}V${W}H0Z`
-    : `M0 0H${L-cl}V${cw}H${L}V${W}H0Z`;
-  const zoneColor={ok:"var(--zone)",warn:"var(--warn)",bad:"var(--bad)"}[s.cls];
-  const fs=sw*9;
-  const svg=$("svg");
-  svg.setAttribute("viewBox",`${x0} ${y0} ${vw} ${y1-y0}`);
-  svg.setAttribute("aria-label",`חדר ${L} על ${W} ס״מ עם ${it.name}`);
-  svg.innerHTML =
-    `<path d="${poly}" fill="var(--bg)" stroke="var(--ink)" stroke-width="${sw*2}" stroke-linejoin="round"/>` +
-    rect(N,`fill="none" stroke="${zoneColor}" stroke-width="${sw}" stroke-dasharray="${sw*4} ${sw*3}"`) +
-    rect(O,`fill="var(--wood)" rx="${sw*3}"`) +
-    rect(P,`fill="var(--felt)"`) +
-    `<text x="${L/2}" y="${W-fs*.6}" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant">${L} ס״מ</text>` +
-    `<text transform="translate(${fs*1.1} ${W/2}) rotate(-90)" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant">${W} ס״מ</text>`;
-  const v=$("verdict"); v.className="verdict "+s.cls;
-  v.textContent = `${it.name}: ${s.txt}` + (s.cls==="bad"?" גם עם מקל קצר":"");
 }
+function drawPlan(){
+  const maxX=G.maxX, maxY=G.maxY, pad=30;
+  const vw=maxX+pad*2, sw=vw/220, fs=sw*9;
+  const svg=$("svg");
+  svg.setAttribute("viewBox",`${-pad} ${-pad} ${vw} ${maxY+pad*2}`);
+  svg.setAttribute("aria-label",`חדר ${Math.round(maxX)} על ${Math.round(maxY)} ס״מ עם ${state.tables.length} שולחנות`);
+  const col={ok:"var(--zone)",warn:"var(--warn)",bad:"var(--bad)"};
+  const counts={ok:0,warn:0,bad:0};
+  let zonesSvg="", tablesSvg="", dimsSvg="";
+  state.tables.forEach((t,k)=>{
+    const st=tableStatus(t,G); counts[st]++;
+    const D=dims(t), z=box(t.cx,t.cy,D.N), o=box(t.cx,t.cy,D.O), p=box(t.cx,t.cy,D.PL);
+    const sel=t===selT;
+    zonesSvg+=`<rect x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" fill="none" stroke="${col[st]}" stroke-width="${sw*(sel?1.4:.8)}" stroke-dasharray="${sw*4} ${sw*3}"/>`;
+    const sizeTxt=t.cue?`${t.play[0]}×${t.play[1]}`:`${t.outer[0]}×${t.outer[1]}`;
+    const tfs=Math.min(fs*1.1, Math.min(D.PL[0],D.PL[1])/4);
+    tablesSvg+=`<g data-t="${k}" style="cursor:grab">
+      <rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*3}" fill="var(--wood)" stroke="${sel?"var(--ink)":"none"}" stroke-width="${sw*1.5}"/>
+      <rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" fill="var(--felt)"/>
+      ${st!=="ok"?`<rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*3}" fill="none" stroke="${col[st]}" stroke-width="${sw*1.5}"/>`:""}
+      <text x="${t.cx}" y="${t.cy-tfs*.15}" text-anchor="middle" font-size="${tfs}" fill="#fff" font-weight="700" font-family="Assistant">${k+1}</text>
+      <text x="${t.cx}" y="${t.cy+tfs*1.05}" text-anchor="middle" font-size="${tfs*.8}" fill="#fff" font-family="Assistant">${sizeTxt}</text>
+    </g>`;
+    if(sel||state.tables.length===1){
+      // dimension lines from each side of the table body to the nearest wall or column
+      for(const [dx,dy,sx,sy] of [[-1,0,o.x,t.cy],[1,0,o.x+o.w,t.cy],[0,-1,t.cx,o.y],[0,1,t.cx,o.y+o.h]]){
+        const d=rayDist(sx,sy,dx,dy,P); if(!isFinite(d)) continue;
+        const ex=sx+dx*d, ey=sy+dy*d, mx=(sx+ex)/2, my=(sy+ey)/2;
+        dimsSvg+=`<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="var(--ink)" stroke-width="${sw*.6}"/>
+          <circle cx="${ex}" cy="${ey}" r="${sw*1.4}" fill="var(--ink)"/>
+          <text x="${mx+(dy?fs*.4:0)}" y="${my-(dx?fs*.35:0)}" text-anchor="${dy?"start":"middle"}" font-size="${fs*.95}" font-weight="700" fill="var(--ink)" stroke="var(--bg)" stroke-width="${sw*2.5}" paint-order="stroke" font-family="Assistant">${Math.round(d)}</text>`;
+      }
+    }
+  });
+  svg.innerHTML =
+    `<path d="M${P.map(q=>q.join(" ")).join("L")}Z" fill="var(--bg)" stroke="var(--ink)" stroke-width="${sw*2}" stroke-linejoin="round"/>` +
+    zonesSvg + tablesSvg +
+    state.cols.map((c,i)=>`<rect data-col="${i}" x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" fill="var(--pillar)" stroke="var(--ink)" stroke-width="${sw*.6}" style="cursor:grab"/>`).join("") +
+    dimsSvg +
+    `<text x="${maxX/2}" y="${-pad*.25}" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant">${Math.round(maxX)} ס״מ</text>` +
+    `<text transform="translate(${-pad*.3} ${maxY/2}) rotate(-90)" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant">${Math.round(maxY)} ס״מ</text>`;
+  const n=state.tables.length;
+  $("summary").textContent = n===0 ? "החדר ריק. בחרו סוג שולחן ולחצו על הוספה."
+    : `בחדר ${n} שולחנות: ${counts.ok} בנוחות`+(counts.warn?`, ${counts.warn} צפופים`:"")+(counts.bad?`, ${counts.bad} לא נכנסים`:"")+".";
+  $("summary").className="summary "+(counts.bad?"bad":counts.warn?"warn":"ok");
+}
+function draw(){ drawList(); drawPlan(); }
 
-$("shapeRect").onclick=()=>{shape="rect";draw();};
-$("shapeL").onclick=()=>{shape="L";draw();};
-["len","wid","cutL","cutW","cLen","cWid"].forEach(id=>$(id).oninput=draw);
-draw();
+/* ---------- selected table ---------- */
+function renderSel(){
+  const box=$("selTools");
+  box.hidden=!selT;
+  if(!selT) return;
+  const k=state.tables.indexOf(selT)+1, d=selT.cue?selT.play:selT.outer;
+  const lab=selT.cue?"משטח המשחק":"השולחן";
+  $("selName").textContent=`שולחן ${k} · ${selT.name}`;
+  let f=$("selDims");
+  if(!f){f=document.createElement("div");f.id="selDims";f.className="grid2";f.style.width="100%";box.prepend(f);}
+  f.innerHTML=`<label for="selLen">אורך ${lab}<span class="field"><input id="selLen" type="number" inputmode="numeric" min="50" max="600" value="${d[0]}"><span class="unit">ס״מ</span></span></label>
+    <label for="selWid">רוחב ${lab}<span class="field"><input id="selWid" type="number" inputmode="numeric" min="30" max="400" value="${d[1]}"><span class="unit">ס״מ</span></span></label>`;
+  const upd=()=>{const arr=selT.cue?selT.play:selT.outer; arr[0]=clamp($("selLen").value,50,600); arr[1]=clamp($("selWid").value,30,400); drawPlan();};
+  $("selLen").oninput=upd; $("selWid").oninput=upd;
+}
+function select(t){ selT=t; renderSel(); drawPlan(); }
+
+$("addTable").onclick=()=>{
+  const t=makeTable(items[state.sel]);
+  const tight=$("tightMode").checked;
+  const s=findSpot(t,G,tight)||(!tight&&findSpot(t,G,true));
+  if(s){t.cx=s.cx;t.cy=s.cy;t.rot=s.rot;}
+  else {t.cx=G.maxX/2;t.cy=G.maxY/2;t.rot=G.maxX<G.maxY;}
+  state.tables.push(t); select(t);
+};
+$("fillRoom").onclick=()=>{
+  const tight=$("tightMode").checked;
+  state.tables=state.tables.filter(t=>tableStatus(t,G)!=="bad");
+  for(let n=0;n<80;n++){
+    const t=makeTable(items[state.sel]), s=findSpot(t,G,tight);
+    if(!s) break;
+    t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; state.tables.push(t);
+  }
+  select(null);
+};
+$("clearRoom").onclick=()=>{state.tables=[]; select(null);};
+$("rotTable").onclick=()=>{if(selT){selT.rot=!selT.rot;drawPlan();}};
+$("delTable").onclick=()=>{if(selT){state.tables.splice(state.tables.indexOf(selT),1);select(null);}};
+$("tightMode").onchange=drawPlan;
+
+/* drag tables and columns on the plan */
+let drag=null, raf=0;
+const svgEl=$("svg");
+function toRoom(e){const pt=svgEl.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svgEl.getScreenCTM().inverse());}
+svgEl.addEventListener("pointerdown",e=>{
+  const g=e.target.closest("[data-t],[data-col]"); if(!g) return;
+  const q=toRoom(e);
+  if(g.dataset.t!==undefined){
+    const t=state.tables[+g.dataset.t];
+    drag={kind:"t",o:t,dx:q.x-t.cx,dy:q.y-t.cy,moved:false};
+    if(selT!==t) select(t);
+  } else {
+    const c=state.cols[+g.dataset.col];
+    drag={kind:"c",o:c,i:+g.dataset.col,dx:q.x-c.x,dy:q.y-c.y,moved:false};
+  }
+  svgEl.setPointerCapture(e.pointerId); e.preventDefault();
+});
+svgEl.addEventListener("pointermove",e=>{
+  if(!drag) return;
+  const q=toRoom(e), snap=v=>Math.round(v/CELL)*CELL;
+  drag.moved=true;
+  if(drag.kind==="t"){ drag.o.cx=snap(q.x-drag.dx); drag.o.cy=snap(q.y-drag.dy); }
+  else {
+    drag.o.x=Math.max(0,snap(q.x-drag.dx)); drag.o.y=Math.max(0,snap(q.y-drag.dy));
+    const ix=$(`col${drag.i}x`), iy=$(`col${drag.i}y`); if(ix) ix.value=drag.o.x; if(iy) iy.value=drag.o.y;
+    G=buildGrid(P);
+  }
+  cancelAnimationFrame(raf); raf=requestAnimationFrame(drawPlan);
+});
+const endDrag=()=>{ if(drag&&drag.kind==="c"&&drag.moved) drawList(); drag=null; };
+svgEl.addEventListener("pointerup",endDrag); svgEl.addEventListener("pointercancel",endDrag);
+svgEl.addEventListener("click",e=>{ if(!e.target.closest("[data-t]")&&!drag) select(null); });
+/* ---------- inputs ---------- */
+[["dimL","L",100,2000],["dimW","W",100,2000],["dimA","a",0,2000],["dimB","b",0,2000]].forEach(([id,k,a,b])=>
+  $(id).addEventListener("input",e=>{state[k]=clamp(e.target.value,a,b);draw();}));
+["cLen","cWid"].forEach(id=>$(id).addEventListener("input",draw));
+
+/* ---------- sketch upload and analysis ---------- */
+let sketchBlob=null, sample=null;
+const say=(t,cls)=>{const s=$("sketchStatus");s.hidden=!t;s.textContent=t||"";s.className="status "+(cls||"");};
+$("sketchFile").addEventListener("change",e=>{
+  const f=e.target.files?.[0]; if(!f) return;
+  sketchBlob=f;
+  const img=$("sketchImg"); img.src=URL.createObjectURL(f); img.hidden=false;
+  if(sample){$("analyze").hidden=false; say("");}
+  else say("הניתוח האוטומטי עובד כשפותחים את האפליקציה בתוך Claude. בינתיים אפשר להעתיק את המידות מהשרטוט לשדות למטה.","warn");
+});
+(async()=>{
+  try{
+    const s=window.claude?.use ? await window.claude.use("sample") : null;
+    if(!s) return;
+    const lim=await s.limits().catch(()=>null);
+    if(lim && lim.images) sample=s;
+  }catch(e){}
+})();
+
+const PROMPT=`זהו שרטוט של חדר (תוכנית קומה במבט מלמעלה) עם מידות בסנטימטרים, ייתכן שבכתב יד.
+החזר JSON בלבד, בלי טקסט נוסף, בצורה:
+{"points":[[x,y],...],"columns":[{"x":0,"y":0,"w":0,"h":0}],"notes":"..."}
+- points: פינות הקירות לפי הסדר, בס"מ. ראשית הצירים בפינה השמאלית העליונה של השרטוט, x גדל ימינה, y גדל למטה.
+- columns: עמודים או בליטות בתוך החדר (מלבנים), x,y הם הפינה השמאלית העליונה שלהם. רשימה ריקה אם אין.
+- אם המידות כתובות במטרים, המר לס"מ. אם חסרה מידה, הערך אותה מהפרופורציות וציין זאת ב-notes בעברית.
+- notes: משפט קצר בעברית על מה זוהה ועל כל הנחה שעשית.`;
+$("analyze").onclick=async()=>{
+  if(!sample||!sketchBlob) return;
+  const btn=$("analyze"); btn.disabled=true; say("מנתח את השרטוט, זה יכול לקחת עד דקה...");
+  try{
+    const r=await sample.json(PROMPT,{images:[sketchBlob],modelTier:"complex"});
+    const pts=(r.points||[]).map(p=>[Math.round(+p[0]),Math.round(+p[1])]).filter(p=>isFinite(p[0])&&isFinite(p[1]));
+    if(pts.length<3) throw {code:"shape"};
+    const mx=Math.min(...pts.map(p=>p[0])), my=Math.min(...pts.map(p=>p[1]));
+    state.custom=pts.map(p=>[p[0]-mx,p[1]-my]);
+    state.L=Math.max(...state.custom.map(p=>p[0])); state.W=Math.max(...state.custom.map(p=>p[1]));
+    state.cols=(r.columns||[]).map(c=>({x:Math.round(c.x-mx),y:Math.round(c.y-my),w:Math.max(5,Math.round(c.w)),h:Math.max(5,Math.round(c.h))})).filter(c=>[c.x,c.y,c.w,c.h].every(isFinite));
+    syncInputs(); renderCols(); draw();
+    say("זוהה: "+(r.notes||"צורת החדר עודכנה לפי השרטוט.")+" כדאי לבדוק את הציור מול השרטוט.","ok");
+  }catch(e){
+    const m={not_granted:"צריך לאשר ל-Claude לנתח את התמונה כדי להשתמש בזה.",rate_limited:"יותר מדי בקשות ברגע זה. נסו שוב בעוד דקה.",shape:"לא הצלחתי לזהות את קירות החדר. נסו צילום ברור יותר, עם המידות כתובות על כל קיר."};
+    say(m[e?.code]||"הניתוח לא הצליח. נסו שוב, או הכניסו את המידות ידנית.","bad");
+  }finally{btn.disabled=false;}
+};
+
+syncInputs(); renderCols(); drawList();
+{ const t=makeTable(items[state.sel]); const s=status(items[state.sel],G); t.cx=s.p.cx; t.cy=s.p.cy; t.rot=s.p.rot; state.tables.push(t); }
+drawPlan();
 </script>
 
 <script>if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}</script>
