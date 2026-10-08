@@ -1068,7 +1068,7 @@ function buildScene(){
   const chrome=new THREE.MeshPhongMaterial({color:0xcfd2d4,specular:0xffffff,shininess:120}), brass=new THREE.MeshPhongMaterial({color:0xd6c08a,specular:0xffffff,shininess:80});
   const shadeGreen=new THREE.MeshPhongMaterial({color:new THREE.Color(0x2f9a63).convertSRGBToLinear(),specular:0x777777,shininess:70,side:THREE.FrontSide});
   const shadeWhite=new THREE.MeshBasicMaterial({color:0xf4f1e6,side:THREE.BackSide});
-  let brandMat=null, brandRatio=4;
+  let brandMat=null, brandOnLeather=null, brandRatio=4;
   if((STYLE.brand||"").trim()){
     const c=document.createElement("canvas"); c.height=200; let g2=c.getContext("2d"); g2.font="italic 600 150px Georgia, 'Times New Roman', serif";
     c.width=Math.ceil(g2.measureText(STYLE.brand.trim()).width+60); g2=c.getContext("2d");
@@ -1078,6 +1078,13 @@ function buildScene(){
     brandRatio=c.width/200;
     const tx=new THREE.CanvasTexture(c); tx.encoding=THREE.sRGBEncoding; tx.anisotropy=4;
     brandMat=new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false});
+    // a darker, embossed-looking print for the tan leather
+    const c2=document.createElement("canvas"); c2.width=c.width; c2.height=200; const g3=c2.getContext("2d");
+    g3.font=g2.font; g3.textAlign="center"; g3.textBaseline="middle";
+    g3.fillStyle="rgba(255,240,220,.55)"; g3.fillText(STYLE.brand.trim(),c2.width/2+3,103);
+    g3.fillStyle="#8a5a35"; g3.fillText(STYLE.brand.trim(),c2.width/2,100);
+    const tx2=new THREE.CanvasTexture(c2); tx2.encoding=THREE.sRGBEncoding; tx2.anisotropy=4;
+    brandOnLeather=new THREE.MeshBasicMaterial({map:tx2,transparent:true,depthWrite:false});
   }
   const felt=M(FELTS[STYLE.felt][1],{roughness:.95}), leather=M(0x6e2f22,{roughness:.6}), leather2=M(0x8c4433,{roughness:.6});
   const metal=M(0x9aa3a8,{metalness:.7,roughness:.3}), dark=M(0x222629,{roughness:.5});
@@ -1112,7 +1119,14 @@ function buildScene(){
       // pockets: leather covers on the corners and the middle of the long sides
       for(const [px,pz] of [[-1,-1],[-1,1],[1,-1],[1,1],[0,-1],[0,1]]){
         const x=px*(L/2-4), z=pz*(W/2-4);
-        add(Cyl(px?9:7.5,px?9:7.5,11,20),leatherTan,x,top+.5,z,g);
+        const pr=px?9:7.5;
+        add(Cyl(pr,pr,11,20),leatherTan,x,top+.5,z,g);
+        if(brandOnLeather){
+          // brand printed on the leather pocket cover, on the side facing the long rail (as in the photo)
+          const arc=1.7, wv=(pr+.25)*arc, hv=Math.min(8,wv/brandRatio);
+          const cg=new THREE.CylinderGeometry(pr+.25,pr+.25,hv,18,1,true,(pz>0?0:Math.PI)-arc/2,arc);
+          const cm=new THREE.Mesh(cg,brandOnLeather); cm.position.set(x,top+.5,z); g.add(cm);
+        }
         add(Cyl(5.6,5.6,1.5,18),black,px*(L/2-R+3),top+5.3,pz*(W/2-R+3),g);
         add(Box(11,4,11),black,x*.97,top-19,z*.97,g);
       }
@@ -1345,7 +1359,7 @@ drawPlan();
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="12";
+const APP_VERSION="13";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
