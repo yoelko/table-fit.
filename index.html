@@ -211,6 +211,11 @@ button{font:inherit;color:inherit}
   .viz-stage{margin:12px 16px 16px}
   .viz-bar{width:340px;max-height:none;padding-top:16px}
 }
+.skview{position:fixed;inset:0;z-index:28;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px)}
+.skbar{display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--bar);color:var(--bar-ink);font-size:.85rem}
+.skscroll{flex:1;overflow:auto;-webkit-overflow-scrolling:touch;touch-action:pan-x pan-y pinch-zoom}
+.skscroll img{display:block;width:100%;height:auto;cursor:zoom-in}
+.skscroll img.zoomed{width:250%;max-width:none;cursor:zoom-out}
 @media (prefers-reduced-motion:reduce){.toast{transition:none}}
 .btn,.tb,.ib,.chip,.fbtn,.spick,.link,.stp-b,.zoom button,.tabs button,.sw,.popen,.projbtn{box-sizing:border-box}
 </style>
@@ -494,8 +499,8 @@ function rayDist(x,y,dx,dy,self){
   const rectSegs=(b,k)=>{const q=[[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]];for(let i=0;i<4;i++) segs.push([q[i],q[(i+1)%4],k]);};
   for(const o of state.tables) if(o!==self) rectSegs(box(o.cx,o.cy,dims(o).O),"table");
   for(let i=0;i<P.length;i++) segs.push([P[i],P[(i+1)%P.length],"wall"]);
-  for(const c of state.cols) rectSegs(c,"wall");
-  for(const f of state.furn) rectSegs(fBox(f),"wall");
+  for(const c of state.cols) if(c!==self) rectSegs(c,"wall");
+  for(const f of state.furn) if(f!==self) rectSegs(fBox(f),"wall");
   let best=Infinity,kind="wall";
   for(const [p,q,k] of segs){
     let d;
@@ -601,7 +606,7 @@ function drawPlan(){
   const svg=$("svg");
   svg.setAttribute("viewBox",`${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
   svg.setAttribute("aria-label",`חדר ${Math.round(maxX)} על ${Math.round(maxY)} ס״מ עם ${state.tables.length} שולחנות`);
-  const col={ok:"var(--zone)",warn:"var(--warn)",bad:"var(--bad)"};
+  const col={ok:"var(--zone)",warn:"var(--zone)",bad:"var(--zone)"};
   const counts={ok:0,warn:0,bad:0};
   let zones="",tables="",dimsSvg="";
   const selT=sel?.type==="t"?sel.o:null, FONT='font-family="Heebo, sans-serif"';
@@ -613,14 +618,14 @@ function drawPlan(){
     tables+=`<g data-t="${k}" style="cursor:${drag?.o===t?"grabbing":"grab"}">
       <rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*2.5}" fill="var(--wood)"/>
       <rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" fill="var(--felt)"/>
-      ${st!=="ok"||isSel?`<rect x="${o.x-sw*.8}" y="${o.y-sw*.8}" width="${o.w+sw*1.6}" height="${o.h+sw*1.6}" rx="${sw*3}" fill="none" stroke="${st!=="ok"?col[st]:"var(--accent)"}" stroke-width="${sw*1.6}"/>`:""}
+      ${isSel?`<rect x="${o.x-sw*.8}" y="${o.y-sw*.8}" width="${o.w+sw*1.6}" height="${o.h+sw*1.6}" rx="${sw*3}" fill="none" stroke="var(--accent)" stroke-width="${sw*1.6}"/>`:""}
       <text x="${t.cx}" y="${t.cy-tfs*.12}" text-anchor="middle" font-size="${tfs}" fill="#fff" font-weight="700" ${FONT}>${k+1}</text>
       <text x="${t.cx}" y="${t.cy+tfs*.95}" text-anchor="middle" font-size="${tfs*.72}" fill="#fff" fill-opacity=".85" ${FONT}>${t.L}×${t.W}</text>
     </g>`;
     if(isSel||state.tables.length===1){
       for(const [dx,dy,sx,sy] of [[-1,0,o.x,t.cy],[1,0,o.x+o.w,t.cy],[0,-1,t.cx,o.y],[0,1,t.cx,o.y+o.h]]){
         const r=rayDist(sx,sy,dx,dy,t), d=r.d; if(!isFinite(d)) continue;
-        const short=d<(r.kind==="table"?GAP.table:GAP.wall)-.5, lc=short?"var(--bad)":"var(--ink)";
+        const lc="var(--ink)";
         const ex=sx+dx*d, ey=sy+dy*d, mx=(sx+ex)/2, my=(sy+ey)/2;
         dimsSvg+=`<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="${lc}" stroke-width="${sw*.55}" pointer-events="none"/>
           <circle cx="${ex}" cy="${ey}" r="${sw*1.3}" fill="${lc}"/>
@@ -632,15 +637,28 @@ function drawPlan(){
   const furnSvg=state.furn.map((f,i)=>{
     const st=furnStatus(f), b=fBox(f);
     return `<g data-f="${i}" style="cursor:grab"><g transform="translate(${f.cx} ${f.cy}) rotate(${f.rot})">${furnShape(f.type,f.w,f.h,sw)}</g>`+
-      ((f===selF||st==="bad")?`<rect x="${b.x-sw}" y="${b.y-sw}" width="${b.w+2*sw}" height="${b.h+2*sw}" fill="none" stroke="${st==="bad"?"var(--bad)":"var(--accent)"}" stroke-width="${sw*1.3}" stroke-dasharray="${f===selF?"none":sw*3}"/>`:"")+
+      ((f===selF)?`<rect x="${b.x-sw}" y="${b.y-sw}" width="${b.w+2*sw}" height="${b.h+2*sw}" fill="none" stroke="var(--accent)" stroke-width="${sw*1.3}" stroke-dasharray="${f===selF?"none":sw*3}"/>`:"")+
       `<rect x="${b.x-sw*3}" y="${b.y-sw*3}" width="${b.w+sw*6}" height="${b.h+sw*6}" fill="transparent"/></g>`;
   }).join("");
+  // distance lines for a selected column or furniture piece
+  const selO=selC?{o:selC,b:selC}:selF?{o:selF,b:fBox(selF)}:null;
+  if(selO){ const b=selO.b, mx0=b.x+b.w/2, my0=b.y+b.h/2;
+    for(const [dx,dy,sx,sy] of [[-1,0,b.x,my0],[1,0,b.x+b.w,my0],[0,-1,mx0,b.y],[0,1,mx0,b.y+b.h]]){
+      const d=rayDist(sx,sy,dx,dy,selO.o).d; if(!isFinite(d)) continue;
+      const ex=sx+dx*d, ey=sy+dy*d, mx=(sx+ex)/2, my=(sy+ey)/2;
+      dimsSvg+=`<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="var(--ink)" stroke-width="${sw*.55}" pointer-events="none"/>
+        <circle cx="${ex}" cy="${ey}" r="${sw*1.3}" fill="var(--ink)"/>
+        <text x="${mx+(dy?fs*.4:0)}" y="${my-(dx?fs*.35:0)}" text-anchor="${dy?"start":"middle"}" font-size="${fs}" font-weight="700" fill="var(--ink)" stroke="var(--floor)" stroke-width="${sw*2.6}" paint-order="stroke" ${FONT} pointer-events="none">${Math.round(d)}</text>`;
+    }
+    if(selF){ dimsSvg+=`<rect data-h="1" x="${b.x+b.w-sw*4}" y="${b.y+b.h-sw*4}" width="${sw*8}" height="${sw*8}" rx="${sw*1.5}" fill="var(--accent)" stroke="var(--floor)" stroke-width="${sw}" style="cursor:nwse-resize"/>`; }
+  }
   const guides=(drag?.guides||[]).map(g=>g.x!=null
     ?`<line x1="${g.x}" y1="${-pad}" x2="${g.x}" y2="${maxY+pad}" stroke="var(--accent)" stroke-width="${sw*.7}" stroke-dasharray="${sw*3} ${sw*2}" pointer-events="none"/>`
     :`<line x1="${-pad}" y1="${g.y}" x2="${maxX+pad}" y2="${g.y}" stroke="var(--accent)" stroke-width="${sw*.7}" stroke-dasharray="${sw*3} ${sw*2}" pointer-events="none"/>`).join("");
   svg.innerHTML=
     `<rect x="${-pad*4}" y="${-pad*4}" width="${maxX+pad*8}" height="${maxY+pad*8}" fill="transparent"/>`+
     `<path d="M${P.map(q=>q.join(" ")).join("L")}Z" fill="var(--floor)" stroke="var(--ink)" stroke-width="${sw*2.2}" stroke-linejoin="round"/>`+
+    (cur.bg&&cur.bg.show?`<image href="${cur.bg.src}" x="0" y="0" width="${maxX}" height="${maxY}" preserveAspectRatio="none" opacity="${cur.bg.op??.45}" pointer-events="none"/>`:"")+
     zones+tables+furnSvg+
     state.cols.map((c,i)=>`<rect data-col="${i}" x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" fill="var(--pillar)" stroke="${c===selC?"var(--accent)":"transparent"}" stroke-width="${c===selC?sw*2:sw*10}" style="cursor:grab"/>`).join("")+
     guides+dimsSvg+
@@ -648,9 +666,7 @@ function drawPlan(){
     `<text transform="translate(${-pad*.4} ${maxY/2}) rotate(-90)" text-anchor="middle" font-size="${fs}" fill="var(--muted)" ${FONT} direction="rtl">${Math.round(maxY)} ס״מ</text>`;
   const n=state.tables.length, sum=$("summary");
   const parts=[`<b>${n}</b> שולחנות`, `חדר <bdi dir="ltr">${Math.round(maxX)}×${Math.round(maxY)}</bdi>`];
-  if(counts.warn) parts.push(`<span class="warn">${counts.warn} קרובים מדי</span>`);
-  if(counts.bad) parts.push(`<span class="bad">${counts.bad} חוסמים</span>`);
-  if(n&&!counts.warn&&!counts.bad) parts.push(`<span class="ok">הכל תקין</span>`);
+  if(state.furn.length) parts.push(`${state.furn.length} פריטי ריהוט`);
   sum.innerHTML=parts.join(" · ");
   saveRoom();
 }
@@ -664,7 +680,7 @@ const ICON={
   x:'<path d="M6 6l12 12M18 6 6 18"/>',
 };
 const ic=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>`;
-const STTXT={ok:"",warn:"קרוב מדי",bad:"חוסם"};
+const STTXT={ok:"",warn:"",bad:""};
 function selButtons(withSize=true){
   return `<button type="button" class="ib" id="aRot" title="סיבוב (R)" aria-label="סיבוב">${ic("rot")}</button>
     <button type="button" class="ib" id="aDup" title="שכפול (Ctrl+D)" aria-label="שכפול">${ic("dup")}</button>
@@ -684,9 +700,14 @@ function renderSelBar(){
     $("aDup").onclick=()=>{pushUndo(true); const c={...t}; state.tables.push(c); const s=findSpot(c); if(s){c.cx=s.cx;c.cy=s.cy;c.rot=s.rot;} else {c.cx+=40;c.cy+=40; toast("אין מקום פנוי. גררו את השולחן למקום אחר.");} select({type:"t",o:c});};
     $("aSize").onclick=()=>{editOpen=!editOpen; renderSelBar();};
     $("aDel").onclick=()=>{pushUndo(true); state.tables.splice(state.tables.indexOf(t),1); select(null); toast("נמחק · Ctrl+Z לביטול");};
-    if(editOpen) $("selEdit").append(
-      stepper("selL","אורך",t.L,{step:5,min:40,max:600,onChange:v=>{pushUndo();t.L=v;drawPlan();}}),
-      stepper("selW","רוחב",t.W,{step:5,min:30,max:400,onChange:v=>{pushUndo();t.W=v;drawPlan();}}));
+    if(editOpen){
+      const ob=()=>box(t.cx,t.cy,dims(t).O);
+      $("selEdit").append(
+        stepper("posX","מהקיר השמאלי",Math.round(ob().x),{step:1,min:-500,max:5000,onChange:v=>{pushUndo();t.cx+=v-ob().x;drawPlan();}}),
+        stepper("posY","מהקיר העליון",Math.round(ob().y),{step:1,min:-500,max:5000,onChange:v=>{pushUndo();t.cy+=v-ob().y;drawPlan();}}),
+        stepper("selL","אורך השולחן",t.L,{step:1,min:40,max:600,onChange:v=>{pushUndo();t.L=v;drawPlan();}}),
+        stepper("selW","רוחב השולחן",t.W,{step:1,min:30,max:400,onChange:v=>{pushUndo();t.W=v;drawPlan();}}));
+    }
   } else if(sel.type==="f"){
     const f=sel.o, F=FURN[f.type]||{name:"פריט"}, st=furnStatus(f);
     bar.innerHTML=`<div class="selrow"><div class="seltitle"><b>${F.name}</b><em class="${st}">${STTXT[st]}</em></div>${selButtons()}</div>
@@ -697,8 +718,8 @@ function renderSelBar(){
     $("aSize").onclick=()=>{editOpen=!editOpen; renderSelBar();};
     $("aDel").onclick=()=>{pushUndo(true); state.furn.splice(state.furn.indexOf(f),1); G=buildGrid(P); select(null);};
     if(editOpen){
-      $("selEdit").append(stepper("fW",F.round?"קוטר":"רוחב",f.w,{step:5,min:10,max:1000,onChange:v=>{pushUndo();f.w=v;if(F.round)f.h=v;regrid();}}));
-      if(!F.round) $("selEdit").append(stepper("fH","עומק",f.h,{step:5,min:5,max:1000,onChange:v=>{pushUndo();f.h=v;regrid();}}));
+      $("selEdit").append(stepper("fW",F.round?"קוטר":"רוחב",f.w,{step:1,min:10,max:1000,onChange:v=>{pushUndo();f.w=v;if(F.round)f.h=v;regrid();}}));
+      if(!F.round) $("selEdit").append(stepper("fH","עומק",f.h,{step:1,min:5,max:1000,onChange:v=>{pushUndo();f.h=v;regrid();}}));
     }
   } else {
     const c=sel.o;
@@ -713,12 +734,16 @@ function renderSelBar(){
   }
   $("selX").onclick=()=>select(null);
 }
-function renderSelHead(){
+function syncPos(){
+  if(sel?.type==="t"&&$("posX")){ const b=box(sel.o.cx,sel.o.cy,dims(sel.o).O); $("posX").value=Math.round(b.x); $("posY").value=Math.round(b.y); }
+  if(sel?.type==="f"&&$("fW")){ $("fW").value=sel.o.w; if($("fH")) $("fH").value=sel.o.h; }
+}
+function renderSelHead(){ syncPos();
   const el=$("selbar").querySelector(".seltitle em"); if(!el||!sel) return;
   const st=sel.type==="t"?tableStatus(sel.o):sel.type==="f"?furnStatus(sel.o):"ok";
   el.className=st; el.textContent=STTXT[st];
 }
-function select(s){ if(sel?.o!==s?.o) editOpen=false; sel=s; renderSelBar(); drawPlan(); }
+function select(s){ if(sel?.o!==s?.o) editOpen=s?.type==="f"; sel=s; renderSelBar(); drawPlan(); }
 
 /* ---------- stepper control ---------- */
 function stepper(id,label,val,{step=10,min=0,max=3000,unit="ס״מ",onChange}){
@@ -818,12 +843,26 @@ function renderRoom(){
 
   const s3=section("");
   s3.insertAdjacentHTML("beforeend",`<div class="row"><button type="button" class="btn" id="addCol">+ עמוד</button>
-    ${sample?`<label class="btn" for="skFile">${sketchURL?"החלפת שרטוט":"זיהוי משרטוט"}<input id="skFile" type="file" accept="image/*" hidden></label>`:""}</div>
-    ${sample&&sketchURL?`<div class="sketch" style="margin-top:10px"><img alt="השרטוט" src="${sketchURL}"><button type="button" class="btn solid" id="skGo">זיהוי המידות</button></div><p class="status" id="skStatus" hidden></p>`:""}`);
+    <label class="btn" for="skFile">${cur.bg?"החלפת שרטוט":"העלאת שרטוט"}<input id="skFile" type="file" accept="image/*" hidden></label></div>`);
   p.append(s3);
   $("addCol").onclick=()=>{pushUndo(true); const c={x:Math.round(G.maxX/2-20),y:Math.round(G.maxY/2-20),w:40,h:40}; state.cols.push(c); refreshRoom(); select({type:"c",o:c});};
-  if(sample){
-    $("skFile").onchange=e=>{ const f=e.target.files?.[0]; if(!f) return; sketchBlob=f; sketchURL=URL.createObjectURL(f); renderRoom(); };
+  $("skFile").onchange=e=>{ const f=e.target.files?.[0]; if(f) loadSketch(f); };
+  if(cur.bg){
+    const s4=section("שרטוט");
+    s4.insertAdjacentHTML("beforeend",`<div class="sketch"><img id="skThumb" alt="השרטוט" src="${cur.bg.src}" style="cursor:zoom-in">
+      <div style="flex:1;display:flex;flex-direction:column;gap:8px">
+        <label class="hint" style="margin:0;display:flex;align-items:center;gap:8px"><input type="checkbox" id="skShow" ${cur.bg.show?"checked":""}>הצגה מתחת לתוכנית</label>
+        <input type="range" id="skOp" min="10" max="90" value="${Math.round((cur.bg.op??.45)*100)}" aria-label="שקיפות השרטוט" ${cur.bg.show?"":"disabled"}>
+        <div class="links"><button type="button" class="link" id="skBig">פתיחה בגדול</button><button type="button" class="link" id="skDel" style="color:var(--bad)">הסרה</button></div>
+      </div></div>
+      ${sample?`<button type="button" class="btn solid" id="skGo" style="margin-top:10px;width:100%">זיהוי המידות אוטומטית</button><p class="status" id="skStatus" hidden></p>`:""}`);
+    p.append(s4);
+    const big=()=>openSketchView();
+    $("skThumb").onclick=big; $("skBig").onclick=big;
+    $("skShow").onchange=e=>{cur.bg.show=e.target.checked; $("skOp").disabled=!cur.bg.show; saveProjects(); drawPlan();};
+    $("skOp").oninput=e=>{cur.bg.op=e.target.value/100; drawPlan();};
+    $("skOp").onchange=()=>saveProjects();
+    $("skDel").onclick=()=>{cur.bg=null; saveProjects(); drawPlan(); renderRoom();};
     if($("skGo")) $("skGo").onclick=analyzeSketch;
   }
   p.insertAdjacentHTML("beforeend",`<div class="links"><button type="button" class="link" id="resetRoom">ניקוי החדר</button></div>`);
@@ -841,7 +880,7 @@ function renderTables(){
   const list=document.createElement("div"); list.className="sizes"; list.setAttribute("role","listbox"); list.setAttribute("aria-label","גודל שולחן");
   items.forEach((it,i)=>{
     const r=document.createElement("div"); r.className="srow"; r.setAttribute("aria-selected",i===selSize);
-    r.innerHTML=`<div class="shead"><button type="button" class="spick" role="option" aria-selected="${i===selSize}"><span class="dot" id="sp${i}"></span><span class="nm">${esc(it.name)}</span><span class="dm" dir="ltr">${it.L}×${it.W}</span></button>
+    r.innerHTML=`<div class="shead"><button type="button" class="spick" role="option" aria-selected="${i===selSize}"><span class="nm">${esc(it.name)}</span><span class="dm" dir="ltr">${it.L}×${it.W}</span></button>
       ${i===selSize?`<button type="button" class="ib" id="sEditBtn" aria-pressed="${openSize===i}" title="עריכת המידות" aria-label="עריכת המידות">${ic("ruler")}</button>`:""}</div>`;
     r.querySelector(".spick").onclick=()=>{ if(selSize!==i){selSize=i; store.set("tf-selsize",i); openSize=-1; renderTables();} };
     r.querySelector(".spick").ondblclick=()=>addTable(it);
@@ -870,7 +909,7 @@ function renderTables(){
   updateSizeStatus();
 }
 function updateSizeStatus(){
-  if(tab!=="tables") return;
+  return;
   items.forEach((it,i)=>{ const el=$("sp"+i); if(!el) return; const s=sizeStatus(it); el.className="dot "+s.cls; el.title=s.txt; el.setAttribute("aria-label",s.txt); });
 }
 
@@ -904,15 +943,15 @@ function toRoom(e){const pt=svgEl.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY
 const redraw=()=>{cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{drawPlan(); renderSelHead();});};
 // Snap a dragged table to: the set wall distance, the set gap from a neighbour, or a neighbour's centre/edge line.
 function snapTable(t,nx,ny){
-  const D=dims(t), bw=D.O[0], bh=D.O[1], th=12*cmPerPx();
+  const D=dims(t), bw=D.O[0], bh=D.O[1], th=8*cmPerPx();
   const xs=[GAP.wall+bw/2, G.maxX-GAP.wall-bw/2], ys=[GAP.wall+bh/2, G.maxY-GAP.wall-bh/2];
   for(const o of state.tables){ if(o===t) continue; const b=box(o.cx,o.cy,dims(o).O);
     xs.push(o.cx, b.x-GAP.table-bw/2, b.x+b.w+GAP.table+bw/2, b.x+bw/2, b.x+b.w-bw/2);
     ys.push(o.cy, b.y-GAP.table-bh/2, b.y+b.h+GAP.table+bh/2, b.y+bh/2, b.y+b.h-bh/2); }
   const near=(arr,v)=>{let best=null,d0=th; for(const a of arr){const d=Math.abs(a-v); if(d<d0){d0=d;best=a;}} return best;};
   const gx=near(xs,nx), gy=near(ys,ny), guides=[];
-  if(gx!=null){nx=gx; guides.push({x:gx});} else nx=Math.round(nx/CELL)*CELL;
-  if(gy!=null){ny=gy; guides.push({y:gy});} else ny=Math.round(ny/CELL)*CELL;
+  if(gx!=null){nx=gx; guides.push({x:gx});} else nx=Math.round(nx);
+  if(gy!=null){ny=gy; guides.push({y:gy});} else ny=Math.round(ny);
   return [nx,ny,guides];
 }
 svgEl.addEventListener("pointerdown",e=>{
@@ -920,6 +959,7 @@ svgEl.addEventListener("pointerdown",e=>{
   ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY});
   if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; pinch={d:Math.hypot(a.x-b.x,a.y-b.y)||1,z:VIEW.z}; if(drag&&!drag.moved) drag=null; return; }
   const g=e.target.closest("[data-t],[data-col],[data-f]"), q=toRoom(e);
+  if(e.target.closest("[data-h]")&&sel?.type==="f"){ const f=sel.o, b=fBox(f); drag={kind:"rs",o:f,bx:b.x,by:b.y,sx:e.clientX,sy:e.clientY,moved:false}; e.preventDefault(); return; }
   if(!g){ drag={pan:true,sx:e.clientX,sy:e.clientY,vcx:VB.x+VB.w/2,vcy:VB.y+VB.h/2,moved:false}; e.preventDefault(); return; }
   let o,kind;
   if(g.dataset.t!==undefined){ o=state.tables[+g.dataset.t]; kind="t"; }
@@ -937,7 +977,13 @@ svgEl.addEventListener("pointermove",e=>{
   if(!drag.moved&&Math.hypot(e.clientX-drag.sx,e.clientY-drag.sy)<5) return;
   if(drag.pan){ if(VIEW.z<=1) return; drag.moved=true; const s=cmPerPx(); VIEW.cx=drag.vcx-(e.clientX-drag.sx)*s; VIEW.cy=drag.vcy-(e.clientY-drag.sy)*s; redraw(); return; }
   if(!drag.moved){ pushUndo(true); drag.moved=true; }
-  const q=toRoom(e), snap=v=>Math.round(v/CELL)*CELL, o=drag.o;
+  const q=toRoom(e), snap=v=>Math.round(v), o=drag.o;
+  if(drag.kind==="rs"){
+    const F=FURN[o.type]||{}, pw=Math.max(10,Math.round(q.x-drag.bx)), ph=Math.max(5,Math.round(q.y-drag.by));
+    if(F.round){ const d=Math.max(pw,ph); o.w=o.h=d; o.cx=drag.bx+d/2; o.cy=drag.by+d/2; }
+    else { const sw90=o.rot%180!==0; o.w=sw90?ph:pw; o.h=sw90?pw:ph; o.cx=drag.bx+pw/2; o.cy=drag.by+ph/2; }
+    G=buildGrid(P); redraw(); return;
+  }
   if(drag.kind==="t"){ const [nx,ny,gd]=snapTable(o,q.x-drag.dx,q.y-drag.dy); o.cx=nx; o.cy=ny; drag.guides=gd; }
   else if(drag.kind==="f"){ o.cx=snap(q.x-drag.dx); o.cy=snap(q.y-drag.dy); G=buildGrid(P); }
   else { o.x=Math.max(0,snap(q.x-drag.dx)); o.y=Math.max(0,snap(q.y-drag.dy)); G=buildGrid(P); }
@@ -970,7 +1016,7 @@ document.addEventListener("keydown",e=>{
   if(mod&&(k.toLowerCase()==="d")){ e.preventDefault(); $("aDup")?.click(); return; }
   const mv={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]}[k];
   if(mv){
-    e.preventDefault(); pushUndo(); const st=e.shiftKey?50:5, o=sel.o;
+    e.preventDefault(); pushUndo(); const st=e.shiftKey?10:1, o=sel.o;
     if(sel.type==="c"){o.x=Math.max(0,o.x+mv[0]*st); o.y=Math.max(0,o.y+mv[1]*st); G=buildGrid(P);}
     else {o.cx+=mv[0]*st; o.cy+=mv[1]*st; if(sel.type==="f") G=buildGrid(P);}
     drawPlan(); renderSelHead();
@@ -978,7 +1024,31 @@ document.addEventListener("keydown",e=>{
 });
 
 /* ---------- sketch analysis (only inside Claude) ---------- */
-let sample=null, sketchBlob=null, sketchURL="";
+let sample=null;
+// The sketch is shrunk and kept with the project, so it is still there next time.
+function loadSketch(file){
+  const img=new Image(), url=URL.createObjectURL(file);
+  img.onload=()=>{
+    const k=Math.min(1,1600/Math.max(img.width,img.height)), c=document.createElement("canvas");
+    c.width=Math.round(img.width*k); c.height=Math.round(img.height*k);
+    const g=c.getContext("2d"); g.fillStyle="#fff"; g.fillRect(0,0,c.width,c.height); g.drawImage(img,0,0,c.width,c.height);
+    cur.bg={src:c.toDataURL("image/jpeg",.75),show:false,op:.45}; URL.revokeObjectURL(url);
+    saveProjects(); renderRoom(); toast("השרטוט נשמר בפרויקט"); openSketchView();
+  };
+  img.onerror=()=>{ URL.revokeObjectURL(url); toast("לא הצלחתי לפתוח את הקובץ. נסו צילום מסך או תמונה (JPG/PNG)."); };
+  img.src=url;
+}
+function openSketchView(){
+  if(!cur.bg) return;
+  let v=$("skView");
+  if(!v){ v=document.createElement("div"); v.id="skView"; v.className="skview"; v.setAttribute("dir","rtl");
+    v.innerHTML=`<div class="skbar"><button type="button" class="tb" id="skClose" aria-label="סגירה">${ic("x")}</button><span>שרטוט · צביטה או לחיצה להגדלה</span></div><div class="skscroll"><img id="skImgBig" alt="השרטוט"></div>`;
+    document.body.append(v);
+    $("skClose").onclick=()=>v.hidden=true;
+    $("skImgBig").onclick=e=>e.currentTarget.classList.toggle("zoomed");
+  }
+  $("skImgBig").src=cur.bg.src; $("skImgBig").classList.remove("zoomed"); v.hidden=false;
+}
 (async()=>{
   try{
     const s=window.claude?.use?await window.claude.use("sample"):null;
@@ -999,6 +1069,9 @@ async function analyzeSketch(){
   const say=(t,c)=>{st.hidden=false; st.textContent=t; st.className="status "+(c||"");};
   btn.disabled=true; say("מזהה את המידות, זה יכול לקחת עד דקה...");
   try{
+    const [hd,b64]=cur.bg.src.split(","), bin=atob(b64), arr=new Uint8Array(bin.length);
+    for(let i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+    const sketchBlob=new Blob([arr],{type:(hd.match(/data:([^;]+)/)||[])[1]||"image/jpeg"});
     const r=await sample.json(PROMPT,{images:[sketchBlob],modelTier:"complex"});
     const pts=(r.points||[]).map(p=>[Math.round(+p[0]),Math.round(+p[1])]).filter(p=>isFinite(p[0])&&isFinite(p[1]));
     if(pts.length<3) throw {code:"shape"};
@@ -1048,12 +1121,10 @@ function renderVizBar(){
   const bar=$("vizBar");
   const row=(label,map,key)=>`<div class="opt"><span>${label}</span>${Object.entries(map).map(([k,[n,c]])=>
     `<button type="button" class="sw" data-k="${key}" data-v="${k}" aria-pressed="${STYLE[key]===k}"><i style="background:#${c.toString(16).padStart(6,"0")}"></i>${n}</button>`).join("")}</div>`;
-  bar.innerHTML=`<div class="opt"><span>מותג</span><input class="text" id="vizBrand" style="flex:1;min-width:0" value="${esc(STYLE.brand||"")}" placeholder="שם המותג על השולחנות" aria-label="שם המותג על השולחנות"></div>`+
-    row("צבע הבד",FELTS,"felt")+row("רצפה",FLOORS,"floor")+row("קירות",WALLS,"wall")+
+  bar.innerHTML=row("צבע הבד",FELTS,"felt")+row("רצפה",FLOORS,"floor")+row("קירות",WALLS,"wall")+
     `<button type="button" class="btn solid" id="vizSave">שמירת תמונה ללקוח</button>`;
   bar.querySelectorAll(".sw").forEach(b=>b.onclick=()=>{STYLE[b.dataset.k]=b.dataset.v; saveStyle(); renderVizBar(); if(V){buildScene(); render();}});
   $("vizSave").onclick=saveVizImage;
-  let bt=0; $("vizBrand").oninput=e=>{STYLE.brand=e.target.value; saveStyle(); clearTimeout(bt); bt=setTimeout(()=>{ if(V){buildScene(); render();} },350);};
 }
 
 function initViz(){
@@ -1156,21 +1227,21 @@ function buildScene(){
   const chrome=new THREE.MeshPhongMaterial({color:0xcfd2d4,specular:0xffffff,shininess:120}), brass=new THREE.MeshPhongMaterial({color:0xd6c08a,specular:0xffffff,shininess:80});
   const shadeGreen=new THREE.MeshPhongMaterial({color:new THREE.Color(0x2f9a63).convertSRGBToLinear(),specular:0x777777,shininess:70,side:THREE.FrontSide});
   const shadeWhite=new THREE.MeshBasicMaterial({color:0xf4f1e6,side:THREE.BackSide});
-  let brandMat=null, brandOnLeather=null, brandRatio=4;
-  if((STYLE.brand||"").trim()){
+  const BRAND="Regiis"; let brandMat=null, brandOnLeather=null, brandRatio=4;
+  if(BRAND){
     const c=document.createElement("canvas"); c.height=200; let g2=c.getContext("2d"); g2.font="italic 600 150px Georgia, 'Times New Roman', serif";
-    c.width=Math.ceil(g2.measureText(STYLE.brand.trim()).width+60); g2=c.getContext("2d");
+    c.width=Math.ceil(g2.measureText(BRAND).width+60); g2=c.getContext("2d");
     g2.font="italic 600 150px Georgia, 'Times New Roman', serif"; g2.textAlign="center"; g2.textBaseline="middle";
-    g2.fillStyle="rgba(0,0,0,.45)"; g2.fillText(STYLE.brand.trim(),c.width/2+4,106);
-    g2.fillStyle="#d9dde0"; g2.fillText(STYLE.brand.trim(),c.width/2,100);
+    g2.fillStyle="rgba(0,0,0,.45)"; g2.fillText(BRAND,c.width/2+4,106);
+    g2.fillStyle="#d9dde0"; g2.fillText(BRAND,c.width/2,100);
     brandRatio=c.width/200;
     const tx=new THREE.CanvasTexture(c); tx.encoding=THREE.sRGBEncoding; tx.anisotropy=4;
     brandMat=new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false});
     // a darker, embossed-looking print for the tan leather
     const c2=document.createElement("canvas"); c2.width=c.width; c2.height=200; const g3=c2.getContext("2d");
     g3.font=g2.font; g3.textAlign="center"; g3.textBaseline="middle";
-    g3.fillStyle="rgba(255,240,220,.55)"; g3.fillText(STYLE.brand.trim(),c2.width/2+3,103);
-    g3.fillStyle="#8a5a35"; g3.fillText(STYLE.brand.trim(),c2.width/2,100);
+    g3.fillStyle="rgba(255,240,220,.55)"; g3.fillText(BRAND,c2.width/2+3,103);
+    g3.fillStyle="#8a5a35"; g3.fillText(BRAND,c2.width/2,100);
     const tx2=new THREE.CanvasTexture(c2); tx2.encoding=THREE.sRGBEncoding; tx2.anisotropy=4;
     brandOnLeather=new THREE.MeshBasicMaterial({map:tx2,transparent:true,depthWrite:false});
   }
@@ -1197,12 +1268,10 @@ function buildScene(){
       }
       add(Box(L-4,15,W-4),cabinet,0,top-8.5,0,g);
       if(brandMat){
-        // brand on the top surface of the long rails, between the pockets, readable from that side of the table
-        const rh=Math.min(R*.62,8), rw=rh*brandRatio;
-        for(const sz of [-1,1]) for(const sx of [-1,1]){
-          const m=new THREE.Mesh(new THREE.PlaneGeometry(rw,rh),brandMat);
-          m.rotation.order="YXZ"; m.rotation.y=sz>0?0:Math.PI; m.rotation.x=-Math.PI/2;
-          m.position.set(sx*L/4,top+5.06,sz*(W/2-R/2)); g.add(m);
+        // brand on the sides of the table (the apron), all four sides
+        const bh=14, bw=Math.min(bh*brandRatio,W*.7);
+        for(const [x,z,ry] of [[0,W/2-1.8,0],[0,-W/2+1.8,Math.PI],[L/2-1.8,0,Math.PI/2],[-L/2+1.8,0,-Math.PI/2]]){
+          const m=new THREE.Mesh(new THREE.PlaneGeometry(bw,bh),brandMat); m.position.set(x,top-8.5,z); m.rotation.y=ry; g.add(m);
         }
       }
       add(Box(L-2,2.2,W-2),molding,0,top-16.5,0,g);
@@ -1444,7 +1513,7 @@ drawPlan();
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="16";
+const APP_VERSION="17";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
