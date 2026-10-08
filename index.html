@@ -44,6 +44,28 @@ button{font:inherit;color:inherit}
 .iconbtn[disabled]{opacity:.4;cursor:default}
 .iconbtn.solid{background:var(--felt);border-color:var(--felt);color:#fff;margin-inline-start:0}
 .topbtns{display:flex;gap:8px;margin-inline-start:auto}
+.projbtn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;min-width:0;max-width:100%;font-family:var(--display);font-size:1.25rem;line-height:1.15;padding:2px 4px;margin-inline-start:-4px;border-radius:8px}
+.projbtn span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.projbtn svg{flex:none;width:18px;height:18px;color:var(--muted)}
+.top>div:first-child{min-width:0;flex:1}
+.proj{position:fixed;inset:0;z-index:25;background:var(--bg);overflow:auto;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.proj-in{max-width:560px;margin:0 auto;padding-inline:16px;padding-block:14px 32px;display:flex;flex-direction:column;gap:16px}
+.proj-head{display:flex;align-items:center;gap:10px}
+.proj-head h2{font-family:var(--display);font-weight:400;font-size:1.4rem;margin:0;flex:1}
+.newp{display:flex;gap:8px}
+.newp input{flex:1;min-width:0}
+.plist{display:flex;flex-direction:column;gap:10px}
+.prow{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.prow[aria-current="true"]{border-color:var(--felt);box-shadow:0 0 0 1px var(--felt) inset}
+.popen{all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;min-width:0}
+.popen>div{flex:1;min-width:0}
+.popen b{display:block;font-size:1.05rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.popen span{font-size:.85rem;color:var(--muted)}
+.badge{font-size:.75rem;font-weight:700;color:var(--felt);border:1.5px solid currentColor;border-radius:999px;padding:2px 9px;white-space:nowrap}
+.pacts{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.pacts .btn{padding:8px 6px;font-size:.88rem}
+.pconfirm{display:flex;flex-direction:column;gap:8px}
+.pconfirm p{margin:0;font-weight:600}
 .topbtns .iconbtn{margin:0}
 .furn{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
 .fbtn{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;padding:10px 4px;border-radius:12px;border:1px solid var(--line);background:var(--surface);text-align:center;font-weight:700;font-size:.85rem}
@@ -156,7 +178,11 @@ button{font:inherit;color:inherit}
 <div class="app" dir="rtl">
   <header class="top">
     <div>
-      <h1>שולחן לחדר</h1>
+      <h1 style="margin:0"><button type="button" class="projbtn" id="projBtn" aria-haspopup="dialog">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M3 6.5A1.5 1.5 0 0 1 4.5 5H9l2 2h8.5A1.5 1.5 0 0 1 21 8.5v9a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 17.5z"/></svg>
+        <span id="projName"></span>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><path d="M7 10l5 5 5-5"/></svg>
+      </button></h1>
       <p class="sum" id="summary"></p>
     </div>
     <div class="topbtns">
@@ -198,6 +224,17 @@ button{font:inherit;color:inherit}
   <main class="panel" id="panel" role="tabpanel"></main>
 </div>
 <div class="toast" id="toast" role="status" hidden></div>
+<div class="proj" id="proj" dir="rtl" role="dialog" aria-label="הפרויקטים שלי" hidden>
+  <div class="proj-in">
+    <div class="proj-head"><h2>הפרויקטים שלי</h2><button type="button" class="iconbtn" id="projClose" style="margin:0">✕ סגירה</button></div>
+    <div class="newp">
+      <input class="text" id="newProjName" placeholder="שם הלקוח או המועדון" aria-label="שם לפרויקט חדש">
+      <button type="button" class="btn solid" id="newProjBtn">+ פרויקט חדש</button>
+    </div>
+    <p class="hint" style="margin:-8px 0 0">כל שינוי נשמר אוטומטית בפרויקט הפתוח. לחיצה על פרויקט פותחת אותו.</p>
+    <div class="plist" id="plist"></div>
+  </div>
+</div>
 <div class="viz" id="viz" dir="rtl" hidden>
   <div class="viz-top">
     <button type="button" class="iconbtn" id="vizClose" style="margin:0">✕ חזרה</button>
@@ -261,13 +298,29 @@ const SHAPES={
      pts:(L,W,a,b)=>[[0,0],[L-a,0],[L,b],[L,W],[0,W]]},
 };
 
-const firstRun=!store.get("tf-room-v1",null);
-const state=Object.assign({shape:"rect",L:600,W:450,a:180,b:140,custom:null,cols:[],tables:[],furn:[]},store.get("tf-room-v1",{}));
+/* ---------- projects: each one keeps a whole room and its look ---------- */
+const DEFAULT_ROOM=()=>({shape:"rect",L:600,W:450,a:180,b:140,custom:null,cols:[],tables:[],furn:[]});
+const DEFAULT_STYLE=()=>({felt:"green",floor:"wood",wall:"light",title:"",brand:"Regiis"});
+const newId=()=>"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+const clone=o=>JSON.parse(JSON.stringify(o));
+let PROJ=store.get("tf-projects-v1",null);
+const firstRun=!PROJ&&!store.get("tf-room-v1",null);
+if(!PROJ||!Array.isArray(PROJ.list)||!PROJ.list.length){
+  // first time with projects: the room the app already remembered becomes the first project
+  const id=newId();
+  PROJ={current:id,list:[{id,name:"הפרויקט הראשון",updated:Date.now(),room:Object.assign(DEFAULT_ROOM(),store.get("tf-room-v1",{})),style:Object.assign(DEFAULT_STYLE(),store.get("tf-style-v1",{}))}]};
+}
+let cur=PROJ.list.find(p=>p.id===PROJ.current)||PROJ.list[0]; PROJ.current=cur.id;
+const state=Object.assign(DEFAULT_ROOM(),clone(cur.room||{}));
 if(!Array.isArray(state.furn)) state.furn=[];
-const STYLE=Object.assign({felt:"green",floor:"wood",wall:"light",title:"",brand:"Regiis"},store.get("tf-style-v1",{}));
-const saveStyle=()=>store.set("tf-style-v1",STYLE);
+const STYLE=Object.assign(DEFAULT_STYLE(),cur.style||{});
+const saveProjects=()=>store.set("tf-projects-v1",PROJ);
 const roomData=()=>({shape:state.shape,L:state.L,W:state.W,a:state.a,b:state.b,custom:state.custom,cols:state.cols,tables:state.tables,furn:state.furn});
-const saveRoom=()=>store.set("tf-room-v1",roomData());
+let lastRoomJSON=JSON.stringify(roomData());
+const saveStyle=()=>{ cur.style={...STYLE}; cur.updated=Date.now(); saveProjects(); };
+// Called after every redraw; writes only when the room really changed.
+const saveRoom=()=>{ const j=JSON.stringify(roomData()); if(j===lastRoomJSON) return; lastRoomJSON=j; cur.room=JSON.parse(j); cur.updated=Date.now(); saveProjects(); };
+saveProjects();
 let tab=store.get("tf-tab","tables");
 let sel=null;           // {type:"t"|"c", o:object}
 let editOpen=false;     // size editor open in the selection bar
@@ -291,13 +344,13 @@ $("undo").onclick=()=>{
 };
 
 /* ---------- geometry ---------- */
-function roomPoints(){
-  if(state.custom) return state.custom;
-  const {L,W}=state;
-  if(state.shape==="rect"||!SHAPES[state.shape]) return [[0,0],[L,0],[L,W],[0,W]];
-  if(state.shape==="round") return ELLIPSE(L,W);
-  const a=Math.max(0,Math.min(state.a,L-50)), b=Math.max(0,Math.min(state.b,W-50));
-  return SHAPES[state.shape].pts(L,W,a,b);
+function roomPoints(r=state){
+  if(r.custom) return r.custom;
+  const {L,W}=r;
+  if(r.shape==="rect"||!SHAPES[r.shape]) return [[0,0],[L,0],[L,W],[0,W]];
+  if(r.shape==="round") return ELLIPSE(L,W);
+  const a=Math.max(0,Math.min(r.a,L-50)), b=Math.max(0,Math.min(r.b,W-50));
+  return SHAPES[r.shape].pts(L,W,a,b);
 }
 function inPoly(x,y,P){
   let c=false;
@@ -1192,6 +1245,92 @@ applyTheme(store.get("tf-theme",null));
 $("themeBtn").onclick=()=>{ const t=isDark()?"light":"dark"; store.set("tf-theme",t); applyTheme(t); };
 matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>applyTheme());
 
+/* ---------- projects ---------- */
+let pEdit=null;   // {id, mode:"rename"|"delete"}
+function renderProjName(){ $("projName").textContent=cur.name; $("projBtn").setAttribute("aria-label",`הפרויקט הפתוח: ${cur.name}. לחיצה פותחת את רשימת הפרויקטים`); }
+function projInfo(p){
+  const r=Object.assign(DEFAULT_ROOM(),p.room||{}), pts=roomPoints(r);
+  const mx=Math.round(Math.max(...pts.map(q=>q[0]))), my=Math.round(Math.max(...pts.map(q=>q[1])));
+  const n=(r.tables||[]).length, d=new Date(p.updated||Date.now()), now=new Date();
+  const when=d.toDateString()===now.toDateString()?`היום ${d.toLocaleTimeString("he-IL",{hour:"2-digit",minute:"2-digit"})}`:d.toLocaleDateString("he-IL");
+  return `${n} שולחנות · חדר ${mx}×${my} ס״מ · עודכן ${when}`;
+}
+function renderProjects(){
+  const list=$("plist"); list.innerHTML="";
+  [...PROJ.list].sort((a,b)=>(b.updated||0)-(a.updated||0)).forEach(p=>{
+    const row=document.createElement("div"); row.className="prow"; row.setAttribute("aria-current",p.id===cur.id);
+    const ed=pEdit?.id===p.id?pEdit.mode:null;
+    if(ed==="rename"){
+      row.innerHTML=`<label class="hint" for="ren-${p.id}" style="margin:0">שם חדש</label>
+        <input class="text" id="ren-${p.id}" value="${esc(p.name)}">
+        <div class="row"><button type="button" class="btn solid" data-a="ok">שמירה</button><button type="button" class="btn ghost" data-a="cancel">ביטול</button></div>`;
+      const inp=row.querySelector("input"), ok=()=>{ const v=inp.value.trim(); if(v){p.name=v; saveProjects(); if(p===cur) renderProjName();} pEdit=null; renderProjects(); };
+      row.querySelector('[data-a="ok"]').onclick=ok; inp.onkeydown=e=>{ if(e.key==="Enter") ok(); };
+      row.querySelector('[data-a="cancel"]').onclick=()=>{pEdit=null; renderProjects();};
+      list.append(row); setTimeout(()=>{inp.focus(); inp.select();},0); return;
+    }
+    if(ed==="delete"){
+      row.innerHTML=`<div class="pconfirm"><p>למחוק את "${esc(p.name)}"? אי אפשר לשחזר פרויקט שנמחק.</p>
+        <div class="row"><button type="button" class="btn danger" data-a="ok">כן, למחוק</button><button type="button" class="btn ghost" data-a="cancel">ביטול</button></div></div>`;
+      row.querySelector('[data-a="ok"]').onclick=()=>{ pEdit=null; deleteProject(p.id); };
+      row.querySelector('[data-a="cancel"]').onclick=()=>{pEdit=null; renderProjects();};
+      list.append(row); return;
+    }
+    row.innerHTML=`<button type="button" class="popen"><div><b>${esc(p.name)}</b><span>${projInfo(p)}</span></div>${p.id===cur.id?'<span class="badge">פתוח עכשיו</span>':""}</button>
+      <div class="pacts"><button type="button" class="btn ghost" data-a="ren">שינוי שם</button><button type="button" class="btn ghost" data-a="dup">שכפול</button><button type="button" class="btn danger" data-a="del">מחיקה</button></div>`;
+    row.querySelector(".popen").onclick=()=>{ switchProject(p.id); $("proj").hidden=true; toast(`נפתח: ${p.name}`); };
+    row.querySelector('[data-a="ren"]').onclick=()=>{pEdit={id:p.id,mode:"rename"}; renderProjects();};
+    row.querySelector('[data-a="dup"]').onclick=()=>duplicateProject(p.id);
+    row.querySelector('[data-a="del"]').onclick=()=>{pEdit={id:p.id,mode:"delete"}; renderProjects();};
+    list.append(row);
+  });
+}
+function loadInto(p){
+  for(const k of Object.keys(state)) delete state[k];
+  Object.assign(state,DEFAULT_ROOM(),clone(p.room||{}));
+  if(!Array.isArray(state.furn)) state.furn=[];
+  for(const k of Object.keys(STYLE)) delete STYLE[k];
+  Object.assign(STYLE,DEFAULT_STYLE(),p.style||{});
+  lastRoomJSON=JSON.stringify(roomData());
+  undoStack.length=0; lastPush=0; $("undo").disabled=true;
+  $("vizTitle").value=STYLE.title||"";
+  P=roomPoints(); G=buildGrid(P); select(null); renderPanel(); renderProjName();
+}
+function switchProject(id){
+  saveRoom();
+  const p=PROJ.list.find(x=>x.id===id); if(!p||p===cur) return;
+  cur=p; PROJ.current=id; saveProjects(); loadInto(p);
+}
+function createProject(name){
+  saveRoom();
+  const p={id:newId(),name,updated:Date.now(),room:DEFAULT_ROOM(),style:Object.assign(DEFAULT_STYLE(),{brand:STYLE.brand,felt:STYLE.felt,floor:STYLE.floor,wall:STYLE.wall,title:name})};
+  PROJ.list.push(p); cur=p; PROJ.current=p.id; saveProjects(); loadInto(p);
+}
+function duplicateProject(id){
+  saveRoom();
+  const p=PROJ.list.find(x=>x.id===id); if(!p) return;
+  const c={id:newId(),name:p.name+" (עותק)",updated:Date.now(),room:clone(p.room||{}),style:clone(p.style||{})};
+  PROJ.list.push(c); saveProjects(); renderProjects(); toast(`נוצר עותק: ${c.name}`);
+}
+function deleteProject(id){
+  const i=PROJ.list.findIndex(x=>x.id===id); if(i<0) return;
+  const [gone]=PROJ.list.splice(i,1);
+  if(!PROJ.list.length){ const p={id:newId(),name:"פרויקט חדש",updated:Date.now(),room:DEFAULT_ROOM(),style:DEFAULT_STYLE()}; PROJ.list.push(p); }
+  if(gone===cur){ const next=[...PROJ.list].sort((a,b)=>(b.updated||0)-(a.updated||0))[0]; cur=next; PROJ.current=next.id; saveProjects(); loadInto(next); }
+  else saveProjects();
+  renderProjects(); toast(`נמחק: ${gone.name}`);
+}
+$("projBtn").onclick=()=>{ saveRoom(); pEdit=null; renderProjects(); $("proj").hidden=false; $("newProjName").value=""; };
+$("projClose").onclick=()=>{ $("proj").hidden=true; };
+$("newProjBtn").onclick=()=>{
+  const name=$("newProjName").value.trim();
+  if(!name){ $("newProjName").focus(); toast("כתבו שם לפרויקט, למשל שם הלקוח."); return; }
+  createProject(name); $("proj").hidden=true; toast(`נוצר פרויקט: ${name}. התחילו במידות החדר.`); setTab("room");
+};
+$("newProjName").onkeydown=e=>{ if(e.key==="Enter") $("newProjBtn").click(); };
+document.addEventListener("keydown",e=>{ if(e.key==="Escape"&&!$("proj").hidden) $("proj").hidden=true; });
+renderProjName();
+
 /* ---------- start ---------- */
 P=roomPoints(); G=buildGrid(P);
 if(firstRun){
@@ -1206,7 +1345,7 @@ drawPlan();
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="11";
+const APP_VERSION="12";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
