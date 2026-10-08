@@ -1116,10 +1116,6 @@ function buildScene(){
           m.rotation.order="YXZ"; m.rotation.y=sz>0?0:Math.PI; m.rotation.x=-Math.PI/2;
           m.position.set(sx*L/4,top+5.06,sz*(W/2-R/2)); g.add(m);
         }
-        const bh=14, bw=Math.min(bh*brandRatio,W*.7);
-        for(const [x,z,ry] of [[0,W/2-1.8,0],[0,-W/2+1.8,Math.PI],[L/2-1.8,0,Math.PI/2],[-L/2+1.8,0,-Math.PI/2]]){
-          const m=new THREE.Mesh(new THREE.PlaneGeometry(bw,bh),brandMat); m.position.set(x,top-8.5,z); m.rotation.y=ry; g.add(m);
-        }
       }
       add(Box(L-2,2.2,W-2),molding,0,top-16.5,0,g);
       add(Box(L-40,7,W-22),cabinet,0,top-21,0,g);
@@ -1128,12 +1124,6 @@ function buildScene(){
         const x=px*(L/2-4), z=pz*(W/2-4);
         const pr=px?9:7.5;
         add(Cyl(pr,pr,11,20),leatherTan,x,top+.5,z,g);
-        if(brandOnLeather){
-          // brand printed on the leather pocket cover, on the side facing the long rail (as in the photo)
-          const arc=1.7, wv=(pr+.25)*arc, hv=Math.min(8,wv/brandRatio);
-          const cg=new THREE.CylinderGeometry(pr+.25,pr+.25,hv,18,1,true,(pz>0?0:Math.PI)-arc/2,arc);
-          const cm=new THREE.Mesh(cg,brandOnLeather); cm.position.set(x,top+.5,z); g.add(cm);
-        }
         add(Cyl(5.6,5.6,1.5,18),black,px*(L/2-R+3),top+5.3,pz*(W/2-R+3),g);
         add(Box(11,4,11),black,x*.97,top-19,z*.97,g);
       }
@@ -1366,7 +1356,7 @@ drawPlan();
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="14";
+const APP_VERSION="15";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
