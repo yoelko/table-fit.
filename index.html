@@ -145,8 +145,16 @@ input[type=number]{flex:1;min-width:0;width:100%;border:0;background:transparent
       <button type="button" class="btn solid" id="addTable">+ הוספת שולחן</button>
       <button type="button" class="btn" id="fillRoom">מלא את החדר</button>
       <button type="button" class="btn" id="clearRoom">ניקוי</button>
-      <label class="check" for="tightMode"><input type="checkbox" id="tightMode">לאפשר מקל קצר</label>
     </div>
+    <div class="grid2" style="margin-top:12px">
+      <label for="gapWall">מרחק מהקיר
+        <span class="field"><input id="gapWall" type="number" inputmode="numeric" min="0" max="400"><span class="unit">ס״מ</span></span>
+      </label>
+      <label for="gapTable">מרחק בין שולחנות
+        <span class="field"><input id="gapTable" type="number" inputmode="numeric" min="0" max="400"><span class="unit">ס״מ</span></span>
+      </label>
+    </div>
+    <p class="hint">נמדד משפת השולחן. מרחק מהקיר חל גם על עמודים. למשחק נוח עם מקל רגיל ממליצים על כ־140 ס״מ.</p>
     <div class="tools" id="selTools" hidden>
       <span id="selName" style="font-weight:700"></span>
       <button type="button" class="btn" id="rotTable">סיבוב 90°</button>
@@ -154,10 +162,10 @@ input[type=number]{flex:1;min-width:0;width:100%;border:0;background:transparent
     </div>
     <div class="legend">
       <span><i style="background:var(--felt)"></i>שולחן (גוררים עם האצבע, לחיצה בוחרת)</span>
-      <span><i style="border:2px dashed var(--zone)"></i>מרחב משחק</span>
+      <span><i style="border:2px dashed var(--zone)"></i>מרחק מהקיר</span>
       <span><i style="background:var(--pillar)"></i>עמוד</span>
     </div>
-    <p class="hint">מרחבי המשחק של שולחנות סמוכים יכולים לחפוף, כמו במועדונים, אבל שולחן אחר או עמוד לא יכולים להיכנס לתוכם.</p>
+    <p class="hint">קווי המידה מראים את המרחק מהשולחן המסומן לקיר, לעמוד או לשולחן הבא. מספר אדום אומר שהמרחק קטן ממה שהגדרתם.</p>
   </section>
 
   <section>
@@ -167,11 +175,11 @@ input[type=number]{flex:1;min-width:0;width:100%;border:0;background:transparent
     <div class="btns"><button type="button" class="btn" id="addSize">+ גודל חדש</button></div>
   </section>
 
-  <p class="note">החישוב לביליארד וסנוקר: משטח המשחק (השולחן פחות כ־13 ס״מ מסגרת מכל צד) ועוד אורך מקל של 147 ס״מ מכל צד. "צפוף" אומר שאפשר לשחק עם מקל קצר של 122 ס״מ. המידות משוערות; כדאי לוודא מול דגם ספציפי.</p>
+  <p class="note">כל המידות בס״מ. "נכנס" אומר שיש סביב השולחן את המרחק מהקיר שהגדרתם. מידות השולחנות לדוגמה; אפשר לשנות כל אחת לפי הדגם שלכם.</p>
 </div>
 
 <script>
-const CUE=147, SHORT=122, RAIL=13, CELL=5;
+const RAIL=13, CELL=5;
 const $=id=>document.getElementById(id);
 const clamp=(v,a,b)=>Math.min(b,Math.max(a,+v||0));
 
@@ -181,7 +189,7 @@ const KIND={cue:null, foos:{n:[80,200],t:[40,160]}, air:{n:[180,120],t:[120,80]}
 const DEFAULT_SIZES=[
   {name:"ביליארד 7 פיט", kind:"cue", L:213, W:122},
   {name:"ביליארד 8 פיט", kind:"cue", L:244, W:137},
-  {name:"ביליארד 9 פיט (תחרותי)", kind:"cue", L:280, W:155},
+  {name:"ביליארד 9 פיט (תחרותי)", kind:"cue", L:292, W:161},
   {name:"סנוקר 12 פיט", kind:"cue", L:382, W:203},
   {name:"כדורגל שולחן", kind:"foos", L:145, W:75},
   {name:"הוקי אוויר 7 פיט", kind:"air", L:213, W:121},
@@ -189,6 +197,10 @@ const DEFAULT_SIZES=[
 let items;
 try{ items=JSON.parse(localStorage.getItem("tf-sizes-v1")); }catch(e){}
 if(!Array.isArray(items)||!items.length) items=DEFAULT_SIZES.map(x=>({...x}));
+items.forEach(x=>{ if(x.name==="ביליארד 9 פיט (תחרותי)"&&x.L===280&&x.W===155){x.L=292;x.W=161;} });
+const GAP={wall:140, table:140};
+try{ Object.assign(GAP, JSON.parse(localStorage.getItem("tf-gaps-v1"))||{}); }catch(e){}
+const saveGaps=()=>{ try{ localStorage.setItem("tf-gaps-v1",JSON.stringify(GAP)); }catch(e){} };
 const saveSizes=()=>{ try{ localStorage.setItem("tf-sizes-v1",JSON.stringify(items.map(({name,kind,L,W,custom})=>({name,kind,L,W,custom})))); }catch(e){} };
 
 const SHAPES={
@@ -264,16 +276,14 @@ function place(d,G){
   return best;
 }
 function sizeDims(kind,L,W){
-  const O=[L,W];
-  if(kind==="cue"){const P=[Math.max(20,L-2*RAIL),Math.max(20,W-2*RAIL)];
-    return {O,PL:P,N:[P[0]+2*CUE,P[1]+2*CUE],T:[P[0]+2*SHORT,P[1]+2*SHORT]};}
-  const k=KIND[kind];
-  return {O,PL:[L*.82,W*.7],N:[L+k.n[0],W+k.n[1]],T:[L+k.t[0],W+k.t[1]]};
+  const O=[L,W], w=GAP.wall, N=[L+2*w,W+2*w];
+  const PL=kind==="cue"?[Math.max(20,L-2*RAIL),Math.max(20,W-2*RAIL)]:[L*.82,W*.7];
+  return {O,PL,N};
 }
-function prep(it){ const d=sizeDims(it.kind,it.L,it.W); it.outer=d.O; it.need=d.N; it.tight=d.T; }
+function prep(it){ const d=sizeDims(it.kind,it.L,it.W); it.outer=d.O; it.need=d.N; }
 function status(it,G){
-  let p=place(it.need,G); if(p) return {cls:"ok",txt:"נכנס בנוחות",p};
-  p=place(it.tight,G); if(p) return {cls:"warn",txt:"צפוף",p};
+  let p=place(it.need,G); if(p) return {cls:"ok",txt:"נכנס",p};
+  p=place(it.outer,G); if(p) return {cls:"warn",txt:"בלי מרחק מלא",p};
   return {cls:"bad",txt:"לא נכנס",p:{cx:G.maxX/2,cy:G.maxY/2,rot:G.maxX<G.maxY}};
 }
 
@@ -323,7 +333,7 @@ $("addCol").onclick=()=>{
 function makeTable(it){ return {name:it.name, kind:it.kind, L:it.L, W:it.W, cx:0, cy:0, rot:false}; }
 function dims(t,rot=t.rot){
   const D=sizeDims(t.kind,t.L,t.W), r=d=>rot?[d[1],d[0]]:d;
-  return {O:r(D.O),PL:r(D.PL),N:r(D.N),T:r(D.T)};
+  return {O:r(D.O),PL:r(D.PL),N:r(D.N)};
 }
 const box=(cx,cy,d)=>({x:cx-d[0]/2,y:cy-d[1]/2,w:d[0],h:d[1]});
 const hit=(a,b)=>a.x<b.x+b.w-1&&b.x<a.x+a.w-1&&a.y<b.y+b.h-1&&b.y<a.y+a.h-1;
@@ -332,47 +342,53 @@ function gridFree(G,r){
   if(i0<0||j0<0||i1>G.nx||j1>G.ny||i1<=i0||j1<=j0) return false;
   return freeRect(G,i0,j0,i1-i0,j1-j0);
 }
+// Clear distance between two rectangles (0 when they touch or overlap).
+function sep(a,b){
+  const dx=Math.max(0,a.x-(b.x+b.w),b.x-(a.x+a.w)), dy=Math.max(0,a.y-(b.y+b.h),b.y-(a.y+a.h));
+  return dx&&dy?Math.hypot(dx,dy):Math.max(dx,dy);
+}
 function tableStatus(t,G){
   const D=dims(t), body=box(t.cx,t.cy,D.O);
   const others=state.tables.filter(o=>o!==t).map(o=>box(o.cx,o.cy,dims(o).O));
   if(!gridFree(G,body)||others.some(o=>hit(o,body))) return "bad";
-  const zoneOk=d=>{const z=box(t.cx,t.cy,d);return gridFree(G,z)&&!others.some(o=>hit(o,z));};
-  return zoneOk(D.N)?"ok":zoneOk(D.T)?"warn":"bad";
+  const wallOk=gridFree(G,box(t.cx,t.cy,D.N));
+  const tableOk=others.every(o=>sep(o,body)>=GAP.table-1);
+  return wallOk&&tableOk?"ok":"warn";
 }
 // First free spot scanning from the top-left corner, so repeated adds pack the room in rows.
-function findSpot(t,G,tight){
+function findSpot(t,G){
   let best=null;
   const bodies=state.tables.map(o=>box(o.cx,o.cy,dims(o).O));
-  const zones=state.tables.map(o=>{const D=dims(o);return box(o.cx,o.cy,tight?D.T:D.N);});
   for(const rot of [false,true]){
-    const D=dims(t,rot), Z=tight?D.T:D.N;
+    const D=dims(t,rot), Z=D.N;
     const w=Math.ceil(Z[0]/CELL), h=Math.ceil(Z[1]/CELL);
-    for(let j=0;j+h<=G.ny;j+=2){
-      if(best&&j>best.j) break;
-      for(let i=0;i+w<=G.nx;i+=2){
+    for(let j=0;j+h<=G.ny;j++){
+      if(best&&j>=best.j) break;
+      for(let i=0;i+w<=G.nx;i++){
         if(!freeRect(G,i,j,w,h)) continue;
-        const cx=i*CELL+Z[0]/2, cy=j*CELL+Z[1]/2;
-        const z=box(cx,cy,Z), b=box(cx,cy,D.O);
-        if(bodies.some(o=>hit(o,z))||zones.some(o=>hit(o,b))) continue;
-        if(!best||j<best.j||(j===best.j&&i<best.i)) best={i,j,cx,cy,rot};
-        break;
+        const cx=i*CELL+Z[0]/2, cy=j*CELL+Z[1]/2, b=box(cx,cy,D.O);
+        if(bodies.some(o=>sep(o,b)<GAP.table-0.5||hit(o,b))) continue;
+        best={i,j,cx,cy,rot}; break;
       }
     }
   }
   return best;
 }
-// Distance from a point along an axis to the nearest wall or column.
+// Distance from a point along an axis to the nearest wall, column or other table.
 function rayDist(x,y,dx,dy,P,self){
   const segs=[];
-  for(const o of state.tables){ if(o===self) continue; const b=box(o.cx,o.cy,dims(o).O); const q=[[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]]; for(let i=0;i<4;i++) segs.push([q[i],q[(i+1)%4]]); }
-  for(let i=0;i<P.length;i++) segs.push([P[i],P[(i+1)%P.length]]);
-  for(const c of state.cols){const q=[[c.x,c.y],[c.x+c.w,c.y],[c.x+c.w,c.y+c.h],[c.x,c.y+c.h]];for(let i=0;i<4;i++) segs.push([q[i],q[(i+1)%4]]);}
-  let best=Infinity;
-  for(const [p,q] of segs){
-    if(dx){ if((p[1]>y)===(q[1]>y)) continue; const sx=p[0]+(y-p[1])*(q[0]-p[0])/(q[1]-p[1]); const d=(sx-x)*dx; if(d>=-.5&&d<best) best=Math.max(0,d); }
-    else  { if((p[0]>x)===(q[0]>x)) continue; const sy=p[1]+(x-p[0])*(q[1]-p[1])/(q[0]-p[0]); const d=(sy-y)*dy; if(d>=-.5&&d<best) best=Math.max(0,d); }
+  const rectSegs=(b,kind)=>{const q=[[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]]; for(let i=0;i<4;i++) segs.push([q[i],q[(i+1)%4],kind]);};
+  for(const o of state.tables){ if(o!==self) rectSegs(box(o.cx,o.cy,dims(o).O),"table"); }
+  for(let i=0;i<P.length;i++) segs.push([P[i],P[(i+1)%P.length],"wall"]);
+  for(const c of state.cols) rectSegs(c,"wall");
+  let best=Infinity, kind="wall";
+  for(const [p,q,k] of segs){
+    let d;
+    if(dx){ if((p[1]>y)===(q[1]>y)) continue; d=(p[0]+(y-p[1])*(q[0]-p[0])/(q[1]-p[1])-x)*dx; }
+    else  { if((p[0]>x)===(q[0]>x)) continue; d=(p[1]+(x-p[0])*(q[1]-p[1])/(q[0]-p[0])-y)*dy; }
+    if(d>=-.5&&d<best){best=Math.max(0,d); kind=k;}
   }
-  return best;
+  return {d:best,kind};
 }
 
 /* ---------- drawing ---------- */
@@ -445,11 +461,12 @@ function drawPlan(){
     if(sel||state.tables.length===1){
       // dimension lines from each side of the table body to the nearest wall or column
       for(const [dx,dy,sx,sy] of [[-1,0,o.x,t.cy],[1,0,o.x+o.w,t.cy],[0,-1,t.cx,o.y],[0,1,t.cx,o.y+o.h]]){
-        const d=rayDist(sx,sy,dx,dy,P,t); if(!isFinite(d)) continue;
+        const r=rayDist(sx,sy,dx,dy,P,t), d=r.d; if(!isFinite(d)) continue;
+        const short=d<(r.kind==="table"?GAP.table:GAP.wall)-0.5, lc=short?"var(--bad)":"var(--ink)";
         const ex=sx+dx*d, ey=sy+dy*d, mx=(sx+ex)/2, my=(sy+ey)/2;
-        dimsSvg+=`<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="var(--ink)" stroke-width="${sw*.6}"/>
-          <circle cx="${ex}" cy="${ey}" r="${sw*1.4}" fill="var(--ink)"/>
-          <text x="${mx+(dy?fs*.4:0)}" y="${my-(dx?fs*.35:0)}" text-anchor="${dy?"start":"middle"}" font-size="${fs*.95}" font-weight="700" fill="var(--ink)" stroke="var(--bg)" stroke-width="${sw*2.5}" paint-order="stroke" font-family="Assistant">${Math.round(d)}</text>`;
+        dimsSvg+=`<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="${lc}" stroke-width="${sw*.6}"/>
+          <circle cx="${ex}" cy="${ey}" r="${sw*1.4}" fill="${lc}"/>
+          <text x="${mx+(dy?fs*.4:0)}" y="${my-(dx?fs*.35:0)}" text-anchor="${dy?"start":"middle"}" font-size="${fs*.95}" font-weight="700" fill="${lc}" stroke="var(--bg)" stroke-width="${sw*2.5}" paint-order="stroke" font-family="Assistant">${Math.round(d)}</text>`;
       }
     }
   });
@@ -462,7 +479,7 @@ function drawPlan(){
     `<text transform="translate(${-pad*.3} ${maxY/2}) rotate(-90)" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant" direction="rtl">${Math.round(maxY)} ס״מ</text>`;
   const n=state.tables.length;
   $("summary").textContent = n===0 ? "החדר ריק. בחרו סוג שולחן ולחצו על הוספה."
-    : `בחדר ${n} שולחנות: ${counts.ok} בנוחות`+(counts.warn?`, ${counts.warn} צפופים`:"")+(counts.bad?`, ${counts.bad} לא נכנסים`:"")+".";
+    : `בחדר ${n} שולחנות: ${counts.ok} במרחק שהגדרתם`+(counts.warn?`, ${counts.warn} קרובים מדי`:"")+(counts.bad?`, ${counts.bad} נוגעים בקיר, בעמוד או בשולחן`:"")+".";
   $("summary").className="summary "+(counts.bad?"bad":counts.warn?"warn":"ok");
 }
 function draw(){ drawList(); drawPlan(); }
@@ -485,18 +502,16 @@ function select(t){ selT=t; renderSel(); drawPlan(); }
 
 function addTable(it){
   const t=makeTable(it);
-  const tight=$("tightMode").checked;
-  const s=findSpot(t,G,tight)||(!tight&&findSpot(t,G,true));
+  const s=findSpot(t,G);
   if(s){t.cx=s.cx;t.cy=s.cy;t.rot=s.rot;}
   else {t.cx=G.maxX/2;t.cy=G.maxY/2;t.rot=G.maxX<G.maxY;}
   state.tables.push(t); select(t);
 }
 $("addTable").onclick=()=>addTable(items[state.sel]);
 $("fillRoom").onclick=()=>{
-  const tight=$("tightMode").checked;
-  state.tables=state.tables.filter(t=>tableStatus(t,G)!=="bad");
+  state.tables=[];
   for(let n=0;n<80;n++){
-    const t=makeTable(items[state.sel]), s=findSpot(t,G,tight);
+    const t=makeTable(items[state.sel]), s=findSpot(t,G);
     if(!s) break;
     t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; state.tables.push(t);
   }
@@ -505,7 +520,9 @@ $("fillRoom").onclick=()=>{
 $("clearRoom").onclick=()=>{state.tables=[]; select(null);};
 $("rotTable").onclick=()=>{if(selT){selT.rot=!selT.rot;drawPlan();}};
 $("delTable").onclick=()=>{if(selT){state.tables.splice(state.tables.indexOf(selT),1);select(null);}};
-$("tightMode").onchange=drawPlan;
+$("gapWall").value=GAP.wall; $("gapTable").value=GAP.table;
+$("gapWall").oninput=e=>{GAP.wall=clamp(e.target.value,0,400); saveGaps(); draw();};
+$("gapTable").oninput=e=>{GAP.table=clamp(e.target.value,0,400); saveGaps(); drawPlan();};
 
 /* drag tables and columns on the plan */
 let drag=null, raf=0;
@@ -595,7 +612,7 @@ drawPlan();
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="5";
+const APP_VERSION="6";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
