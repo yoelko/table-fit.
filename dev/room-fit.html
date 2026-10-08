@@ -322,6 +322,7 @@ button{font:inherit;color:inherit}
     <div class="zoom">
       <button type="button" id="zIn" title="התקרבות" aria-label="התקרבות">+</button>
       <button type="button" id="zOut" title="התרחקות" aria-label="התרחקות">−</button>
+      <button type="button" id="zRot" title="סיבוב החדר כך שימלא את המסך" aria-label="סיבוב החדר כך שימלא את המסך" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg></button>
       <button type="button" id="zFit" title="כל החדר" aria-label="הצגת כל החדר"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </div>
     <div class="selbar" id="selbar" hidden></div>
@@ -330,7 +331,8 @@ button{font:inherit;color:inherit}
       <div class="card">
         <h2>ברוכים הבאים</h2>
         <ul>
-          <li>קובעים את החדר, ומוסיפים שולחנות וריהוט.</li>
+          <li>הכי מהיר: "תכנון חכם" – אומרים את גודל החדר ומקבלים סידור מוכן.</li>
+          <li>או קובעים את החדר בעצמכם, ומוסיפים שולחנות וריהוט.</li>
           <li>גוררים כדי להזיז. השולחן נצמד למרחק הנכון מהקיר ומהשולחן הסמוך.</li>
           <li>צביטה או גלגלת להתקרבות. במחשב: R סיבוב, Delete מחיקה, חצים להזזה.</li>
         </ul>
@@ -839,7 +841,7 @@ function rotateRoom(){
   for(const o of state.furn){ [o.cx,o.cy]=f(o.cx,o.cy); o.rot=(o.rot+90)%360; }
   for(const c of state.cols){ const [nx,ny]=f(c.x,c.y+c.h); [c.x,c.y,c.w,c.h]=[nx,ny,c.h,c.w]; }
   if(cur.bg&&cur.bg.show){ cur.bg.show=false; saveProjects(); toast("השרטוט הוסתר כי הוא לא מסתובב עם החדר"); }
-  VIEW.z=1; VIEW.cx=VIEW.cy=null; select(null); refreshRoom(); renderRoom();
+  VIEW.z=1; VIEW.cx=VIEW.cy=null; select(null); refreshRoom(); renderPanel();
 }
 function refreshRoom(){ P=roomPoints(); G=buildGrid(P); drawPlan(); updateSizeStatus(); }
 function cmPerPx(){ const r=svgEl.getBoundingClientRect(); return Math.max(VB.w/Math.max(1,r.width),VB.h/Math.max(1,r.height)); }
@@ -925,6 +927,9 @@ function drawPlan(){
   const n=state.tables.length, sum=$("summary");
   sum.innerHTML=`<b>${n}</b> שולחנות<span class="rd"> · חדר <bdi dir="ltr">${Math.round(maxX)}×${Math.round(maxY)}</bdi>${state.furn.length?` · ${state.furn.length} פריטי ריהוט`:""}</span>`;
   saveRoom(); renderEmptyCta();
+  // offer a quarter turn when the room lies across a tall screen (or the other way round) and would show small
+  const r=svgEl.getBoundingClientRect(), ra=maxX/Math.max(1,maxY), sa=r.width/Math.max(1,r.height);
+  $("zRot").hidden=VIEWER||!r.width||!((ra>1.25&&sa<.8)||(ra<.8&&sa>1.25));
 }
 
 /* ---------- selection bar ---------- */
@@ -1235,7 +1240,7 @@ function bgHref(){
       bgURL=URL.createObjectURL(new Blob([a],{type:(hd.match(/data:([^;]+)/)||[,"image/jpeg"])[1]})); }catch(e){ bgURL=bgFor; } }
   return bgURL;
 }
-function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2600); }
+function toast(msg){ if(matchMedia("(pointer: coarse)").matches) msg=String(msg).replace(" · Ctrl+Z לביטול"," · אפשר לבטל בחץ למעלה"); const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2600); }
 
 /* ---------- moving things on the plan ---------- */
 let drag=null, raf=0;
@@ -1305,6 +1310,7 @@ addEventListener("pointerup",e=>{ if(ptrs.has(e.pointerId)) endPtr(e); }); addEv
 svgEl.addEventListener("wheel",e=>{ e.preventDefault(); setZoom(VIEW.z*Math.exp(-e.deltaY*.0015),toRoom(e)); },{passive:false});
 $("zIn").onclick=()=>setZoom(VIEW.z*1.4);
 $("zOut").onclick=()=>setZoom(VIEW.z/1.4);
+$("zRot").onclick=()=>{ rotateRoom(); toast("החדר הסתובב כדי למלא את המסך · Ctrl+Z לביטול"); };
 $("zFit").onclick=()=>{VIEW.z=1;VIEW.cx=VIEW.cy=null;drawPlan();};
 
 /* ---------- keyboard (computer) ---------- */
