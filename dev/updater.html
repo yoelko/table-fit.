@@ -1,0 +1,18 @@
+<script>
+/* Auto-update: when a newer version is published, reload into it. */
+const APP_VERSION="@@VER@@";
+async function checkUpdate(){
+  try{
+    const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
+    const v=(await r.json()).version;
+    if(v && v!==APP_VERSION){
+      if(window.caches){ for(const k of await caches.keys()) await caches.delete(k); }
+      const reg=await navigator.serviceWorker?.getRegistration(); await reg?.update();
+      location.reload();
+    }
+  }catch(e){}
+}
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js").catch(()=>{});}
+checkUpdate();
+document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") checkUpdate(); });
+</script>

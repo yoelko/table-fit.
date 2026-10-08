@@ -1,0 +1,30 @@
+from playwright.sync_api import sync_playwright
+three=open('t3/build/three.min.js','rb').read()
+with sync_playwright() as p:
+    b=p.chromium.launch(args=["--use-gl=swiftshader","--enable-webgl","--ignore-gpu-blocklist","--enable-unsafe-swiftshader"])
+    ctx=b.new_context(viewport={'width':1366,'height':860},service_workers="block"); pg=ctx.new_page()
+    pg.route("**/three.min.js",lambda r:r.fulfill(body=three,content_type="application/javascript")); pg.route("**/fonts.googleapis.com/**",lambda r:r.abort())
+    errs=[]; pg.on('pageerror',lambda e:errs.append(str(e))); pg.on('console',lambda m: m.type=='error' and errs.append(m.text))
+    pg.goto("http://127.0.0.1:8770/index.html"); pg.wait_for_timeout(600)
+    if pg.locator('#tipOk').is_visible(): pg.click('#tipOk')
+    pg.click('#tab-room'); pg.fill('#rL','900'); pg.fill('#rW','700'); pg.click('#tab-tables'); pg.click('#clearAll')
+    pg.locator('.spick').nth(2).click(); pg.click('#tFill'); pg.wait_for_timeout(300)
+    pg.evaluate("()=>{addFurn('tv'); select(null);}")
+    pg.click('#vizOpen'); pg.wait_for_timeout(3000)
+    # TV canvas frames over time
+    for i in range(4):
+        pg.evaluate("()=>{}"); pg.wait_for_timeout(1700)
+        pg.evaluate("()=>TVB.c.toDataURL()") 
+        open(f'tv{i}.png','wb').write(__import__('base64').b64decode(pg.evaluate("()=>TVB.c.toDataURL().split(',')[1]")))
+    print(pg.evaluate("()=>({phase:TVB.phase,frames:TVB.frames,live:tvLive().length,looping:V.looping})"))
+    pg.locator('#vizStage').screenshot(path='tv_room.png')
+    pg.evaluate("()=>{TVB.cam=2;}"); pg.wait_for_timeout(300); open('tv_cam2.png','wb').write(__import__('base64').b64decode(pg.evaluate("()=>TVB.c.toDataURL().split(',')[1]")))
+    pg.evaluate("()=>{TVB.cam=1;}"); pg.wait_for_timeout(300); open('tv_cam1.png','wb').write(__import__('base64').b64decode(pg.evaluate("()=>TVB.c.toDataURL().split(',')[1]")))
+    # fast-forward the simulation to check stability
+    r=pg.evaluate("()=>{const t=performance.now(); for(let i=0;i<20000;i++) tvStep(1/30); return {ms:performance.now()-t, frames:TVB.frames, phase:TVB.phase, shots:TVB.shots, out:TVB.balls.filter(b=>!b.in&&(b.x<0||b.x>TVB.L||b.y<0||b.y>TVB.W)).length}}")
+    print(r)
+    pg.evaluate("()=>{TVB.mode=null; tvTexture('snooker');}"); pg.wait_for_timeout(2500)
+    open('tv_snk.png','wb').write(__import__('base64').b64decode(pg.evaluate("()=>TVB.c.toDataURL().split(',')[1]")))
+    r=pg.evaluate("()=>{for(let i=0;i<20000;i++) tvStep(1/30); return {frames:TVB.frames,pts:TVB.pts,phase:TVB.phase}}"); print(r)
+    pg.click('#vizClose'); pg.wait_for_timeout(300); print('looping after close', pg.evaluate("()=>V.looping"))
+    print('errors:',errs[:5]); b.close()

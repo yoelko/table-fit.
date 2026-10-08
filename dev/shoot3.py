@@ -1,0 +1,17 @@
+from playwright.sync_api import sync_playwright
+three=open('t3/build/three.min.js','rb').read()
+with sync_playwright() as p:
+    b=p.chromium.launch(args=["--use-gl=swiftshader","--enable-webgl","--ignore-gpu-blocklist","--enable-unsafe-swiftshader"])
+    ctx=b.new_context(viewport={'width':1366,'height':860},service_workers="block",accept_downloads=True); pg=ctx.new_page()
+    pg.route("**/three.min.js",lambda r:r.fulfill(body=three,content_type="application/javascript")); pg.route("**/fonts.googleapis.com/**",lambda r:r.abort())
+    errs=[]; pg.on('pageerror',lambda e:errs.append(str(e)))
+    pg.goto("http://127.0.0.1:8770/index.html"); pg.wait_for_timeout(600); pg.click('#tipOk')
+    pg.click('#tab-room'); pg.fill('#rL','1100'); pg.fill('#rW','800'); pg.click('#tab-tables'); pg.click('#clearAll')
+    pg.locator('.spick').nth(2).click(); pg.click('#tFill'); pg.wait_for_timeout(300)
+    pg.click('#vizOpen'); pg.wait_for_timeout(4000)
+    pg.click('#dimToggle'); pg.wait_for_timeout(1200)
+    pg.locator('#vizStage').screenshot(path='d1.png')
+    pg.click('#vizViews button[data-v="top"]'); pg.wait_for_timeout(1200); pg.locator('#vizStage').screenshot(path='d2.png')
+    with pg.expect_download() as dl: pg.click('#vizSave')
+    dl.value.save_as('d3.png')
+    print('errors:',errs[:5]); b.close()
