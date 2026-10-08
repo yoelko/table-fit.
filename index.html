@@ -3,13 +3,16 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#1f6b4a">
+<meta name="theme-color" content="#2b120d">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="description" content="תכנון חדר משחקים: כמה שולחנות ביליארד וסנוקר נכנסים, איפה, והדמיה בתלת מימד.">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="שולחן לחדר">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" href="icon-192.png">
-<style>body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
+<style>html{background:#2b120d}body{margin:0}:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}[hidden]{display:none!important}</style>
 <title>איזה שולחן נכנס לחדר?</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Frank+Ruhl+Libre:wght@500;700&family=Heebo:wght@400;500;700&display=swap">
 <style>
@@ -59,6 +62,8 @@ button{font:inherit;color:inherit}
 .tb:hover{background:rgb(255 255 255 / .08)}
 .tb[disabled]{opacity:.35;cursor:default;background:none}
 .tb svg{width:19px;height:19px}
+.tb.inst{width:auto;padding:0 10px;gap:5px;display:inline-flex;align-items:center;border:1px solid rgb(255 255 255 / .2);font-size:.85rem}
+.tb.inst[hidden]{display:none}
 .tb.cta{width:auto;padding:0 14px;gap:6px;display:inline-flex;align-items:center;background:#c9a24d;color:#1b110c;font-weight:700}
 .tb.cta:hover{background:#d8b260}
 
@@ -94,7 +99,7 @@ button{font:inherit;color:inherit}
 .tabs button{all:unset;cursor:pointer;flex:1;text-align:center;padding:10px 4px 9px;font-weight:500;color:var(--muted);border-bottom:2px solid transparent;margin-bottom:-1px}
 .tabs button:hover{color:var(--ink)}
 .tabs button[aria-selected="true"]{color:var(--ink);font-weight:700;border-bottom-color:var(--accent)}
-.panel{flex:0 0 auto;max-height:38vh;overflow:auto;padding-inline:16px;padding-block:14px 22px;display:flex;flex-direction:column;gap:16px}
+.panel{flex:0 0 auto;max-height:48vh;overflow:auto;padding-inline:16px;padding-block:14px 22px;display:flex;flex-direction:column;gap:16px}
 .panel h3{font-family:var(--display);font-size:1rem;font-weight:700;color:var(--ink);margin:0 0 8px}
 .hint{font-size:.82rem;color:var(--muted);margin:6px 0 0}
 .link{all:unset;cursor:pointer;color:var(--accent);font-weight:500;font-size:.88rem}
@@ -200,8 +205,24 @@ button{font:inherit;color:inherit}
 .sw i{width:14px;height:14px;border-radius:50%;border:1px solid rgb(0 0 0 / .2)}
 .sw[aria-pressed="true"]{border-color:var(--accent);background:var(--sel);font-weight:700}
 
+/* phone: plan fills the screen; tools open in a drawer above the bottom tab bar */
+.tabs svg{display:block;width:21px;height:21px;margin:0 auto 2px;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:899px){
+  .stage{margin:10px 10px 8px;flex:1 1 auto;min-height:0}
+  .tabs{order:3;margin:0;border:0;border-top:1px solid var(--line);background:var(--surface);padding:2px 6px 4px}
+  .tabs button{font-size:.75rem;padding:6px 2px 4px;border-bottom:0;margin:0;color:var(--muted)}
+  .tabs:not(.open) button[aria-selected="true"]{color:var(--muted);font-weight:500}
+  .tabs.open button[aria-selected="true"]{color:var(--accent);font-weight:700}
+  .panel{order:2;display:none;border-top:1px solid var(--line);background:var(--surface);border-radius:14px 14px 0 0;box-shadow:0 -8px 24px var(--shadow);padding-top:16px}
+  .panel.open{display:flex}
+  .panel::before{content:"";position:sticky;top:-6px;align-self:center;width:36px;height:4px;border-radius:2px;background:var(--line);margin:-8px 0 2px;flex:none}
+  .stage{order:1}
+}
+@media (max-width:600px){ .sum .rd{display:none} .tb.inst{padding:0;width:38px;font-size:0;gap:0;border:0} .topbtns{gap:2px} .tb.cta{padding:0 12px} }
+@media (pointer:coarse){ #zIn,#zOut{display:none} #zFit{border-top:0} }
 @media (min-width:900px){
   body{font-size:15px}
+  .tabs svg{display:none}
   .app{display:grid;grid-template-columns:380px 1fr;grid-template-rows:auto auto 1fr}
   .top{grid-column:1/-1}
   .tabs{grid-column:1;grid-row:2;margin:12px 16px 0 0}
@@ -232,6 +253,9 @@ button{font:inherit;color:inherit}
       <p class="sum" id="summary"></p>
     </div>
     <div class="topbtns">
+      <button type="button" class="tb inst" id="installBtn" hidden title="התקנה כאפליקציה">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>התקנה
+      </button>
       <button type="button" class="tb" id="undo" disabled title="ביטול (Ctrl+Z)" aria-label="ביטול הפעולה האחרונה">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h4"/></svg>
       </button>
@@ -266,10 +290,10 @@ button{font:inherit;color:inherit}
   </section>
 
   <nav class="tabs" role="tablist" aria-label="הגדרות">
-    <button type="button" role="tab" id="tab-room" aria-controls="panel" data-tab="room">חדר</button>
-    <button type="button" role="tab" id="tab-tables" aria-controls="panel" data-tab="tables">שולחנות</button>
-    <button type="button" role="tab" id="tab-furn" aria-controls="panel" data-tab="furn">ריהוט</button>
-    <button type="button" role="tab" id="tab-gaps" aria-controls="panel" data-tab="gaps">מרחקים</button>
+    <button type="button" role="tab" id="tab-room" aria-controls="panel" data-tab="room"><svg viewBox="0 0 24 24"><path d="M4 5h16v14H4z"/><path d="M4 5l4 4M20 5l-4 4"/></svg>חדר</button>
+    <button type="button" role="tab" id="tab-tables" aria-controls="panel" data-tab="tables"><svg viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="10" rx="1.5"/><circle cx="5.5" cy="9.5" r=".8"/><circle cx="18.5" cy="9.5" r=".8"/><circle cx="5.5" cy="14.5" r=".8"/><circle cx="18.5" cy="14.5" r=".8"/></svg>שולחנות</button>
+    <button type="button" role="tab" id="tab-furn" aria-controls="panel" data-tab="furn"><svg viewBox="0 0 24 24"><path d="M6 11V7a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v4"/><path d="M4 11h16v5H4zM6 16v3M18 16v3"/></svg>ריהוט</button>
+    <button type="button" role="tab" id="tab-gaps" aria-controls="panel" data-tab="gaps"><svg viewBox="0 0 24 24"><path d="M3 12h18M3 12l3-3M3 12l3 3M21 12l-3-3M21 12l-3 3M3 5v14M21 5v14"/></svg>מרחקים</button>
   </nav>
   <main class="panel" id="panel" role="tabpanel"></main>
 </div>
@@ -613,7 +637,7 @@ function drawPlan(){
   state.tables.forEach((t,k)=>{
     const st=tableStatus(t); counts[st]++;
     const D=dims(t), z=box(t.cx,t.cy,D.N), o=box(t.cx,t.cy,D.O), p=box(t.cx,t.cy,D.PL), isSel=t===selT;
-    zones+=`<rect x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" fill="${isSel?"var(--sel)":"none"}" fill-opacity=".5" stroke="${col[st]}" stroke-width="${sw*(isSel?1:.6)}" stroke-dasharray="${sw*4} ${sw*3}" pointer-events="none"/>`;
+    if(isSel) zones+=`<rect x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" fill="var(--sel)" fill-opacity=".45" stroke="var(--zone)" stroke-width="${sw}" stroke-dasharray="${sw*4} ${sw*3}" pointer-events="none"/>`;
     const tfs=Math.min(fs*1.15,Math.min(D.PL[0],D.PL[1])/3.6);
     tables+=`<g data-t="${k}" style="cursor:${drag?.o===t?"grabbing":"grab"}">
       <rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*2.5}" fill="var(--wood)"/>
@@ -622,7 +646,7 @@ function drawPlan(){
       <text x="${t.cx}" y="${t.cy-tfs*.12}" text-anchor="middle" font-size="${tfs}" fill="#fff" font-weight="700" ${FONT}>${k+1}</text>
       <text x="${t.cx}" y="${t.cy+tfs*.95}" text-anchor="middle" font-size="${tfs*.72}" fill="#fff" fill-opacity=".85" ${FONT}>${t.L}×${t.W}</text>
     </g>`;
-    if(isSel||state.tables.length===1){
+    if(isSel){
       for(const [dx,dy,sx,sy] of [[-1,0,o.x,t.cy],[1,0,o.x+o.w,t.cy],[0,-1,t.cx,o.y],[0,1,t.cx,o.y+o.h]]){
         const r=rayDist(sx,sy,dx,dy,t), d=r.d; if(!isFinite(d)) continue;
         const lc="var(--ink)";
@@ -665,9 +689,7 @@ function drawPlan(){
     `<text x="${maxX/2}" y="${-pad*.35}" text-anchor="middle" font-size="${fs}" fill="var(--muted)" ${FONT} direction="rtl">${Math.round(maxX)} ס״מ</text>`+
     `<text transform="translate(${-pad*.4} ${maxY/2}) rotate(-90)" text-anchor="middle" font-size="${fs}" fill="var(--muted)" ${FONT} direction="rtl">${Math.round(maxY)} ס״מ</text>`;
   const n=state.tables.length, sum=$("summary");
-  const parts=[`<b>${n}</b> שולחנות`, `חדר <bdi dir="ltr">${Math.round(maxX)}×${Math.round(maxY)}</bdi>`];
-  if(state.furn.length) parts.push(`${state.furn.length} פריטי ריהוט`);
-  sum.innerHTML=parts.join(" · ");
+  sum.innerHTML=`<b>${n}</b> שולחנות<span class="rd"> · חדר <bdi dir="ltr">${Math.round(maxX)}×${Math.round(maxY)}</bdi>${state.furn.length?` · ${state.furn.length} פריטי ריהוט`:""}</span>`;
   saveRoom();
 }
 
@@ -786,13 +808,20 @@ function fillRoom(it){
 }
 
 /* ---------- panel ---------- */
+const isWide=()=>matchMedia("(min-width:900px)").matches;
+let drawerOpen=false;
+function setDrawer(open){ drawerOpen=open; $("panel").classList.toggle("open",open||isWide()); document.querySelector(".tabs").classList.toggle("open",open&&!isWide()); }
 function setTab(t){
   tab=t; store.set("tf-tab",t);
   document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t));
   $("panel").setAttribute("aria-labelledby","tab-"+t);
   renderPanel(); $("panel").scrollTop=0;
 }
-document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>{
+  if(!isWide()&&drawerOpen&&tab===b.dataset.tab){ setDrawer(false); return; }
+  setTab(b.dataset.tab); setDrawer(true);
+});
+matchMedia("(min-width:900px)").addEventListener?.("change",()=>setDrawer(drawerOpen));
 function renderPanel(){ ({room:renderRoom,tables:renderTables,furn:renderFurn,gaps:renderGaps})[tab](); }
 function renderFurn(){
   const p=$("panel"); p.innerHTML="";
@@ -993,7 +1022,7 @@ function endPtr(e){
   ptrs.delete(e.pointerId);
   if(pinch){ if(ptrs.size<2) pinch=null; drag=null; return; }
   if(!drag) return;
-  if(drag.pan&&!drag.moved) select(null);
+  if(drag.pan&&!drag.moved){ select(null); if(!isWide()) setDrawer(false); }
   else if(drag.moved&&drag.kind!=="t") updateSizeStatus();
   drag=null; drawPlan(); renderSelHead();
 }
@@ -1398,6 +1427,24 @@ async function saveVizImage(){
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.append(a); a.click(); a.remove();
 }
 
+/* ---------- install as an app (PWA) ---------- */
+{
+  const standalone=matchMedia("(display-mode: standalone)").matches||navigator.standalone===true;
+  const framed=window.self!==window.top;
+  const ios=/iphone|ipad|ipod/i.test(navigator.userAgent)||(navigator.platform==="MacIntel"&&navigator.maxTouchPoints>1);
+  let deferred=null;
+  if(!standalone&&!framed){
+    window.addEventListener("beforeinstallprompt",e=>{ e.preventDefault(); deferred=e; $("installBtn").hidden=false; });
+    if(ios) $("installBtn").hidden=false;
+  }
+  window.addEventListener("appinstalled",()=>{ $("installBtn").hidden=true; toast("האפליקציה הותקנה"); });
+  $("installBtn").onclick=async()=>{
+    if(deferred){ deferred.prompt(); try{ const r=await deferred.userChoice; if(r.outcome==="accepted") $("installBtn").hidden=true; }catch(e){} deferred=null; return; }
+    const t=$("toast"); t.textContent=ios?"להתקנה: לוחצים על כפתור השיתוף בדפדפן (ריבוע עם חץ) ובוחרים \"הוסף למסך הבית\"":"להתקנה: בתפריט הדפדפן בוחרים \"התקנת אפליקציה\" או \"הוספה למסך הבית\"";
+    t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,7000);
+  };
+}
+
 /* ---------- light / dark ---------- */
 const MOON='<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>';
 const SUN='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
@@ -1407,7 +1454,7 @@ function applyTheme(t){
   const d=isDark();
   $("themeIco").innerHTML=d?SUN:MOON;
   $("themeBtn").setAttribute("aria-label",d?"מעבר למצב בהיר":"מעבר למצב כהה");
-  document.querySelector('meta[name="theme-color"]')?.setAttribute("content",d?"#121815":"#1f6b4a");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content",d?"#0f0806":"#2b120d");
 }
 applyTheme(store.get("tf-theme",null));
 $("themeBtn").onclick=()=>{ const t=isDark()?"light":"dark"; store.set("tf-theme",t); applyTheme(t); };
@@ -1507,13 +1554,13 @@ if(firstRun){
 }
 if(!store.get("tf-tip2",false)) $("tip").hidden=false;
 $("tipOk").onclick=()=>{ $("tip").hidden=true; store.set("tf-tip2",true); };
-setTab(["room","tables","furn","gaps"].includes(tab)?tab:"tables");
+setTab(["room","tables","furn","gaps"].includes(tab)?tab:"tables"); setDrawer(false);
 drawPlan();
 </script>
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="17";
+const APP_VERSION="18";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
