@@ -173,6 +173,36 @@ button{font:inherit;color:inherit}
 .proj-head{display:flex;align-items:center;gap:10px}
 .proj-head h2{font-family:var(--display);font-weight:700;font-size:1.5rem;margin:0;flex:1}
 .newp{display:flex;gap:8px}
+.adv .lead{margin:-4px 0 14px;color:var(--muted)}
+.advin{position:relative;display:flex;gap:8px;align-items:stretch}
+.advin textarea{flex:1;min-width:0;resize:none;font:inherit;font-size:1rem;line-height:1.4;padding:12px}
+.micbtn{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:78px;border-radius:12px;background:var(--accent);color:#fff;font-size:.78rem;font-weight:700;padding:8px}
+.micbtn svg{width:24px;height:24px}
+.micbtn.on{background:#b3261e;animation:micpulse 1.2s infinite}
+@keyframes micpulse{0%,100%{box-shadow:0 0 0 0 rgb(179 38 30 / .45)}50%{box-shadow:0 0 0 10px rgb(179 38 30 / 0)}}
+#advEx{margin:10px 0 4px}#advEx button{font-size:.8rem;color:var(--muted)}
+.advf{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;margin:12px 0 10px}
+.advf label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;font-weight:700;color:var(--muted)}
+.advf .text{width:100%;box-sizing:border-box;font-size:1rem}
+.advgo{width:100%;padding:13px;font-size:1rem;margin-top:4px}
+.props{display:flex;flex-direction:column;gap:14px;margin-top:18px}
+.pcard{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:0 6px 18px var(--shadow)}
+.pplan{background:linear-gradient(180deg,#efe6d6,#e6dac5);padding:12px;display:grid;place-items:center}
+.pplan svg{width:100%;max-height:220px}
+.pbody{padding:14px 16px 16px}
+.pbody h3{font-family:var(--display);font-size:1.15rem;margin:0 0 2px}
+.plines{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.plines li{display:flex;justify-content:space-between;gap:10px;font-size:.92rem}
+.plines .pr{color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pfurn{margin:6px 0 0;font-size:.82rem;color:var(--muted)}
+.ptotal{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);margin:10px 0 12px;padding-top:8px;font-size:.85rem;color:var(--muted)}
+.ptotal b{font-size:1.15rem;color:var(--ink);font-variant-numeric:tabular-nums}
+.pbody .btn{width:100%}
+.advcard{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,#2b120d,#4a1d12);color:#f6ead2;box-shadow:0 4px 14px var(--shadow)}
+.advcard svg{width:26px;height:26px;flex:none;color:#c9a24d}
+.advcard b{display:block;font-size:.98rem}.advcard small{color:#d9c39a;font-size:.8rem}
+.emptycta{position:absolute;inset:auto 0 18px 0;margin:auto;width:min(92%,380px);z-index:3}
+@media (min-width:900px){ .props{display:grid;grid-template-columns:1fr 1fr;gap:16px} .adv .proj-in{max-width:980px} }
 .catbtn{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;padding:10px 14px;text-align:start}
 .catbtn span{font-weight:700}.catbtn small{color:var(--muted);font-weight:400}
 #catQ{width:100%;margin:4px 0 10px}
@@ -309,6 +339,7 @@ button{font:inherit;color:inherit}
       <button type="button" id="zFit" title="כל החדר" aria-label="הצגת כל החדר"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </div>
     <div class="selbar" id="selbar" hidden></div>
+    <div class="emptycta" id="emptyCta" hidden></div>
     <div class="tip" id="tip" hidden>
       <div class="card">
         <h2>ברוכים הבאים</h2>
@@ -344,6 +375,25 @@ button{font:inherit;color:inherit}
       <p class="hint" id="bkHint">הפרויקטים שמורים רק במכשיר הזה. קובץ גיבוי שומר אותם גם אם האפליקציה נמחקת, ומעביר אותם בין הטלפון למחשב.</p>
       <div class="row"><button type="button" class="btn" id="bkSave">שמירת גיבוי לקובץ</button><label class="btn" for="bkFile">שחזור מקובץ גיבוי<input id="bkFile" type="file" accept=".json,application/json" hidden></label></div>
     </div>
+  </div>
+</div>
+<div class="proj adv" id="adv" dir="rtl" role="dialog" aria-label="תכנון חכם" hidden>
+  <div class="proj-in">
+    <div class="proj-head"><h2>תכנון חכם</h2><button type="button" class="btn ghost" id="advClose">סגירה</button></div>
+    <p class="lead">ספרו לי על החדר, ואציע סידור מוכן עם השולחנות של PlayOn.</p>
+    <div class="advin">
+      <textarea class="text" id="advText" rows="2" placeholder="למשל: חדר 12 על 8 מטר, מועדון סנוקר עם בר"></textarea>
+      <button type="button" class="micbtn" id="advMic" aria-label="הקלטה"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="advMicL">הקלטה</span></button>
+    </div>
+    <div class="ctags" id="advEx"><button type="button">חדר 12 על 8 מטר, מועדון סנוקר עם בר</button><button type="button">מרתף 7 על 5 מטר בבית, עם ספה וטלוויזיה</button><button type="button">אולם 15 על 10 מטר, מועדון ביליארד 9 פיט</button><button type="button">חדר 6 על 5 מטר לערבי פוקר</button></div>
+    <div class="advf">
+      <label>אורך (ס״מ)<input class="text" id="advL" type="number" inputmode="numeric" min="200" step="10"></label>
+      <label>רוחב (ס״מ)<input class="text" id="advW" type="number" inputmode="numeric" min="200" step="10"></label>
+      <label>צורה<select class="text" id="advShape"><option value="rect">מלבן</option><option value="L">צורת L</option><option value="U">צורת U</option><option value="slant">קיר אלכסוני</option><option value="round">עגול</option></select></label>
+    </div>
+    <div class="ctags" id="advPurpose"><button type="button" data-p="snooker">מועדון סנוקר</button><button type="button" data-p="pool">מועדון ביליארד</button><button type="button" data-p="home">חדר משחקים ביתי</button><button type="button" data-p="poker">פוקר</button></div>
+    <button type="button" class="btn solid advgo" id="advGo">הצעות לסידור</button>
+    <div id="advProps" class="props"></div>
   </div>
 </div>
 <div class="proj" id="cat" dir="rtl" role="dialog" aria-label="קטלוג PlayOn" hidden>
@@ -641,7 +691,15 @@ function findSpot(t,byCol=false,rots=[false,true]){
         const i=byCol?a:b, j=byCol?b:a;
         if(!freeRect(G,i,j,w,h)) continue;
         const cx=i*CELL+Z[0]/2, cy=j*CELL+Z[1]/2, bb=box(cx,cy,D.O);
-        if(bodies.some(o=>hit(o,bb)||sep(o,bb)<GAP.table-.5)) continue;
+        const bad=bodies.find(o=>hit(o,bb)||sep(o,bb)<GAP.table-.5);
+        if(bad){
+          // skip straight past the table in the way instead of testing every 5 cm (big rooms stay fast)
+          const off=(byCol?Z[1]-D.O[1]:Z[0]-D.O[0])/2;
+          const across=byCol?Math.max(0,bad.x-(bb.x+bb.w),bb.x-(bad.x+bad.w)):Math.max(0,bad.y-(bb.y+bb.h),bb.y-(bad.y+bad.h));
+          const need=across>0?Math.sqrt(Math.max(0,(GAP.table-.5)**2-across*across)):GAP.table-.5;
+          const edge=byCol?bad.y+bad.h:bad.x+bad.w, nb=Math.ceil((edge+need-off)/CELL)-1;
+          if(nb>b) b=nb;
+          continue; }
         best={a,cx,cy,rot}; break;
       }
     }
@@ -785,6 +843,18 @@ function addFurn(type){
 let G=null, P=null;
 const VIEW={z:1,cx:null,cy:null};   // zoom and pan of the plan
 let VB={x:0,y:0,w:1,h:1};
+// Turn the whole room a quarter turn (walls, tables, furniture, columns) — handy on a phone held upright.
+function rotateRoom(){
+  pushUndo(true);
+  const H=G.maxY, f=(x,y)=>[H-y,x];
+  if(state.shape==="rect"||state.shape==="round"){ if(!state.custom){ [state.L,state.W]=[state.W,state.L]; } }
+  if(state.custom||!(state.shape==="rect"||state.shape==="round")){ state.custom=P.map(([x,y])=>f(x,y)); }
+  for(const t of state.tables){ [t.cx,t.cy]=f(t.cx,t.cy); t.rot=!t.rot; }
+  for(const o of state.furn){ [o.cx,o.cy]=f(o.cx,o.cy); o.rot=(o.rot+90)%360; }
+  for(const c of state.cols){ const [nx,ny]=f(c.x,c.y+c.h); [c.x,c.y,c.w,c.h]=[nx,ny,c.h,c.w]; }
+  if(cur.bg&&cur.bg.show){ cur.bg.show=false; saveProjects(); toast("השרטוט הוסתר כי הוא לא מסתובב עם החדר"); }
+  VIEW.z=1; VIEW.cx=VIEW.cy=null; select(null); refreshRoom(); renderRoom();
+}
 function refreshRoom(){ P=roomPoints(); G=buildGrid(P); drawPlan(); updateSizeStatus(); }
 function cmPerPx(){ const r=svgEl.getBoundingClientRect(); return Math.max(VB.w/Math.max(1,r.width),VB.h/Math.max(1,r.height)); }
 function setZoom(z,anchor){
@@ -868,7 +938,7 @@ function drawPlan(){
     `<text transform="translate(${-pad*.4} ${maxY/2}) rotate(-90)" text-anchor="middle" font-size="${fs}" fill="var(--muted)" ${FONT} direction="rtl">${Math.round(maxY)} ס״מ</text>`;
   const n=state.tables.length, sum=$("summary");
   sum.innerHTML=`<b>${n}</b> שולחנות<span class="rd"> · חדר <bdi dir="ltr">${Math.round(maxX)}×${Math.round(maxY)}</bdi>${state.furn.length?` · ${state.furn.length} פריטי ריהוט`:""}</span>`;
-  saveRoom();
+  saveRoom(); renderEmptyCta();
 }
 
 /* ---------- selection bar ---------- */
@@ -1081,9 +1151,10 @@ function renderRoom(){
   p.append(s2);
 
   const s3=section("");
-  s3.insertAdjacentHTML("beforeend",`<div class="row"><button type="button" class="btn" id="addCol">+ עמוד</button>
+  s3.insertAdjacentHTML("beforeend",`<div class="row"><button type="button" class="btn" id="addCol">+ עמוד</button><button type="button" class="btn" id="rotRoom" title="סיבוב כל החדר ברבע סיבוב">סיבוב החדר</button>
     <label class="btn" for="skFile">${cur.bg?"החלפת שרטוט":"העלאת שרטוט"}<input id="skFile" type="file" accept="image/*" hidden></label></div>`);
   p.append(s3);
+  $("rotRoom").onclick=rotateRoom;
   $("addCol").onclick=()=>{pushUndo(true); const c={x:Math.round(G.maxX/2-20),y:Math.round(G.maxY/2-20),w:40,h:40}; state.cols.push(c); refreshRoom(); select({type:"c",o:c});};
   $("skFile").onchange=e=>{ const f=e.target.files?.[0]; if(f) loadSketch(f); };
   if(cur.bg){
@@ -1142,6 +1213,8 @@ function renderTables(){
     list.append(r);
   });
   p.append(list);
+  p.insertAdjacentHTML("afterbegin",ADV_CARD("advFromTables"));
+  $("advFromTables").onclick=openAdvisor;
   p.insertAdjacentHTML("beforeend",`<button type="button" class="btn catbtn" id="catOpen"><span>קטלוג PlayOn</span><small>${PLAYON.length} דגמים במידות מהאתר</small></button>`);
   $("catOpen").onclick=openCatalog;
   p.insertAdjacentHTML("beforeend",`<div class="links"><button type="button" class="link" id="addSize">+ גודל משלי</button><button type="button" class="link" id="clearAll" ${state.tables.length?"":"disabled"}>הוצאת כל השולחנות</button></div>`);
@@ -1257,7 +1330,7 @@ $("zFit").onclick=()=>{VIEW.z=1;VIEW.cx=VIEW.cy=null;drawPlan();};
 /* ---------- keyboard (computer) ---------- */
 document.addEventListener("keydown",e=>{
   if(e.target.closest?.("input,textarea,select")) return;
-  if(!$("viz").hidden||!$("proj").hidden||!$("cat").hidden) return;
+  if(!$("viz").hidden||!$("proj").hidden||!$("cat").hidden||!$("adv").hidden) return;
   const k=e.key, mod=e.ctrlKey||e.metaKey;
   if(mod&&k.toLowerCase()==="z"){ e.preventDefault(); $("undo").click(); return; }
   if(!sel) return;
@@ -2375,6 +2448,156 @@ async function giveFile(blob,name,okMsg){
   if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:name}); return true; }catch(e){ return false; } }
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.append(a); a.click(); a.remove(); toast(okMsg); return true;
 }
+/* ---------- smart planning: describe the room (voice or text), get finished layouts ---------- */
+// The products the advisor works with, taken from the PlayOn catalogue by name.
+const ADV_PICK={s12:"Regiis סנוקר 12 פיט",s10:"Regiis סנוקר 10 פיט",p9:"Regiis Pro 9 פיט",p9b:"Regiis Black 9 פיט",p8:"Regiis 8 פיט",p7:"Regiis Elegance 7 פיט",
+  foos:"כדורגל מקצועי 5 פיט",air:"הוקי אוויר 7 פיט אלומיניום",pong:"פינג פונג פנים מתקפל",poker:"Regiis Pro פוקר",poker8:"Regiis קלפים מתקפל 8 שחקנים"};
+const advRow=k=>PLAYON.find(r=>r[0]===ADV_PICK[k]);
+const advItem=k=>{ const r=advRow(k); return r&&{name:r[0],kind:r[2],L:r[3],W:r[4],fin:r[5]||undefined,sh:r[6]||undefined,price:r[7]}; };
+const HEB_NUM={"אחד":1,"אחת":1,"שניים":2,"שתיים":2,"שני":2,"שתי":2,"שלוש":3,"שלושה":3,"ארבע":4,"ארבעה":4,"חמש":5,"חמישה":5,"שש":6,"שישה":6,"שבע":7,"שבעה":7,"שמונה":8,"תשע":9,"תשעה":9,"עשר":10,"עשרה":10,"אחת עשרה":11,"אחד עשר":11,"שתים עשרה":12,"שנים עשר":12,"חמש עשרה":15,"עשרים":20};
+// Read a free description: "חדר 12 על 8 מטר, מועדון סנוקר עם בר" → room size, shape, purpose, wishes.
+function parseRoom(text){
+  let t=" "+text.replace(/[״"]/g,'"').replace(/,(\d)/g,".$1")+" ";
+  for(const [w,n] of Object.entries(HEB_NUM).sort((a,b)=>b[0].length-a[0].length)) t=t.replace(new RegExp("(^|[\\s\\u05d5\\u05d1])"+w+"(?=[\\s.,]|$)","g"),"$1"+n);
+  const out={};
+  const m=t.match(/(\d+(?:\.\d+)?)\s*(מטר|מ'|מ׳|מ\b|ס"מ|סמ|cm|m)?\s*(?:על|x|X|×|\*|ב-?)\s*(\d+(?:\.\d+)?)\s*(מטר|מ'|מ׳|ס"מ|סמ|cm|m)?/);
+  if(m){ const cm=/ס"מ|סמ|cm/.test((m[2]||"")+(m[4]||"")); let a=+m[1], b=+m[3];
+    const k=cm?1:(a<60&&b<60?100:1); a=Math.round(a*k); b=Math.round(b*k); out.L=Math.max(a,b); out.W=Math.min(a,b); }
+  if(/עגול|אליפס/.test(t)) out.shape="round"; else if(/אלכסון/.test(t)) out.shape="slant"; else if(/צורת\s*(L|אל|ר)\b|\bL\b/.test(t)) out.shape="L"; else if(/צורת\s*(U|ח|יו)\b|\bU\b/.test(t)) out.shape="U";
+  if(/סנוקר/.test(t)) out.purpose="snooker"; else if(/פוקר|קלפים/.test(t)) out.purpose="poker"; else if(/מועדון|פאב|בר ספורט|עסק/.test(t)) out.purpose="pool"; else if(/בית|וילה|משפח|ילדים|מרתף|סלון/.test(t)) out.purpose="home";
+  const ft=t.match(/(\d+)\s*פיט/); if(ft) out.ft=+ft[1];
+  const cnt=t.match(/(\d+)\s*שולחנ/); if(cnt) out.count=+cnt[1];
+  out.bar=/(^|[\s,.ו])בר([\s,.]|$)|ברמן|משקאות|דלפק/.test(t); out.lounge=/ספה|ספות|לאונג|טלוויז|מסך|כורס/.test(t);
+  if(/פינג|טניס שולחן/.test(t)) out.pong=true; if(/כדורגל/.test(t)) out.foos=true; if(/הוקי/.test(t)) out.air=true; if(/פוקר|קלפים/.test(t)&&out.purpose!=="poker") out.pokerToo=true;
+  return out;
+}
+// Work on a scratch copy of the room and hand back the result; the open project is never touched.
+function sandbox(room,fn){
+  const save=JSON.stringify(roomData()), g0={...GAP};
+  Object.assign(state,DEFAULT_ROOM(),room,{tables:[],furn:[],cols:[],custom:null}); P=roomPoints(); G=buildGrid(P);
+  try{ const info=fn()||{}; return {room:clone(roomData()),info}; }
+  finally{ Object.assign(state,JSON.parse(save)); Object.assign(GAP,g0); P=roomPoints(); G=buildGrid(P); }
+}
+function packTables(it,limit=100){
+  const keep=state.tables.slice(); let best=keep;
+  for(const byCol of [false,true]) for(const rots of [[false,true],[false],[true]]){
+    state.tables=keep.slice();
+    for(let n=0;n<limit;n++){ const t=newTable(it); const s=findSpot(t,byCol,rots); if(!s) break; t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; state.tables.push(t); }
+    if(state.tables.length>best.length) best=state.tables;
+  }
+  state.tables=best; if(!keep.length&&best.length) centerTables(best);
+  return best.length-keep.length;
+}
+function addQuiet(type){ const F=FURN[type], f={type,cx:0,cy:0,w:F.w,h:F.h,rot:0}; const s=smartFurnSpot(f); if(!s) return false; f.rot=s.rot; f.cx=s.cx; f.cy=s.cy; state.furn.push(f); G=buildGrid(P); return true; }
+function addLounge(bar){ let n=0; if(bar){ if(addQuiet("backbar")) n++; if(addQuiet("bar")){ n++; for(let i=0;i<4;i++) addQuiet("stool"); } }
+  if(addQuiet("sofa")){ n++; addQuiet("coffee"); } if(addQuiet("tv")) n++; addQuiet("cuerack"); addQuiet("plant"); addQuiet("plant"); return n; }
+// Build up to three different finished proposals for the described room.
+function makeProposals(q){
+  const upright=!isWide()&&innerHeight>innerWidth*1.15&&q.L>q.W*1.15&&(q.shape||"rect")==="rect";
+  const room={shape:q.shape||"rect",L:upright?q.W:q.L,W:upright?q.L:q.W,a:Math.round(q.L*.3),b:Math.round(q.W*.3)};
+  const purpose=q.purpose||(q.L*q.W>=900*700?"pool":"home"), lim=q.count||100, props=[];
+  const cue=k=>advItem(k);
+  const add=(title,note,fn)=>{ const r=sandbox(room,fn); if(r.room.tables.length) props.push({title,note,...r}); };
+  const sizeKey=q.ft>=12?"s12":q.ft>=10?"s10":q.ft===9?"p9":q.ft===8?"p8":q.ft===7?"p7":null;
+  if(purpose==="snooker"){
+    add("מועדון סנוקר מלא","כמה שיותר שולחנות 12 פיט במרחקי משחק מלאים",()=>{ packTables(cue(sizeKey||"s12"),lim); if(q.bar||q.lounge) addLounge(q.bar); });
+    add("סנוקר עם בר ולאונג'","פחות שולחן אחד, ובמקומו פינת ישיבה ובר",()=>{ const n=sandboxCount(room,cue(sizeKey||"s12")); packTables(cue(sizeKey||"s12"),Math.max(1,Math.min(lim,n-1))); addLounge(true); });
+    add("סנוקר ופול משולב","שולחנות 12 פיט ולצידם 9 פיט",()=>{ packTables(cue("s12"),Math.max(1,Math.floor(Math.min(lim,sandboxCount(room,cue("s12")))/2))); packTables(cue("p9"),lim); if(q.bar) addLounge(true); });
+  } else if(purpose==="poker"){
+    add("מועדון פוקר","שולחנות פוקר ל-10 שחקנים, מטר פנוי מכל צד",()=>{ GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("poker"),lim); if(q.bar||q.lounge) addLounge(q.bar); });
+    add("פוקר וביליארד","שולחן ביליארד אחד, וסביבו שולחנות פוקר",()=>{ packTables(cue("p9"),1); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("poker"),lim); addLounge(q.bar); });
+    add("פוקר עם בר ולאונג'","שולחנות פוקר, בר, ספה ומסך",()=>{ GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); addLounge(true); packTables(cue("poker"),lim); });
+  } else if(purpose==="pool"){
+    const k=sizeKey||"p9";
+    add(`מועדון ביליארד ${PLAYON.find(r=>r[0]===ADV_PICK[k])?.[0]||""}`,"כמה שיותר שולחנות במרחקי משחק מלאים",()=>{ packTables(cue(k),lim); if(q.bar||q.lounge) addLounge(q.bar); });
+    add("ביליארד עם בר ולאונג'","פחות שולחן אחד, ובמקומו בר וישיבה",()=>{ const n=sandboxCount(room,cue(k)); packTables(cue(k),Math.max(1,Math.min(lim,n-1))); addLounge(true); });
+    add("ביליארד ומשחקים","שולחנות ביליארד, ולצידם כדורגל והוקי אוויר",()=>{ const n=sandboxCount(room,cue(k)); packTables(cue(k),Math.max(1,Math.min(lim,n-1))); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("foos"),2); packTables(cue("air"),1); if(q.bar) addLounge(true); });
+  } else {
+    const main=["p9","p8","p7"].find(k=>sandboxCount(room,cue(k))>0)||"p7", k=sizeKey||main;
+    add("חדר משחקים ביתי",`שולחן ${cue(k).name} במרכז, ספה ומסך`,()=>{ packTables(cue(k),1); addLounge(q.bar); });
+    add("ביליארד וכדורגל והוקי","שולחן ביליארד, כדורגל והוקי אוויר",()=>{ packTables(cue(k),1); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("foos"),1); packTables(cue("air"),1); addQuiet("sofa"); addQuiet("tv"); });
+    add(q.pong?"ביליארד ופינג פונג":"ביליארד ופוקר",q.pong?"שולחן ביליארד ושולחן טניס":"שולחן ביליארד ושולחן קלפים לערבי פוקר",()=>{ packTables(cue(k),1); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue(q.pong?"pong":"poker8"),1); addQuiet("sofa"); addQuiet("tv"); });
+  }
+  // the same layout twice is not a choice
+  const seen=new Set(); return props.filter(p=>{ const k=p.room.tables.map(t=>t.name).sort().join("|")+p.room.furn.length; if(seen.has(k)) return false; seen.add(k); return true; });
+}
+function sandboxCount(room,it){ return sandbox(room,()=>({n:packTables(it)})).info.n; }
+function propSummary(rd){
+  const by={}; for(const t of rd.tables){ by[t.name]=by[t.name]||{n:0,t}; by[t.name].n++; }
+  let total=0, priced=true;
+  const lines=Object.values(by).map(({n,t})=>{ const r=PLAYON.find(x=>x[0]===t.name), pr=r&&r[7]; if(pr) total+=pr*n; else priced=false;
+    return `<li><span><b>${n} ×</b> ${esc(t.name)}</span><span class="pr">${pr?`₪${(pr*n).toLocaleString("he-IL")}`:"מחיר בהצעה"}</span></li>`; });
+  const fn={}; rd.furn.forEach(f=>fn[FURN[f.type].name]=(fn[FURN[f.type].name]||0)+1);
+  const furnLine=Object.entries(fn).map(([n,k])=>k>1?`${k} ${n}`:n).join(" · ");
+  return {lines:lines.join(""),total,priced,furnLine};
+}
+// A small drawing of a proposal: walls, tables in their colours, furniture in wood.
+function miniPlan(rd){
+  const Pp=roomPoints(rd), mx=Math.max(...Pp.map(p=>p[0])), my=Math.max(...Pp.map(p=>p[1])), pad=Math.max(mx,my)*.04;
+  const col={cue:"#2a6a40",foos:"#3a3a3e",air:"#9aa3ab",pong:"#1d4f91",poker:"#1f6b3c"};
+  const tb=rd.tables.map(t=>{ const b=box(t.cx,t.cy,dims(t).O); return `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="${t.kind==="poker"?Math.min(b.w,b.h)/2:4}" fill="${col[t.kind]||"#2a6a40"}" stroke="${t.kind==="cue"?"#6b2a14":"none"}" stroke-width="${t.kind==="cue"?10:0}"/>`; }).join("");
+  const fu=rd.furn.map(f=>{ const b=fBox(f); return `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="4" fill="#8a4a2a" opacity=".85"/>`; }).join("");
+  return `<svg viewBox="${-pad} ${-pad} ${mx+2*pad} ${my+2*pad}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path d="M${Pp.map(q=>q.join(" ")).join("L")}Z" fill="#f6f0e6" stroke="#2b120d" stroke-width="${Math.max(mx,my)*.008}"/>${tb}${fu}</svg>`;
+}
+let advQ={}, advProps=[];
+function openAdvisor(){ $("adv").hidden=false; $("advText").value=""; advQ={}; advProps=[]; renderAdv(); setTimeout(()=>$("advText").focus(),50); }
+$("advClose").onclick=()=>{ stopListening(); $("adv").hidden=true; };
+$("advText").oninput=()=>{ advQ=Object.assign({},advQ,parseRoom($("advText").value)); renderAdvFields(); };
+$("advGo").onclick=()=>{
+  const L=+$("advL").value, W=+$("advW").value;
+  if(!(L>=200&&W>=200)){ toast("כתבו או אמרו את מידות החדר, למשל 12 על 8 מטר"); return; }
+  advQ.L=Math.max(L,W); advQ.W=Math.min(L,W); advQ.shape=$("advShape").value; advQ.purpose=document.querySelector("#advPurpose [aria-pressed=true]")?.dataset.p||advQ.purpose;
+  $("advGo").disabled=true; $("advGo").textContent="מכין הצעות…";
+  setTimeout(()=>{ try{ advProps=makeProposals(advQ); } finally{ $("advGo").disabled=false; $("advGo").textContent="הצעות לסידור"; } renderAdvProps(); },30);
+};
+function renderAdv(){ renderAdvFields(); $("advProps").innerHTML=""; }
+function renderAdvFields(){
+  if(advQ.L) $("advL").value=advQ.L; if(advQ.W) $("advW").value=advQ.W; if(advQ.shape) $("advShape").value=advQ.shape;
+  document.querySelectorAll("#advPurpose button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.p===advQ.purpose));
+}
+document.querySelectorAll("#advPurpose button").forEach(b=>b.onclick=()=>{ advQ.purpose=b.dataset.p; renderAdvFields(); });
+document.querySelectorAll("#advEx button").forEach(b=>b.onclick=()=>{ $("advText").value=b.textContent; $("advText").dispatchEvent(new Event("input")); });
+function renderAdvProps(){
+  const box=$("advProps");
+  if(!advProps.length){ box.innerHTML=`<p class="hint" style="margin:8px 0">לא נכנס אף שולחן בחדר הזה עם המרחקים שנקבעו. אפשר להקטין מרחקים בלשונית "מרחקים".</p>`; return; }
+  box.innerHTML=advProps.map((p,i)=>{ const s=propSummary(p.room);
+    return `<article class="pcard"><div class="pplan">${miniPlan(p.room)}</div><div class="pbody"><h3>${esc(p.title)}</h3><p class="hint" style="margin:0 0 8px">${esc(p.note)}</p>
+      <ul class="plines">${s.lines}</ul>${s.furnLine?`<p class="pfurn">${esc(s.furnLine)}</p>`:""}
+      ${s.total?`<div class="ptotal"><span>שולחנות לפי מחירי האתר${s.priced?"":" (בלי הדגמים שבהצעת מחיר)"}</span><b>₪${s.total.toLocaleString("he-IL")}</b></div>`:`<div class="ptotal"><span>מחיר השולחנות</span><b style="font-size:.95rem">בהצעת מחיר</b></div>`}
+      <button type="button" class="btn solid" data-use="${i}">${!state.tables.length&&!state.furn.length?"בחירה בסידור הזה":"פתיחה כפרויקט חדש"}</button></div></article>`; }).join("");
+  box.querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>useProposal(advProps[+b.dataset.use]));
+  box.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function useProposal(p){
+  saveRoom(true);
+  for(const t of p.room.tables){ const r=PLAYON.find(x=>x[0]===t.name); if(r) catItem(r); }
+  const empty=!state.tables.length&&!state.furn.length&&!state.cols.length;
+  if(empty){ // the open project is still empty: the proposal goes straight into it
+    pushUndo(true); Object.assign(state,clone(p.room)); P=roomPoints(); G=buildGrid(P); select(null); renderPanel();
+    $("adv").hidden=true; VIEW.z=1; VIEW.cx=VIEW.cy=null; drawPlan(); toast(`הסידור נכנס לפרויקט ${cur.name}`); return; }
+  const name=`${p.title} ${Math.round(p.room.L/10)/10}×${Math.round(p.room.W/10)/10}`;
+  const np={id:newId(),name,updated:Date.now(),room:clone(p.room),style:Object.assign(DEFAULT_STYLE(),{felt:STYLE.felt,floor:STYLE.floor,wall:STYLE.wall,title:name})};
+  PROJ.list.push(np); cur=np; PROJ.current=np.id; saveProjects(); loadInto(np);
+  $("adv").hidden=true; VIEW.z=1; VIEW.cx=VIEW.cy=null; drawPlan(); toast(`נפתח פרויקט חדש: ${name}`);
+}
+// voice: the phone's speech recognition in Hebrew; the words land in the text box and are read as they come
+let rec=null;
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR) $("advMic").hidden=true;
+function stopListening(){ if(rec){ try{ rec.stop(); }catch(e){} rec=null; } $("advMic").classList.remove("on"); $("advMicL").textContent="הקלטה"; }
+$("advMic").onclick=()=>{
+  if(rec){ stopListening(); return; }
+  rec=new SR(); rec.lang="he-IL"; rec.interimResults=true; rec.continuous=false;
+  const base=$("advText").value?$("advText").value+" ":"";
+  rec.onresult=e=>{ let txt=""; for(const r of e.results) txt+=r[0].transcript; $("advText").value=base+txt; $("advText").dispatchEvent(new Event("input")); };
+  rec.onerror=e=>{ toast(e.error==="not-allowed"?"צריך לאשר גישה למיקרופון בהגדרות הדפדפן":"לא הצלחתי לשמוע. נסו שוב או הקלידו."); stopListening(); };
+  rec.onend=()=>{ stopListening(); if(advQ.L&&advQ.W) $("advGo").click(); };
+  try{ rec.start(); $("advMic").classList.add("on"); $("advMicL").textContent="מקשיב… לחצו לסיום"; }catch(e){ stopListening(); }
+};
+
+function ADV_CARD(id){ return `<button type="button" class="advcard" id="${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg><span><b>תכנון חכם</b><small>אמרו או כתבו את גודל החדר, וקבלו סידור מוכן</small></span></button>`; }
+function renderEmptyCta(){ const e=$("emptyCta"); const show=!VIEWER&&!state.tables.length&&!state.furn.length&&$("viz").hidden;
+  if(show&&!e.firstChild){ e.innerHTML=ADV_CARD("advFromEmpty"); $("advFromEmpty").onclick=openAdvisor; } e.hidden=!show; }
 /* ---------- PlayOn catalogue ---------- */
 let catGroup="";
 function openCatalog(){ $("cat").hidden=false; $("catQ").value=""; renderCatalog(); }
@@ -2562,7 +2785,7 @@ if(VIEWER){ $("tip").hidden=true; openShared(); }
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="n1";
+const APP_VERSION="n2";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
@@ -2577,6 +2800,6 @@ async function checkUpdate(){
 
 checkUpdate();
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") checkUpdate(); });
-</script><div style="position:fixed;left:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:99;background:#c9a24d;color:#1b120c;font:700 11px Heebo,Arial,sans-serif;padding:3px 8px;border-radius:99px;pointer-events:none;opacity:.9">גרסת ניסיון n1</div>
+</script><div style="position:fixed;left:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:99;background:#c9a24d;color:#1b120c;font:700 11px Heebo,Arial,sans-serif;padding:3px 8px;border-radius:99px;pointer-events:none;opacity:.9">גרסת ניסיון n2</div>
 </body>
 </html>
