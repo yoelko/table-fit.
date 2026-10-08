@@ -203,6 +203,11 @@ button{font:inherit;color:inherit}
 .opt>span{font-size:.8rem;font-weight:700;color:var(--muted);min-width:60px}
 .sw{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:500;font-size:.82rem}
 .sw i{width:14px;height:14px;border-radius:50%;border:1px solid rgb(0 0 0 / .2)}
+.vizacts{display:grid;grid-template-columns:1.3fr 1fr;gap:8px}
+.sharebox{display:flex;flex-direction:column;gap:8px}
+.sharebox .row .btn{flex:1}
+.viewer #vizClose,.viewer .viz-bar .opt{display:none}
+.viewer .viz-top input{pointer-events:none;background:transparent;border-color:transparent;font-family:var(--display);font-weight:700;font-size:1.1rem}
 .sw[aria-pressed="true"]{border-color:var(--accent);background:var(--sel);font-weight:700}
 
 /* phone: plan fills the screen; tools open in a drawer above the bottom tab bar */
@@ -346,12 +351,12 @@ const DEFAULT_SIZES=[
   {name:"ביליארד 8 פיט", kind:"cue", L:244, W:137},
   {name:"ביליארד 9 פיט (תחרותי)", kind:"cue", L:292, W:161},
   {name:"סנוקר 12 פיט", kind:"cue", L:382, W:203},
-  {name:"כדורגל שולחן", kind:"foos", L:145, W:75},
+  {name:"כדורגל שולחן 5 פיט", kind:"foos", L:137, W:75},
   {name:"הוקי אוויר 7 פיט", kind:"air", L:213, W:121},
 ];
 let items=store.get("tf-sizes-v1",null);
 if(!Array.isArray(items)||!items.length) items=DEFAULT_SIZES.map(x=>({...x}));
-items.forEach(x=>{ if(!KIND[x.kind]) x.kind="cue"; if(x.name==="ביליארד 9 פיט (תחרותי)"&&x.L===280&&x.W===155){x.L=292;x.W=161;} });
+items.forEach(x=>{ if(x.kind==="foos"&&x.name==="כדורגל שולחן"&&x.L===145){x.name="כדורגל שולחן 5 פיט";x.L=137;} if(!KIND[x.kind]) x.kind="cue"; if(x.name==="ביליארד 9 פיט (תחרותי)"&&x.L===280&&x.W===155){x.L=292;x.W=161;} });
 const saveSizes=()=>store.set("tf-sizes-v1",items.map(({name,kind,L,W,custom})=>({name,kind,L,W,custom})));
 const GAP=Object.assign({wall:140,table:140},store.get("tf-gaps-v1",{}));
 const saveGaps=()=>store.set("tf-gaps-v1",GAP);
@@ -391,7 +396,8 @@ let cur=PROJ.list.find(p=>p.id===PROJ.current)||PROJ.list[0]; PROJ.current=cur.i
 const state=Object.assign(DEFAULT_ROOM(),clone(cur.room||{}));
 if(!Array.isArray(state.furn)) state.furn=[];
 const STYLE=Object.assign(DEFAULT_STYLE(),cur.style||{});
-const saveProjects=()=>store.set("tf-projects-v1",PROJ);
+let VIEWER=/^#[zj][A-Za-z0-9_-]{16,}/.test(location.hash);
+const saveProjects=()=>{ if(!VIEWER) store.set("tf-projects-v1",PROJ); };
 const roomData=()=>({shape:state.shape,L:state.L,W:state.W,a:state.a,b:state.b,custom:state.custom,cols:state.cols,tables:state.tables,furn:state.furn});
 let lastRoomJSON=JSON.stringify(roomData());
 const saveStyle=()=>{ cur.style={...STYLE}; cur.updated=Date.now(); saveProjects(); };
@@ -1151,9 +1157,62 @@ function renderVizBar(){
   const row=(label,map,key)=>`<div class="opt"><span>${label}</span>${Object.entries(map).map(([k,[n,c]])=>
     `<button type="button" class="sw" data-k="${key}" data-v="${k}" aria-pressed="${STYLE[key]===k}"><i style="background:#${c.toString(16).padStart(6,"0")}"></i>${n}</button>`).join("")}</div>`;
   bar.innerHTML=row("צבע הבד",FELTS,"felt")+row("רצפה",FLOORS,"floor")+row("קירות",WALLS,"wall")+
-    `<button type="button" class="btn solid" id="vizSave">שמירת תמונה ללקוח</button>`;
+    `<div class="vizacts"><button type="button" class="btn solid" id="vizShare">שליחת ההדמיה ללקוח</button><button type="button" class="btn" id="vizSave">שמירה כתמונה</button></div>
+     ${VIEWER?`<button type="button" class="link" id="vizImport">שמירה כפרויקט שלי</button>`:""}
+     <div class="sharebox" id="shareBox" hidden><input class="text" id="shareUrl" readonly dir="ltr" aria-label="קישור להדמיה"><div class="row"><button type="button" class="btn" id="shareCopy">העתקה</button><a class="btn" id="shareWa" target="_blank" rel="noopener">וואטסאפ</a></div></div>`;
   bar.querySelectorAll(".sw").forEach(b=>b.onclick=()=>{STYLE[b.dataset.k]=b.dataset.v; saveStyle(); renderVizBar(); if(V){buildScene(); render();}});
   $("vizSave").onclick=saveVizImage;
+  $("vizShare").onclick=shareViz;
+  if($("vizImport")) $("vizImport").onclick=importShared;
+}
+/* ---------- sending the 3D view as a link ---------- */
+// The whole room, the look and the camera angle are packed into the link itself, so the client
+// opens exactly what you see, with nothing stored on a server.
+const SHARE_BASE="https://yoelko.github.io/table-fit./";
+const b64u=bytes=>{ let bin=""; for(const b of bytes) bin+=String.fromCharCode(b); return btoa(bin).replace(/\+/g,"-").replace(/\//g,"_").replace(/=+$/,""); };
+const unb64u=str=>{ const bin=atob(str.replace(/-/g,"+").replace(/_/g,"/")); const a=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++) a[i]=bin.charCodeAt(i); return a; };
+async function packShare(){
+  const r=JSON.parse(JSON.stringify(roomData()));
+  r.tables.forEach(t=>{t.cx=Math.round(t.cx);t.cy=Math.round(t.cy);}); r.furn.forEach(f=>{f.cx=Math.round(f.cx);f.cy=Math.round(f.cy);});
+  const o=V?.orbit||{theta:.65,phi:.95,r:0};
+  const data={v:1,n:cur.name,t:STYLE.title||cur.name,s:{felt:STYLE.felt,floor:STYLE.floor,wall:STYLE.wall},r,
+    c:{th:+o.theta.toFixed(3),ph:+o.phi.toFixed(3),r:Math.round(o.r),vw:V?.view||null}};
+  let bytes=new TextEncoder().encode(JSON.stringify(data)), tag="j";
+  if(window.CompressionStream){ try{ bytes=new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer()); tag="z"; }catch(e){ bytes=new TextEncoder().encode(JSON.stringify(data)); } }
+  return SHARE_BASE+"#"+tag+b64u(bytes);
+}
+async function unpackShare(h){
+  const tag=h[1], raw=unb64u(h.slice(2));
+  let txt;
+  if(tag==="z") txt=await new Response(new Blob([raw]).stream().pipeThrough(new DecompressionStream("deflate-raw"))).text();
+  else txt=new TextDecoder().decode(raw);
+  return JSON.parse(txt);
+}
+async function shareViz(){
+  const url=await packShare(), title=(STYLE.title||cur.name||"הדמיה")+" · הדמיית חדר";
+  if(navigator.share&&window.self===window.top){ try{ await navigator.share({title,text:"ההדמיה של החדר, אפשר לסובב ולהתקרב:",url}); return; }catch(e){ if(e&&e.name==="AbortError") return; } }
+  $("shareBox").hidden=false; $("shareUrl").value=url;
+  $("shareWa").href="https://wa.me/?text="+encodeURIComponent(title+"\n"+url);
+  $("shareCopy").onclick=()=>{ const done=()=>toast("הקישור הועתק"); navigator.clipboard?.writeText(url).then(done,()=>{ $("shareUrl").select(); toast("סמנו והעתיקו את הקישור"); }) ?? ($("shareUrl").select()); };
+  $("shareUrl").focus(); $("shareUrl").select();
+}
+function importShared(){
+  VIEWER=false;
+  const p={id:newId(),name:cur.name||"הדמיה ששותפה",updated:Date.now(),room:clone(roomData()),style:{...STYLE}};
+  PROJ.list.push(p); PROJ.current=p.id; saveProjects();
+  location.replace(location.pathname);
+}
+async function openShared(){
+  let d; try{ d=await unpackShare(location.hash); }catch(e){ VIEWER=false; history.replaceState(null,"",location.pathname); toast("הקישור לא תקין"); return; }
+  for(const k of Object.keys(state)) delete state[k];
+  Object.assign(state,DEFAULT_ROOM(),d.r||{});
+  Object.assign(STYLE,DEFAULT_STYLE(),d.s||{},{title:d.t||""});
+  cur={id:"shared",name:d.n||"הדמיה",room:d.r,style:STYLE};
+  document.documentElement.classList.add("viewer");
+  $("vizTitle").value=d.t||d.n||""; $("vizTitle").readOnly=true;
+  P=roomPoints(); G=buildGrid(P); renderProjName(); drawPlan();
+  await openViz();
+  if(V&&d.c){ V.orbit.theta=d.c.th; V.orbit.phi=d.c.ph; if(d.c.r) V.orbit.r=d.c.r; markView(d.c.vw||null); applyCam(); }
 }
 
 function initViz(){
@@ -1340,12 +1399,63 @@ function buildScene(){
       }
       if(lights<8){ const pl2=new THREE.PointLight(0xfff0d0,.55,420,2); pl2.position.set(0,170,0); g.add(pl2); lights++; }
     } else if(t.kind==="foos"){
-      add(Box(L*.75,22,W),woodLight,0,80,0,g); add(Box(L*.72,1,W*.9),felt,0,91,0,g);
-      for(let i=0;i<8;i++) add(Cyl(1,1,W+40,8),metal,-L*.33+i*L*.66/7,93,0,g).rotation.x=Math.PI/2;
-      for(const lx of [-L*.33,L*.33]) for(const lz of [-W/2+8,W/2-8]) add(Box(8,70,8),woodLight,lx,35,lz,g);
+      // PLAYON professional 5 ft foosball: 137×75×88, 8 chrome rods, red against blue (1-2-5-3)
+      const H=88, bodyW=W*.82, body=M(0x1b1b1d,{roughness:.45}), trim=M(0x3a3a3e,{roughness:.4});
+      for(const sz of [-1,1]) add(Box(L,24,3),body,0,H-14,sz*(bodyW/2-1.5),g);
+      for(const sx of [-1,1]) add(Box(3,24,bodyW),body,sx*(L/2-1.5),H-14,0,g);
+      add(Box(L,6,bodyW),body,0,H-24,0,g);
+      add(Box(L-10,1,bodyW-8),M(0x2f8a3c,{roughness:.9}),0,H-20,0,g);
+      const lineM=new THREE.MeshBasicMaterial({color:0xf2f2f2});
+      const ln=(w,d,x,z)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),lineM); m.rotation.x=-Math.PI/2; m.position.set(x,H-19.4,z); g.add(m);};
+      ln(.8,bodyW-10,0,0); ln(.8,30,-L/2+22,0); ln(.8,30,L/2-22,0);
+      const circ=new THREE.Mesh(new THREE.RingGeometry(9,9.8,32),lineM); circ.rotation.x=-Math.PI/2; circ.position.set(0,H-19.4,0); g.add(circ);
+      for(const sx of [-1,1]){ add(Box(3,12,22),M(0x0a0a0a),sx*(L/2-1),H-20,0,g); }
+      for(const sz of [-1,1]) add(Box(L+2,3,5),trim,0,H-1.5,sz*(bodyW/2-1),g);
+      for(const sx of [-1,1]) add(Box(5,3,bodyW+2),trim,sx*(L/2-1),H-1.5,0,g);
+      const legH=H-26;
+      for(const lx of [-L/2+9,L/2-9]) for(const lz of [-bodyW/2+9,bodyW/2-9]){ add(Box(12,legH,12),body,lx,legH/2,lz,g); add(Box(16,3,16),M(0x111111),lx,1.5,lz,g); }
+      add(Box(L-24,6,4),trim,0,18,-bodyW/2+9,g); add(Box(L-24,6,4),trim,0,18,bodyW/2-9,g);
+      const plan=[[1,"r"],[2,"r"],[3,"b"],[5,"r"],[5,"b"],[3,"r"],[2,"b"],[1,"b"]];
+      const red=M(0xc8202b,{roughness:.4}), blue=M(0x1e4fb8,{roughness:.4}), chrome=new THREE.MeshPhongMaterial({color:0xd5d8da,specular:0xffffff,shininess:110}), grip=M(0x151515,{roughness:.8});
+      plan.forEach(([n,team],i)=>{
+        const x=-L/2+14+i*(L-28)/7, side=team==="r"?1:-1, rodY=H-10;
+        const rod=new THREE.Mesh(new THREE.CylinderGeometry(.8,.8,W+34,10),chrome); rod.rotation.x=Math.PI/2; rod.position.set(x,rodY,side*8); g.add(rod);
+        const h=new THREE.Mesh(new THREE.CylinderGeometry(1.8,1.6,11,12),grip); h.rotation.x=Math.PI/2; h.position.set(x,rodY,side*(W/2+17+8)); g.add(h);
+        const span=bodyW-14, step=span/(n+1);
+        for(let k=1;k<=n;k++){ const z=-span/2+k*step; const pl=new THREE.Group(); pl.position.set(x,rodY,z); g.add(pl);
+          const tm=team==="r"?red:blue; const torso=new THREE.Mesh(new THREE.BoxGeometry(3,10,2.2),tm); torso.position.y=-4; pl.add(torso);
+          const head=new THREE.Mesh(new THREE.SphereGeometry(1.6,10,8),M(0xf0c8a0)); head.position.y=2.2; pl.add(head);
+          const foot=new THREE.Mesh(new THREE.BoxGeometry(3.4,3,2.6),tm); foot.position.y=-9; pl.add(foot); }
+      });
+      add(new THREE.SphereGeometry(1.7,12,10),M(0xffffff,{roughness:.3}),5,H-18.2,4,g);
     } else {
-      add(Box(L,16,W),M(0x1f3f8f),0,74,0,g); add(Box(L-14,1,W-14),M(0xf4f6f8,{roughness:.3}),0,82.5,0,g);
-      for(const lx of [-L/2+20,L/2-20]) for(const lz of [-W/2+18,W/2-18]) add(Box(10,66,10),dark,lx,33,lz,g);
+      // PLAYON 7 ft air hockey: 213×121×82, aluminium playing surface, rounded corners, reinforced legs
+      const H=82, R=Math.min(14,W*.12);
+      const sh=new THREE.Shape(); const hw=L/2, hd=W/2;
+      sh.moveTo(-hw+R,-hd); sh.lineTo(hw-R,-hd); sh.quadraticCurveTo(hw,-hd,hw,-hd+R); sh.lineTo(hw,hd-R); sh.quadraticCurveTo(hw,hd,hw-R,hd);
+      sh.lineTo(-hw+R,hd); sh.quadraticCurveTo(-hw,hd,-hw,hd-R); sh.lineTo(-hw,-hd+R); sh.quadraticCurveTo(-hw,-hd,-hw+R,-hd);
+      const cab=new THREE.Mesh(new THREE.ExtrudeGeometry(sh,{depth:22,bevelEnabled:false,curveSegments:8}),M(0x16181c,{roughness:.4}));
+      cab.rotation.x=-Math.PI/2; cab.position.y=H-22; cab.castShadow=cab.receiveShadow=true; g.add(cab);
+      // aluminium deck with air holes
+      const c=document.createElement("canvas"); c.width=512; c.height=290; const x2=c.getContext("2d");
+      const gr=x2.createLinearGradient(0,0,512,290); gr.addColorStop(0,"#c9cdd2"); gr.addColorStop(.5,"#eef0f2"); gr.addColorStop(1,"#bfc4ca"); x2.fillStyle=gr; x2.fillRect(0,0,512,290);
+      x2.fillStyle="rgba(60,65,72,.45)"; for(let yy=8;yy<290;yy+=10) for(let xx=8;xx<512;xx+=10) x2.fillRect(xx,yy,1.6,1.6);
+      x2.strokeStyle="#c8202b"; x2.lineWidth=4; x2.beginPath(); x2.moveTo(256,0); x2.lineTo(256,290); x2.stroke();
+      x2.beginPath(); x2.arc(256,145,40,0,7); x2.stroke();
+      x2.strokeStyle="#1e4fb8"; x2.lineWidth=3; for(const gx of [0,512]){ x2.beginPath(); x2.arc(gx,145,62,0,7); x2.stroke(); }
+      const tx=new THREE.CanvasTexture(c); tx.encoding=THREE.sRGBEncoding;
+      const deck=new THREE.Mesh(new THREE.PlaneGeometry(L-16,W-16),new THREE.MeshStandardMaterial({map:tx,metalness:.35,roughness:.35}));
+      deck.rotation.x=-Math.PI/2; deck.position.y=H+.3; deck.receiveShadow=true; g.add(deck);
+      const rail=M(0x0d0e10,{roughness:.35});
+      for(const sz of [-1,1]) add(Box(L-2*R,5,8),rail,0,H+2.5,sz*(W/2-4),g);
+      for(const sx of [-1,1]){ add(Box(8,5,(W-24)/2-6),rail,sx*(L/2-4),H+2.5,(W-24)/4+9,g); add(Box(8,5,(W-24)/2-6),rail,sx*(L/2-4),H+2.5,-(W-24)/4-9,g); add(Box(4,6,24),M(0x000000),sx*(L/2-1),H-3,0,g); }
+      for(const sz of [-1,1]) add(Box(L-30,3,1),M(0xc8202b),0,H-12,sz*(W/2+.2),g);
+      const legH=H-22;
+      for(const lx of [-L/2+22,L/2-22]){ for(const lz of [-W/2+14,W/2-14]){ add(Box(14,legH,14),rail,lx,legH/2,lz,g); add(Box(20,3,20),M(0x050505),lx,1.5,lz,g);} add(Box(8,10,W-28),rail,lx,22,0,g); }
+      add(Box(L-44,10,8),rail,0,22,0,g);
+      const mallet=(x,col)=>{ add(Cyl(4.8,4.8,2.5,20),M(col,{roughness:.35}),x,H+1.6,0,g); add(Cyl(1.8,1.8,5,12),M(col,{roughness:.35}),x,H+5,0,g); };
+      mallet(-L*.36,0xc8202b); mallet(L*.36,0x1e4fb8);
+      add(Cyl(3.1,3.1,.6,20),M(0xe23b2e),L*.08,H+.7,W*.12,g);
     }
   });
 
@@ -1556,11 +1666,12 @@ if(!store.get("tf-tip2",false)) $("tip").hidden=false;
 $("tipOk").onclick=()=>{ $("tip").hidden=true; store.set("tf-tip2",true); };
 setTab(["room","tables","furn","gaps"].includes(tab)?tab:"tables"); setDrawer(false);
 drawPlan();
+if(VIEWER){ $("tip").hidden=true; openShared(); }
 </script>
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="18";
+const APP_VERSION="19";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});

@@ -1,4 +1,4 @@
-const C="table-fit-v18";
+const C="table-fit-v19";
 const CORE=["./","index.html","manifest.webmanifest","icon-192.png","icon-512.png","apple-touch-icon.png"];
 // Outside files the app uses (3D engine and fonts), kept so the app also works without internet.
 const EXTRA=["https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"];
