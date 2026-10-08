@@ -1109,6 +1109,13 @@ function buildScene(){
       }
       add(Box(L-4,15,W-4),cabinet,0,top-8.5,0,g);
       if(brandMat){
+        // brand on the top surface of the long rails, between the pockets, readable from that side of the table
+        const rh=Math.min(R*.62,8), rw=rh*brandRatio;
+        for(const sz of [-1,1]) for(const sx of [-1,1]){
+          const m=new THREE.Mesh(new THREE.PlaneGeometry(rw,rh),brandMat);
+          m.rotation.order="YXZ"; m.rotation.y=sz>0?0:Math.PI; m.rotation.x=-Math.PI/2;
+          m.position.set(sx*L/4,top+5.06,sz*(W/2-R/2)); g.add(m);
+        }
         const bh=14, bw=Math.min(bh*brandRatio,W*.7);
         for(const [x,z,ry] of [[0,W/2-1.8,0],[0,-W/2+1.8,Math.PI],[L/2-1.8,0,Math.PI/2],[-L/2+1.8,0,-Math.PI/2]]){
           const m=new THREE.Mesh(new THREE.PlaneGeometry(bw,bh),brandMat); m.position.set(x,top-8.5,z); m.rotation.y=ry; g.add(m);
@@ -1359,7 +1366,7 @@ drawPlan();
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="13";
+const APP_VERSION="14";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
