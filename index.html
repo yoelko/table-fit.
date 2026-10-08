@@ -264,7 +264,7 @@ const SHAPES={
 const firstRun=!store.get("tf-room-v1",null);
 const state=Object.assign({shape:"rect",L:600,W:450,a:180,b:140,custom:null,cols:[],tables:[],furn:[]},store.get("tf-room-v1",{}));
 if(!Array.isArray(state.furn)) state.furn=[];
-const STYLE=Object.assign({felt:"green",floor:"wood",wall:"light",title:""},store.get("tf-style-v1",{}));
+const STYLE=Object.assign({felt:"green",floor:"wood",wall:"light",title:"",brand:"Regiis"},store.get("tf-style-v1",{}));
 const saveStyle=()=>store.set("tf-style-v1",STYLE);
 const roomData=()=>({shape:state.shape,L:state.L,W:state.W,a:state.a,b:state.b,custom:state.custom,cols:state.cols,tables:state.tables,furn:state.furn});
 const saveRoom=()=>store.set("tf-room-v1",roomData());
@@ -907,10 +907,12 @@ function renderVizBar(){
   const bar=$("vizBar");
   const row=(label,map,key)=>`<div class="opt"><span>${label}</span>${Object.entries(map).map(([k,[n,c]])=>
     `<button type="button" class="sw" data-k="${key}" data-v="${k}" aria-pressed="${STYLE[key]===k}"><i style="background:#${c.toString(16).padStart(6,"0")}"></i>${n}</button>`).join("")}</div>`;
-  bar.innerHTML=row("צבע הבד",FELTS,"felt")+row("רצפה",FLOORS,"floor")+row("קירות",WALLS,"wall")+
+  bar.innerHTML=`<div class="opt"><span>מותג</span><input class="text" id="vizBrand" style="flex:1;min-width:0" value="${esc(STYLE.brand||"")}" placeholder="שם המותג על השולחנות" aria-label="שם המותג על השולחנות"></div>`+
+    row("צבע הבד",FELTS,"felt")+row("רצפה",FLOORS,"floor")+row("קירות",WALLS,"wall")+
     `<button type="button" class="btn solid" id="vizSave">שמירת תמונה ללקוח</button>`;
   bar.querySelectorAll(".sw").forEach(b=>b.onclick=()=>{STYLE[b.dataset.k]=b.dataset.v; saveStyle(); renderVizBar(); if(V){buildScene(); render();}});
   $("vizSave").onclick=saveVizImage;
+  let bt=0; $("vizBrand").oninput=e=>{STYLE.brand=e.target.value; saveStyle(); clearTimeout(bt); bt=setTimeout(()=>{ if(V){buildScene(); render();} },350);};
 }
 
 function initViz(){
@@ -1013,6 +1015,17 @@ function buildScene(){
   const chrome=new THREE.MeshPhongMaterial({color:0xcfd2d4,specular:0xffffff,shininess:120}), brass=new THREE.MeshPhongMaterial({color:0xd6c08a,specular:0xffffff,shininess:80});
   const shadeGreen=new THREE.MeshPhongMaterial({color:new THREE.Color(0x2f9a63).convertSRGBToLinear(),specular:0x777777,shininess:70,side:THREE.FrontSide});
   const shadeWhite=new THREE.MeshBasicMaterial({color:0xf4f1e6,side:THREE.BackSide});
+  let brandMat=null, brandRatio=4;
+  if((STYLE.brand||"").trim()){
+    const c=document.createElement("canvas"); c.height=200; let g2=c.getContext("2d"); g2.font="italic 600 150px Georgia, 'Times New Roman', serif";
+    c.width=Math.ceil(g2.measureText(STYLE.brand.trim()).width+60); g2=c.getContext("2d");
+    g2.font="italic 600 150px Georgia, 'Times New Roman', serif"; g2.textAlign="center"; g2.textBaseline="middle";
+    g2.fillStyle="rgba(0,0,0,.45)"; g2.fillText(STYLE.brand.trim(),c.width/2+4,106);
+    g2.fillStyle="#d9dde0"; g2.fillText(STYLE.brand.trim(),c.width/2,100);
+    brandRatio=c.width/200;
+    const tx=new THREE.CanvasTexture(c); tx.encoding=THREE.sRGBEncoding; tx.anisotropy=4;
+    brandMat=new THREE.MeshBasicMaterial({map:tx,transparent:true,depthWrite:false});
+  }
   const felt=M(FELTS[STYLE.felt][1],{roughness:.95}), leather=M(0x6e2f22,{roughness:.6}), leather2=M(0x8c4433,{roughness:.6});
   const metal=M(0x9aa3a8,{metalness:.7,roughness:.3}), dark=M(0x222629,{roughness:.5});
   let lights=0;
@@ -1035,6 +1048,12 @@ function buildScene(){
         add(Box(3.6,3.2,pl[1]-16),felt,sx*(pl[0]/2-1.6),top+2.1,0,g);
       }
       add(Box(L-4,15,W-4),cabinet,0,top-8.5,0,g);
+      if(brandMat){
+        const bh=14, bw=Math.min(bh*brandRatio,W*.7);
+        for(const [x,z,ry] of [[0,W/2-1.8,0],[0,-W/2+1.8,Math.PI],[L/2-1.8,0,Math.PI/2],[-L/2+1.8,0,-Math.PI/2]]){
+          const m=new THREE.Mesh(new THREE.PlaneGeometry(bw,bh),brandMat); m.position.set(x,top-8.5,z); m.rotation.y=ry; g.add(m);
+        }
+      }
       add(Box(L-2,2.2,W-2),molding,0,top-16.5,0,g);
       add(Box(L-40,7,W-22),cabinet,0,top-21,0,g);
       // pockets: leather covers on the corners and the middle of the long sides
@@ -1187,7 +1206,7 @@ drawPlan();
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="10";
+const APP_VERSION="11";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
