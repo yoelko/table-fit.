@@ -262,6 +262,8 @@ button{font:inherit;color:inherit}
 .sw{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:500;font-size:.82rem}
 .sw i{width:14px;height:14px;border-radius:50%;border:1px solid rgb(0 0 0 / .2)}
 .vizacts{display:grid;grid-template-columns:1.3fr 1fr;gap:8px}
+.vizacts .offerbtn{grid-column:1/-1;border-color:#c9a24d;color:var(--ink)}
+.viewer .offerbtn{display:none}
 .sharebox{display:flex;flex-direction:column;gap:8px}
 .sharebox .row .btn{flex:1}
 .viewer #vizClose,.viewer .viz-bar .opt,.viewer .vizstyle{display:none}
@@ -1074,14 +1076,8 @@ function centerTables(ts){
 // Tables already in the room stay where they are; the chosen table fills only the free floor around them.
 function fillRoom(it){
   pushUndo(true);
-  const keep=state.tables.slice(); let bestSet=keep;
-  for(const byCol of [false,true]) for(const rots of [[false,true],[false],[true]]){
-    state.tables=keep.slice();
-    for(let n=0;n<100;n++){ const t=newTable(it); const s=findSpot(t,byCol,rots); if(!s) break; t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; state.tables.push(t); }
-    if(state.tables.length>bestSet.length) bestSet=state.tables;
-  }
-  state.tables=bestSet;
-  if(!keep.length&&bestSet.length) centerTables(bestSet);
+  const keep=state.tables.slice();
+  packTables(it);
   select(null);
   const n=state.tables.length-keep.length;
   toast(n?(keep.length?`נוספו ${n} × ${it.name} לצד ${keep.length} השולחנות שכבר בחדר`:`נכנסו ${n} × ${it.name}`):(keep.length?`אין מקום פנוי ל${it.name} נוסף`:"לא נכנס אף שולחן. נסו מרחקים קטנים יותר."));
@@ -1449,11 +1445,11 @@ function renderVizBar(){
     `<button type="button" class="sw" data-k="${key}" data-v="${k}" aria-pressed="${STYLE[key]===k}"><i style="background:#${c.toString(16).padStart(6,"0")}"></i>${n}</button>`).join("")}</div>`;
   const was=document.querySelector(".vizstyle"), open=was?was.open:isWide();
   bar.innerHTML=`<details class="vizstyle" ${open?"open":""}><summary>עיצוב החדר</summary><div class="opts">`+row("צבע הבד",FELTS,"felt")+row("רצפה",FLOORS,"floor")+row("קירות",WALLS,"wall")+`</div></details>`+
-    `<div class="vizacts"><button type="button" class="btn solid" id="vizShare">שליחת ההדמיה ללקוח</button><button type="button" class="btn" id="vizSave">שמירה כתמונה</button></div>
+    `<div class="vizacts"><button type="button" class="btn solid" id="vizShare">שליחת ההדמיה ללקוח</button><button type="button" class="btn" id="vizSave">שמירה כתמונה</button><button type="button" class="btn offerbtn" id="vizOffer">הצעה ללקוח (דף A4 עם מחירים)</button></div>
      ${VIEWER?`<button type="button" class="link" id="vizImport">שמירה כפרויקט שלי</button>`:""}
      <div class="sharebox" id="shareBox" hidden><input class="text" id="shareUrl" readonly dir="ltr" aria-label="קישור להדמיה"><div class="row"><button type="button" class="btn" id="shareCopy">העתקה</button><a class="btn" id="shareWa" target="_blank" rel="noopener">וואטסאפ</a></div></div>`;
   bar.querySelectorAll(".sw").forEach(b=>b.onclick=()=>{STYLE[b.dataset.k]=b.dataset.v; saveStyle(); renderVizBar(); if(V){buildScene(); render();}});
-  $("vizSave").onclick=saveVizImage;
+  $("vizSave").onclick=saveVizImage; $("vizOffer").onclick=makeOffer;
   $("vizShare").onclick=shareViz;
   if($("vizImport")) $("vizImport").onclick=importShared;
 }
@@ -2441,6 +2437,69 @@ async function saveVizImage(){
   const name=(STYLE.title||"הדמיה").replace(/[\\/:*?"<>|]/g,"").trim()+".png";
   await giveFile(blob,name,"התמונה נשמרה");
 }
+/* ---------- client offer: one A4 page with the 3D picture, the plan, the tables and their prices ---------- */
+async function makeOffer(){
+  if(!V||!V.scene) return;
+  const btn=$("vizOffer"); btn.disabled=true; const old=btn.textContent; btn.textContent="מכין…";
+  try{
+    const Wd=1240, Hd=1754, M=64, c=document.createElement("canvas"); c.width=Wd; c.height=Hd; const g=c.getContext("2d");
+    const title=STYLE.title||cur.name||"הדמיית חדר משחקים", Pp=roomPoints(), mx=Math.max(...Pp.map(p=>p[0])), my=Math.max(...Pp.map(p=>p[1]));
+    g.fillStyle="#fbf7f0"; g.fillRect(0,0,Wd,Hd);
+    // header band
+    g.fillStyle="#2b120d"; g.fillRect(0,0,Wd,170);
+    g.fillStyle="#c9a24d"; g.fillRect(0,170,Wd,4);
+    g.direction="ltr"; g.textAlign="left"; g.textBaseline="middle"; g.fillStyle="#c9a24d"; g.font="italic 600 54px Georgia, 'Times New Roman', serif"; g.fillText("Regiis",M,86);
+    g.direction="rtl"; g.textAlign="right"; g.fillStyle="#fbf3e3"; g.font="700 46px 'Frank Ruhl Libre', Georgia, serif"; g.fillText(title,Wd-M,72);
+    g.fillStyle="#d9c39a"; g.font="400 22px Heebo, Arial, sans-serif"; g.fillText(`הצעת תכנון · ${new Date().toLocaleDateString("he-IL")}`,Wd-M,122);
+    // the 3D picture, rendered sharp
+    const pr0=V.r.getPixelRatio(), st=$("vizStage");
+    V.r.setPixelRatio(Math.min(3,Math.max(pr0,1600/Math.max(1,st.clientWidth)))); V.r.setSize(st.clientWidth,st.clientHeight,false); renderNow();
+    const src=V.r.domElement, boxW=Wd-2*M, boxH=640, y3=210, sc=Math.max(boxW/src.width,boxH/src.height), sw=boxW/sc, sh=boxH/sc;
+    g.save(); g.beginPath(); g.roundRect?g.roundRect(M,y3,boxW,boxH,18):g.rect(M,y3,boxW,boxH); g.clip();
+    g.drawImage(src,(src.width-sw)/2,(src.height-sh)/2,sw,sh,M,y3,boxW,boxH); g.restore();
+    V.r.setPixelRatio(pr0); resizeViz();
+    // plan drawing
+    const yP=y3+boxH+48;
+    g.fillStyle="#2b120d"; g.font="700 30px 'Frank Ruhl Libre', Georgia, serif"; g.fillText("תוכנית החדר",Wd-M,yP);
+    const planW=640, planH=430, img=await svgImage(offerPlanSvg(planW,planH)); g.drawImage(img,M,yP+24,planW,planH);
+    // room details beside the plan
+    const by={}; state.tables.forEach(t=>{ by[t.name]=by[t.name]||{n:0,t}; by[t.name].n++; });
+    const xR=Wd-M; let yy=yP+70; g.font="400 22px Heebo, Arial, sans-serif"; g.fillStyle="#5c4636";
+    const shapeName={rect:"מלבן",round:"עגול",slant:"קיר אלכסוני",L:"צורת L",U:"צורת U",diag:"פינה אלכסונית"}[state.shape]||"";
+    for(const [k,v] of [["גודל החדר",`⁦${Math.round(mx)}×${Math.round(my)}⁩ ס״מ`],["צורה",state.custom?"לפי שרטוט":shapeName],["שולחנות",String(state.tables.length)],["מרחק מהקיר",`${GAP.wall} ס״מ`],["בין שולחנות",`${GAP.table} ס״מ`]]){
+      g.fillStyle="#8a7462"; g.font="400 20px Heebo, Arial, sans-serif"; g.fillText(k,xR,yy); g.fillStyle="#2b120d"; g.font="700 26px Heebo, Arial, sans-serif"; g.fillText(v,xR,yy+32); yy+=82; }
+    // the tables and prices
+    let yT=yP+planH+70; g.fillStyle="#2b120d"; g.font="700 30px 'Frank Ruhl Libre', Georgia, serif"; g.fillText("השולחנות",Wd-M,yT); yT+=26;
+    g.fillStyle="#e9dfcf"; g.fillRect(M,yT,Wd-2*M,2); yT+=36;
+    let total=0, allPriced=true; const rows=Object.values(by);
+    g.font="600 18px Heebo, Arial, sans-serif"; g.fillStyle="#8a7462"; g.fillText("דגם",Wd-M,yT); g.textAlign="center"; g.fillText("כמות",M+300,yT); g.fillText("מחיר ליחידה",M+170,yT); g.textAlign="left"; g.fillText("סה״כ",M,yT); g.textAlign="right"; yT+=40;
+    for(const {n,t} of rows.slice(0,8)){ const r=PLAYON.find(x=>x[0]===t.name), pr=r&&r[7]; if(pr) total+=pr*n; else allPriced=false;
+      g.fillStyle="#2b120d"; g.font="500 23px Heebo, Arial, sans-serif"; g.fillText(t.name,Wd-M,yT);
+      g.fillStyle="#8a7462"; g.font="400 17px Heebo, Arial, sans-serif"; g.fillText(`⁦${t.L}×${t.W}⁩ ס״מ`,Wd-M,yT+25);
+      g.fillStyle="#2b120d"; g.font="600 23px Heebo, Arial, sans-serif"; g.textAlign="center"; g.fillText(String(n),M+300,yT); g.fillText(pr?`₪${pr.toLocaleString("he-IL")}`:"—",M+170,yT);
+      g.textAlign="left"; g.fillText(pr?`₪${(pr*n).toLocaleString("he-IL")}`:"בהצעה",M,yT); g.textAlign="right"; yT+=64; }
+    g.fillStyle="#e9dfcf"; g.fillRect(M,yT-20,Wd-2*M,2);
+    if(total){ g.fillStyle="#2b120d"; g.font="700 30px Heebo, Arial, sans-serif"; g.textAlign="left"; g.fillText(`₪${total.toLocaleString("he-IL")}`,M,yT+20); g.textAlign="right"; g.font="600 22px Heebo, Arial, sans-serif"; g.fillText(allPriced?"סה״כ שולחנות":"סה״כ שולחנות עם מחיר",Wd-M,yT+20); }
+    g.fillStyle="#8a7462"; g.font="400 17px Heebo, Arial, sans-serif"; g.fillText("המחירים לפי אתר PlayOn ביום ההצעה, לפני הובלה, התקנה ואביזרים.",Wd-M,yT+64);
+    // footer
+    g.fillStyle="#2b120d"; g.fillRect(0,Hd-70,Wd,70); g.fillStyle="#d9c39a"; g.font="500 20px Heebo, Arial, sans-serif"; g.textAlign="center"; g.direction="ltr"; g.fillText("PlayOn · playon.co.il",Wd/2,Hd-35);
+    const blob=await new Promise(r=>c.toBlob(r,"image/png"));
+    await giveFile(blob,`הצעה - ${title.replace(/[\\/:*?"<>|]/g,"").trim()}.png`,"ההצעה נשמרה");
+  } finally { btn.disabled=false; btn.textContent=old; }
+}
+function svgImage(svg){ return new Promise((res,rej)=>{ const im=new Image(); const u=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"})); im.onload=()=>{ URL.revokeObjectURL(u); res(im); }; im.onerror=rej; im.src=u; }); }
+// A clean plan for print: walls, numbered tables, furniture, and the overall size.
+function offerPlanSvg(w,h){
+  const rd=roomData(), Pp=roomPoints(), mx=Math.max(...Pp.map(p=>p[0])), my=Math.max(...Pp.map(p=>p[1])), pad=Math.max(mx,my)*.06;
+  const col={cue:"#2a6a40",foos:"#3a3a3e",air:"#9aa3ab",pong:"#1d4f91",poker:"#1f6b3c"}, u=Math.max(mx,my)/100;
+  const tb=rd.tables.map((t,k)=>{ const b=box(t.cx,t.cy,dims(t).O), fs=Math.min(b.w,b.h)*.32;
+    return `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="${t.kind==="poker"?Math.min(b.w,b.h)/2:u*.6}" fill="${col[t.kind]||"#2a6a40"}" stroke="${t.kind==="cue"?"#6b2a14":"none"}" stroke-width="${t.kind==="cue"?u*1.2:0}"/><text x="${t.cx}" y="${t.cy+fs*.35}" font-size="${fs}" text-anchor="middle" fill="#fff" font-family="Heebo, Arial" font-weight="700">${k+1}</text>`; }).join("");
+  const fu=rd.furn.map(f=>{ const b=fBox(f); return `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="${u*.5}" fill="#8a4a2a" opacity=".8"/>`; }).join("");
+  const co=rd.cols.map(c=>`<rect x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" fill="#9a8f84"/>`).join("");
+  const grid=Array.from({length:Math.floor(mx/100)},(_,i)=>`<line x1="${(i+1)*100}" y1="0" x2="${(i+1)*100}" y2="${my}"/>`).join("")+Array.from({length:Math.floor(my/100)},(_,i)=>`<line x1="0" y1="${(i+1)*100}" x2="${mx}" y2="${(i+1)*100}"/>`).join("");
+  const path=`M${Pp.map(q=>q.join(" ")).join("L")}Z`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="${-pad} ${-pad} ${mx+2*pad} ${my+2*pad}" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="c"><path d="${path}"/></clipPath></defs><path d="${path}" fill="#f6f0e6"/><g clip-path="url(#c)" stroke="#e6dccb" stroke-width="${u*.25}">${grid}</g><path d="${path}" fill="none" stroke="#2b120d" stroke-width="${u*.9}"/>${co}${fu}${tb}</svg>`;
+}
 async function giveFile(blob,name,okMsg){
   let dl=null; try{ dl=window.claude?.use?await window.claude.use("downloads"):null; }catch(e){}
   if(dl){ try{ await dl.save({filename:name,data:blob}); toast(okMsg); return true; }catch(e){ if(e?.code!=="declined") toast("לא הצלחתי לשמור את הקובץ כאן."); return false; } }
@@ -2478,12 +2537,17 @@ function sandbox(room,fn){
   try{ const info=fn()||{}; return {room:clone(roomData()),info}; }
   finally{ Object.assign(state,JSON.parse(save)); Object.assign(GAP,g0); P=roomPoints(); G=buildGrid(P); }
 }
+// Try several packing orders; most tables wins, and among equals the tidier one (all turned the same way, compact block).
 function packTables(it,limit=100){
-  const keep=state.tables.slice(); let best=keep;
-  for(const byCol of [false,true]) for(const rots of [[false,true],[false],[true]]){
+  const keep=state.tables.slice(); let best=keep, bestSc=-Infinity;
+  const tidy=ts=>{ const nw=ts.slice(keep.length); if(!nw.length) return 0; const bb=nw.map(t=>box(t.cx,t.cy,dims(t).O));
+    const area=(Math.max(...bb.map(b=>b.x+b.w))-Math.min(...bb.map(b=>b.x)))*(Math.max(...bb.map(b=>b.y+b.h))-Math.min(...bb.map(b=>b.y)));
+    const mixed=new Set(nw.map(t=>!!t.rot)).size>1; return -area/1e4-(mixed?400:0); };
+  for(const byCol of [false,true]) for(const rots of [[false],[true],[false,true]]){
     state.tables=keep.slice();
     for(let n=0;n<limit;n++){ const t=newTable(it); const s=findSpot(t,byCol,rots); if(!s) break; t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; state.tables.push(t); }
-    if(state.tables.length>best.length) best=state.tables;
+    const sc=state.tables.length*1e6+tidy(state.tables);
+    if(sc>bestSc){ bestSc=sc; best=state.tables; }
   }
   state.tables=best; if(!keep.length&&best.length) centerTables(best);
   return best.length-keep.length;
@@ -2785,7 +2849,7 @@ if(VIEWER){ $("tip").hidden=true; openShared(); }
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="n2";
+const APP_VERSION="n3";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
@@ -2800,6 +2864,6 @@ async function checkUpdate(){
 
 checkUpdate();
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") checkUpdate(); });
-</script><div style="position:fixed;left:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:99;background:#c9a24d;color:#1b120c;font:700 11px Heebo,Arial,sans-serif;padding:3px 8px;border-radius:99px;pointer-events:none;opacity:.9">גרסת ניסיון n2</div>
+</script><div style="position:fixed;left:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:99;background:#c9a24d;color:#1b120c;font:700 11px Heebo,Arial,sans-serif;padding:3px 8px;border-radius:99px;pointer-events:none;opacity:.9">גרסת ניסיון n3</div>
 </body>
 </html>
