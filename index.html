@@ -876,7 +876,7 @@ async function analyzeSketch(){
 }
 
 /* ---------- 3D visualization ---------- */
-const FELTS={green:["ירוק",0x1d6b3a],blue:["כחול",0x1f4f8f],red:["בורדו",0x7d1c2a],grey:["אפור",0x5b6369]};
+const FELTS={green:["ירוק",0x2fae1f],dgreen:["ירוק כהה",0x1d6b3a],blue:["כחול",0x1f4f8f],red:["בורדו",0x7d1c2a],grey:["אפור",0x5b6369]};
 const FLOORS={wood:["פרקט",0xa0703f],carpet:["שטיח",0x4a2a30],stone:["בטון",0x9c9a94]};
 const WALLS={light:["בהיר",0xe6e1d8],dark:["כהה",0x34393d],green:["ירוק כהה",0x23382f]};
 let THREE=null, V=null;
@@ -1008,6 +1008,11 @@ function buildScene(){
   for(const c of state.cols) add(Box(c.w,H,c.h),M(0xbfc3c4),X(c.x+c.w/2),H/2,Z(c.y+c.h/2));
 
   const wood=M(0x5a3420,{roughness:.45}), woodLight=M(0x8a5a34,{roughness:.5}), black=M(0x111111,{roughness:.4});
+  const cabinet=M(0x4a1712,{roughness:.35}), legWood=M(0x561c15,{roughness:.3,flatShading:true}), molding=M(0x7a2c1c,{roughness:.35});
+  const railWood=M(0x3a1d14,{roughness:.35}), railEdge=M(0x6e3a22,{roughness:.4}), leatherTan=M(0xe0a670,{roughness:.6});
+  const chrome=new THREE.MeshPhongMaterial({color:0xcfd2d4,specular:0xffffff,shininess:120}), brass=new THREE.MeshPhongMaterial({color:0xd6c08a,specular:0xffffff,shininess:80});
+  const shadeGreen=new THREE.MeshPhongMaterial({color:new THREE.Color(0x2f9a63).convertSRGBToLinear(),specular:0x777777,shininess:70,side:THREE.FrontSide});
+  const shadeWhite=new THREE.MeshBasicMaterial({color:0xf4f1e6,side:THREE.BackSide});
   const felt=M(FELTS[STYLE.felt][1],{roughness:.95}), leather=M(0x6e2f22,{roughness:.6}), leather2=M(0x8c4433,{roughness:.6});
   const metal=M(0x9aa3a8,{metalness:.7,roughness:.3}), dark=M(0x222629,{roughness:.5});
   let lights=0;
@@ -1016,25 +1021,55 @@ function buildScene(){
     const g=new THREE.Group(); g.position.set(X(t.cx),0,Z(t.cy)); if(t.rot) g.rotation.y=Math.PI/2; S.add(g);
     const L=t.L, W=t.W;
     if(t.kind==="cue"){
-      const top=86, pl=[L-2*RAIL,W-2*RAIL];
-      add(Box(L,14,W),wood,0,top-8,0,g);
+      // Classic table: mahogany cabinet, dark rails, turned legs, leather pocket covers.
+      const top=82, R=RAIL, pl=[L-2*R,W-2*R];
       add(Box(pl[0],2,pl[1]),felt,0,top,0,g);
-      add(Box(L,5,RAIL),wood,0,top+2,W/2-RAIL/2,g); add(Box(L,5,RAIL),wood,0,top+2,-W/2+RAIL/2,g);
-      add(Box(RAIL,5,W-2*RAIL),wood,L/2-RAIL/2,top+2,0,g); add(Box(RAIL,5,W-2*RAIL),wood,-L/2+RAIL/2,top+2,0,g);
-      for(const [px,pz] of [[-1,-1],[-1,1],[1,-1],[1,1],[0,-1],[0,1]]) add(Cyl(5.5,5.5,6),black,px*(L/2-RAIL+2),top+2.2,pz*(W/2-RAIL+2),g);
-      const legX=L>320?[-L/2+35,0,L/2-35]:[-L/2+30,L/2-30];
-      for(const lx of legX) for(const lz of [-W/2+28,W/2-28]) add(Box(16,top-14,16),wood,lx,(top-14)/2,lz,g);
+      for(const sz of [-1,1]){
+        add(Box(L-8,5,R),railWood,0,top+2.5,sz*(W/2-R/2),g);
+        add(Box(L-8,1.6,1.2),railEdge,0,top+.6,sz*(W/2-.6),g);
+        add(Box(pl[0]-30,3.2,3.6),felt,0,top+2.1,sz*(pl[1]/2-1.6),g);
+      }
+      for(const sx of [-1,1]){
+        add(Box(R,5,W-8),railWood,sx*(L/2-R/2),top+2.5,0,g);
+        add(Box(1.2,1.6,W-8),railEdge,sx*(L/2-.6),top+.6,0,g);
+        add(Box(3.6,3.2,pl[1]-16),felt,sx*(pl[0]/2-1.6),top+2.1,0,g);
+      }
+      add(Box(L-4,15,W-4),cabinet,0,top-8.5,0,g);
+      add(Box(L-2,2.2,W-2),molding,0,top-16.5,0,g);
+      add(Box(L-40,7,W-22),cabinet,0,top-21,0,g);
+      // pockets: leather covers on the corners and the middle of the long sides
+      for(const [px,pz] of [[-1,-1],[-1,1],[1,-1],[1,1],[0,-1],[0,1]]){
+        const x=px*(L/2-4), z=pz*(W/2-4);
+        add(Cyl(px?9:7.5,px?9:7.5,11,20),leatherTan,x,top+.5,z,g);
+        add(Cyl(5.6,5.6,1.5,18),black,px*(L/2-R+3),top+5.3,pz*(W/2-R+3),g);
+        add(Box(11,4,11),black,x*.97,top-19,z*.97,g);
+      }
+      // turned legs (six on big tables)
+      const legH=top-24, xs=L>=250?[-L/2+28,0,L/2-28]:[-L/2+28,L/2-28];
+      const prof=[[8,0],[9.5,1],[11,5],[11.5,10],[11,16],[9.5,20],[8.5,22],[11,25],[13,29],[13.5,33],[12,37],[9.5,40],[10.5,44],[10.5,48]]
+        .map(([r,y])=>new THREE.Vector2(r*.9,y/48*legH));
+      const legGeo=new THREE.LatheGeometry(prof,14);
+      for(const lx of xs) for(const lz of [-W/2+24,W/2-24]){
+        const leg=add(legGeo,legWood,lx,0,lz,g);
+        add(Box(26,22,26),cabinet,lx,legH+8,lz,g);
+      }
       // balls: a rack of reds and the cue ball
       const br=L>330?2.6:2.85, rx=pl[0]*.22; let n=0;
       for(let row=0;row<4;row++) for(let k=0;k<=row;k++){ n++; add(new THREE.SphereGeometry(br,14,10),M(L>330?0xb3121b:[0xe3c21b,0x1c3fa8,0xc1271c,0x5a2a7a,0xe06a1a,0x1f7a3d,0x7a1c1c,0x111111,0xe3c21b,0x1c3fa8][n%10],{roughness:.25}),rx+row*br*1.75,top+1+br,(k-row/2)*br*2.05,g); }
       add(new THREE.SphereGeometry(br,14,10),M(0xf5f2e8,{roughness:.25}),-pl[0]*.3,top+1+br,pl[1]*.1,g);
-      // the canopy lamp over the table
-      // the canopy lamp over the table (hidden in the top view so it does not cover the table)
-      const lw=Math.min(L*.62,240), ld=Math.min(W*.32,60), lamp=new THREE.Group(); g.add(lamp); V.lamps.push(lamp);
-      add(Box(lw,7,ld),M(0x14261c,{roughness:.6}),0,215,0,lamp);
-      const glow=new THREE.Mesh(new THREE.PlaneGeometry(lw-6,ld-6),new THREE.MeshBasicMaterial({color:0xfff3d6})); glow.rotation.x=Math.PI/2; glow.position.set(0,211.4,0); lamp.add(glow);
-      for(const sx of [-1,1]) add(Cyl(.6,.6,H-218,6),metal,sx*lw*.35,218+(H-218)/2,0,lamp);
-      if(lights<8){ const pl2=new THREE.PointLight(0xfff0d0,.55,420,2); pl2.position.set(0,185,0); g.add(pl2); lights++; }
+      // three-shade lamp on a chrome bar, hung on two chains (hidden in the top view)
+      const lw=Math.min(L*.62,210), lamp=new THREE.Group(); g.add(lamp); V.lamps.push(lamp);
+      const barY=192, bar=new THREE.Mesh(Cyl(2,2,lw,14),chrome); bar.rotation.z=Math.PI/2; bar.position.y=barY; lamp.add(bar);
+      for(const sx of [-1,1]){ const cap=new THREE.Mesh(new THREE.SphereGeometry(3.4,14,10),chrome); cap.position.set(sx*lw/2,barY,0); lamp.add(cap);
+        const ch=new THREE.Mesh(Cyl(.5,.5,H-barY,5),brass); ch.position.set(sx*lw*.45,barY+(H-barY)/2,0); lamp.add(ch); }
+      for(const sx of [-.42,0,.42]){
+        const x=sx*lw, sh=new THREE.Group(); sh.position.set(x,barY-9,0); lamp.add(sh);
+        const neck=new THREE.Mesh(Cyl(3,4.5,7,14),chrome); neck.position.y=4; sh.add(neck);
+        const out=new THREE.Mesh(new THREE.CylinderGeometry(5,21,15,28,1,true),shadeGreen); out.position.y=-7.5; out.castShadow=true; sh.add(out);
+        const inn=new THREE.Mesh(new THREE.CylinderGeometry(4.6,20.5,14.6,28,1,true),shadeWhite); inn.position.y=-7.5; sh.add(inn);
+        const bulb=new THREE.Mesh(new THREE.SphereGeometry(4.5,12,8),new THREE.MeshBasicMaterial({color:0xfff3d6})); bulb.position.y=-9; sh.add(bulb);
+      }
+      if(lights<8){ const pl2=new THREE.PointLight(0xfff0d0,.55,420,2); pl2.position.set(0,170,0); g.add(pl2); lights++; }
     } else if(t.kind==="foos"){
       add(Box(L*.75,22,W),woodLight,0,80,0,g); add(Box(L*.72,1,W*.9),felt,0,91,0,g);
       for(let i=0;i<8;i++) add(Cyl(1,1,W+40,8),metal,-L*.33+i*L*.66/7,93,0,g).rotation.x=Math.PI/2;
@@ -1152,7 +1187,7 @@ drawPlan();
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="9";
+const APP_VERSION="10";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
