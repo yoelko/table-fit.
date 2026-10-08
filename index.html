@@ -13,179 +13,166 @@
 <title>איזה שולחן נכנס לחדר?</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Secular+One&family=Assistant:wght@400;600;700&display=swap">
 <style>
-/* Layout: one narrow column — sketch upload, room shape and size, columns, to-scale floor plan, then the table list */
+/* Layout: one-screen app. Floor plan always visible on top (side on desktop), tabs + panel below it. */
 :root{
   --bg:#f3f5f2; --surface:#ffffff; --ink:#1c2420; --muted:#5f6b64; --line:#d6ddd8;
   --felt:#1f6b4a; --felt-soft:#e2efe8; --wood:#8a5a34; --zone:#2f7d5b; --pillar:#55606a;
-  --ok:#1f7a45; --warn:#b26a00; --bad:#b3322a;
+  --ok:#1f7a45; --warn:#b26a00; --bad:#b3322a; --shadow:rgb(20 30 25 / .14);
   --display:"Secular One","Assistant",system-ui,sans-serif;
   --body:"Assistant",system-ui,-apple-system,"Segoe UI",sans-serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#121815; --surface:#1a221e; --ink:#e7eee9; --muted:#9aa8a0; --line:#2c3832;
   --felt:#3fa274; --felt-soft:#1d3329; --wood:#c08a5c; --zone:#56b88a; --pillar:#8d99a3;
-  --ok:#57c483; --warn:#f0a940; --bad:#ef6b61; color-scheme:dark}}
+  --ok:#57c483; --warn:#f0a940; --bad:#ef6b61; --shadow:rgb(0 0 0 / .45); color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#121815; --surface:#1a221e; --ink:#e7eee9; --muted:#9aa8a0; --line:#2c3832;
   --felt:#3fa274; --felt-soft:#1d3329; --wood:#c08a5c; --zone:#56b88a; --pillar:#8d99a3;
-  --ok:#57c483; --warn:#f0a940; --bad:#ef6b61; color-scheme:dark}
+  --ok:#57c483; --warn:#f0a940; --bad:#ef6b61; --shadow:rgb(0 0 0 / .45); color-scheme:dark}
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
-.wrap{max-width:640px;margin:0 auto;padding-inline:16px;padding-block:24px 40px;display:flex;flex-direction:column;gap:22px}
-h1{font-family:var(--display);font-weight:400;font-size:clamp(1.6rem,6vw,2.1rem);line-height:1.15;margin:0;text-wrap:balance}
-h2{font-size:.8rem;letter-spacing:.04em;color:var(--muted);margin:0 0 8px;font-weight:700}
-.lede{margin:6px 0 0;color:var(--muted)}
+html{height:100%;box-sizing:border-box}
+body{height:100%;margin:0;overflow:hidden;background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.45}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--felt);outline-offset:2px}
+
+.app{height:100%;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;gap:10px;padding:10px 16px 8px}
+.top h1{font-family:var(--display);font-weight:400;font-size:1.3rem;line-height:1.1;margin:0}
+.sum{font-size:.85rem;font-weight:700;margin:2px 0 0}
+.iconbtn{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;font-weight:700;font-size:.9rem;padding:8px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);margin-inline-start:auto}
+.iconbtn[disabled]{opacity:.4;cursor:default}
+
+.stage{flex:0 0 auto;height:min(50vh,560px);margin-inline:16px;display:flex;flex-direction:column;background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;position:relative}
+.stage svg{flex:1;min-height:0;width:100%;display:block;touch-action:none;direction:ltr;user-select:none;-webkit-user-select:none}
+.selbar{border-top:1px solid var(--line);padding:10px 12px;display:flex;flex-direction:column;gap:8px;background:var(--surface)}
+.selhead{display:flex;align-items:center;gap:8px;min-width:0}
+.selhead b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.selhead .x{all:unset;cursor:pointer;margin-inline-start:auto;width:32px;height:32px;display:grid;place-items:center;border-radius:8px;font-size:1.1rem;color:var(--muted)}
+.acts{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.act{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:6px 2px;border-radius:10px;font-size:.78rem;font-weight:700;color:var(--ink);background:var(--bg)}
+.act svg{width:20px;height:20px}
+.act.danger{color:var(--bad)}
+.act[aria-pressed="true"]{background:var(--felt-soft);color:var(--felt)}
+
+.tip{position:absolute;inset:12px;display:flex;align-items:center;justify-content:center;pointer-events:none}
+.tip .card{pointer-events:auto;max-width:320px;background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 10px 30px var(--shadow);padding:16px}
+.tip ol{margin:6px 0 12px;padding-inline-start:20px;display:flex;flex-direction:column;gap:4px}
+.tip h2{font-family:var(--display);font-weight:400;font-size:1.15rem;margin:0}
+
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;margin:10px 16px 0;padding:4px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.tabs button{all:unset;cursor:pointer;text-align:center;padding:9px 4px;border-radius:9px;font-weight:700;color:var(--muted)}
+.tabs button[aria-selected="true"]{background:var(--felt);color:#fff}
+.panel{flex:1;min-height:0;overflow:auto;padding-inline:16px;padding-block:14px 28px;display:flex;flex-direction:column;gap:18px}
+.panel h3{font-size:.8rem;letter-spacing:.04em;color:var(--muted);margin:0 0 8px;font-weight:700}
+.hint{font-size:.85rem;color:var(--muted);margin:6px 0 0}
+
+.chips{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.chip{all:unset;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:10px;border:1px solid var(--line);background:var(--surface);font-weight:700;font-size:.82rem;text-align:center}
+.chip svg{width:26px;height:26px}
+.chip[aria-pressed="true"]{border-color:var(--felt);background:var(--felt-soft);color:var(--felt)}
+.chips.three{grid-template-columns:repeat(3,1fr)}
+.chip small{font-weight:600;color:var(--muted)}
+
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-label{display:flex;flex-direction:column;gap:4px;font-size:.85rem;font-weight:600;color:var(--muted);min-width:0}
-.field{display:flex;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding-inline:10px}
-.field:focus-within{border-color:var(--felt);outline:2px solid var(--felt-soft)}
-input[type=number]{flex:1;min-width:0;width:100%;border:0;background:transparent;color:var(--ink);font:600 1.2rem var(--body);padding-block:8px;font-variant-numeric:tabular-nums;outline:none}
-.unit{color:var(--muted);font-size:.85rem}
-.seg{display:grid;grid-template-columns:repeat(4,1fr);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:4px;gap:4px;margin-bottom:12px}
-.seg button{all:unset;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 2px;border-radius:9px;cursor:pointer;font-weight:700;font-size:.85rem;color:var(--muted);text-align:center}
-.seg button[aria-pressed="true"]{background:var(--felt);color:#fff}
-.seg button:focus-visible,.btn:focus-visible,.row:focus-visible{outline:2px solid var(--felt);outline-offset:2px}
-.seg svg{width:24px;height:24px}
-.hint{font-size:.8rem;color:var(--muted);margin:6px 0 0}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
-.btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:700;padding:9px 14px;border-radius:10px;border:1.5px solid var(--felt);color:var(--felt)}
+.stp{display:flex;flex-direction:column;gap:4px;min-width:0}
+.stp label{font-size:.82rem;font-weight:600;color:var(--muted)}
+.stp-row{direction:ltr;display:grid;grid-template-columns:40px 1fr 40px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+.stp-row:focus-within{border-color:var(--felt)}
+.stp-b{all:unset;cursor:pointer;height:44px;display:grid;place-items:center;font-size:1.3rem;font-weight:700;color:var(--felt);background:var(--bg)}
+.stp-b:active{background:var(--felt-soft)}
+.stp-mid{display:flex;align-items:baseline;justify-content:center;gap:4px;min-width:0}
+.stp input{width:100%;min-width:0;border:0;background:transparent;color:var(--ink);font:700 1.15rem var(--body);text-align:center;padding:0;font-variant-numeric:tabular-nums;outline:none}
+.stp .unit{font-size:.75rem;color:var(--muted);white-space:nowrap}
+
+.btn{all:unset;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;font-weight:700;padding:10px 14px;border-radius:10px;border:1.5px solid var(--felt);color:var(--felt);text-align:center}
 .btn.solid{background:var(--felt);color:#fff}
+.btn.ghost{border-color:var(--line);color:var(--ink)}
+.btn.danger{border-color:var(--bad);color:var(--bad)}
 .btn[disabled]{opacity:.5;cursor:default}
-.btns{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
-.sketch-img{display:block;max-width:100%;max-height:260px;margin-top:10px;border-radius:8px;border:1px solid var(--line)}
-.status{font-size:.9rem;margin:8px 0 0}
-.col{display:grid;grid-template-columns:repeat(4,1fr) auto;gap:8px;align-items:end;padding-block:10px;border-bottom:1px solid var(--line)}
-.col label{font-size:.75rem}
-.col input[type=number]{font-size:1rem;padding-block:6px}
-.del{all:unset;cursor:pointer;width:36px;height:36px;display:grid;place-items:center;border-radius:8px;color:var(--bad);font-size:1.3rem}
-.del:focus-visible{outline:2px solid var(--bad)}
-.plan svg{direction:ltr;display:block;width:100%;height:auto;max-height:62vh;touch-action:none}
-.legend{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:.8rem;color:var(--muted);margin-top:8px}
-.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-inline-end:5px}
-.verdict{font-weight:700;margin:8px 0 0}
-.list{display:flex;flex-direction:column;border-top:1px solid var(--line)}
-.row{all:unset;cursor:pointer;display:grid;grid-template-columns:1fr auto;gap:2px 12px;padding:12px 8px;border-bottom:1px solid var(--line);border-radius:8px}
-.row[aria-pressed="true"]{background:var(--felt-soft)}
-.name{font-weight:700}
-.size{grid-column:1;color:var(--muted);font-size:.85rem;font-variant-numeric:tabular-nums}
-.pill{grid-row:1/span 2;grid-column:2;align-self:center;font-size:.8rem;font-weight:700;padding:3px 10px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
+.row{display:flex;flex-wrap:wrap;gap:8px}
+
+.sizes{display:flex;flex-direction:column;gap:8px}
+.size{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px}
+.size-top{display:flex;align-items:center;gap:10px;min-width:0}
+.size-name{flex:1;min-width:0;cursor:pointer}
+.size-name b{display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.size-name span{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.pill{font-size:.75rem;font-weight:700;padding:2px 9px;border-radius:999px;border:1.5px solid currentColor;white-space:nowrap}
 .ok{color:var(--ok)} .warn{color:var(--warn)} .bad{color:var(--bad)}
-.srow{display:grid;grid-template-columns:1fr auto;gap:8px 10px;padding:12px 8px;border-bottom:1px solid var(--line);border-radius:10px}
-.srow[aria-current="true"]{background:var(--felt-soft)}
-.pick{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;min-width:0}
-.pick:focus-visible{outline:2px solid var(--felt);outline-offset:2px}
-.srow .pill{grid-row:auto;grid-column:auto;align-self:start}
-.sdims{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr auto auto;gap:8px;align-items:end}
-.sdims input[type=number]{font-size:1rem;padding-block:6px}
-.nameIn{all:unset;font-weight:700;border-bottom:1px dashed var(--line);min-width:0}
-.btn.sm{padding:7px 10px;font-size:.85rem}
-.note{font-size:.8rem;color:var(--muted);margin:0}
-.tools{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:10px}
-.tools .btn{padding:7px 12px;font-size:.9rem}
-.check{flex-direction:row;align-items:center;gap:6px;font-size:.85rem;color:var(--ink)}
-.check input{width:18px;height:18px;accent-color:var(--felt)}
-.summary{font-weight:700;margin:10px 0 0;font-variant-numeric:tabular-nums}
-@media (max-width:420px){.col{grid-template-columns:1fr 1fr auto}.col .wide{grid-column:span 1}}
+.size-acts{display:grid;grid-template-columns:1fr 1fr auto;gap:8px}
+.size-acts .btn{padding:9px 8px}
+.edit{all:unset;cursor:pointer;width:40px;display:grid;place-items:center;border-radius:10px;border:1px solid var(--line)}
+.edit[aria-expanded="true"]{background:var(--felt-soft);border-color:var(--felt)}
+.size-edit{display:flex;flex-direction:column;gap:10px;padding-top:4px;border-top:1px dashed var(--line)}
+.text{border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);font:600 1rem var(--body);padding:10px 12px;width:100%}
+
+.sketch{display:flex;align-items:center;gap:12px}
+.sketch img{width:72px;height:72px;object-fit:cover;border-radius:10px;border:1px solid var(--line)}
+.status{font-size:.88rem;margin:0}
+
+.toast{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);max-width:calc(100% - 32px);background:var(--ink);color:var(--bg);font-weight:600;padding:10px 16px;border-radius:12px;box-shadow:0 8px 24px var(--shadow);z-index:10;transition:opacity .2s}
+.toast[hidden]{display:block!important;opacity:0;pointer-events:none}
+
+@media (min-width:900px){
+  .app{display:grid;grid-template-columns:1fr 420px;grid-template-rows:auto auto 1fr}
+  .top{grid-column:1/-1}
+  .stage{grid-row:2/4;height:auto;margin:0 16px 16px}
+  .tabs{margin:0 0 0 16px}
+  .panel{padding-inline:0 16px}
+}
+@media (prefers-reduced-motion:reduce){.toast{transition:none}}
 </style>
 
 </head>
 <body>
-<div class="wrap" dir="rtl">
-  <header>
-    <h1>איזה שולחן נכנס לחדר?</h1>
-    <p class="lede">העלו שרטוט או הכניסו מידות, ונראה מיד אילו שולחנות מתאימים, כולל המקום שצריך מסביב למקל.</p>
+<div class="app" dir="rtl">
+  <header class="top">
+    <div>
+      <h1>איזה שולחן נכנס לחדר?</h1>
+      <p class="sum" id="summary"></p>
+    </div>
+    <button type="button" class="iconbtn" id="undo" disabled aria-label="ביטול הפעולה האחרונה">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h4"/></svg>ביטול
+    </button>
   </header>
 
-  <section class="card">
-    <h2>שרטוט עם מידות</h2>
-    <p class="hint" style="margin:0">צלמו או העלו שרטוט של החדר עם המידות כתובות עליו, אפילו ביד.</p>
-    <div class="btns">
-      <label class="btn" for="sketchFile" style="flex-direction:row">העלאת שרטוט
-        <input id="sketchFile" type="file" accept="image/*" hidden>
-      </label>
-      <button type="button" class="btn solid" id="analyze" hidden>נתח את השרטוט</button>
-    </div>
-    <img id="sketchImg" class="sketch-img" alt="השרטוט שהועלה" hidden>
-    <p class="status" id="sketchStatus" hidden></p>
-  </section>
-
-  <section>
-    <h2>צורת החדר</h2>
-    <div class="seg" role="group" aria-label="צורת החדר" id="shapes"></div>
-    <div class="grid2">
-      <label for="dimL">אורך החדר
-        <span class="field"><input id="dimL" type="number" inputmode="numeric" min="100" max="2000"><span class="unit">ס״מ</span></span>
-      </label>
-      <label for="dimW">רוחב החדר
-        <span class="field"><input id="dimW" type="number" inputmode="numeric" min="100" max="2000"><span class="unit">ס״מ</span></span>
-      </label>
-    </div>
-    <div class="grid2" id="cutBox" style="margin-top:12px">
-      <label for="dimA"><span id="labA"></span>
-        <span class="field"><input id="dimA" type="number" inputmode="numeric" min="0"><span class="unit">ס״מ</span></span>
-      </label>
-      <label for="dimB"><span id="labB"></span>
-        <span class="field"><input id="dimB" type="number" inputmode="numeric" min="0"><span class="unit">ס״מ</span></span>
-      </label>
-    </div>
-    <p class="hint" id="shapeHint"></p>
-  </section>
-
-  <section>
-    <h2>עמודים בחדר</h2>
-    <div id="cols"></div>
-    <div class="btns"><button type="button" class="btn" id="addCol">+ הוספת עמוד</button></div>
-    <p class="hint">המיקום נמדד מהקיר השמאלי ומהקיר העליון בציור. אפשר גם לגרור עמוד בציור עם האצבע.</p>
-  </section>
-
-  <section class="card plan" aria-label="תוכנית החדר בקנה מידה">
+  <section class="stage" aria-label="תוכנית החדר">
     <svg id="svg" role="img"></svg>
-    <p class="summary" id="summary"></p>
-    <div class="tools">
-      <button type="button" class="btn solid" id="addTable">+ הוספת שולחן</button>
-      <button type="button" class="btn" id="fillRoom">מלא את החדר</button>
-      <button type="button" class="btn" id="clearRoom">ניקוי</button>
+    <div class="selbar" id="selbar" hidden></div>
+    <div class="tip" id="tip" hidden>
+      <div class="card">
+        <h2>איך זה עובד</h2>
+        <ol>
+          <li>בלשונית <b>חדר</b> קובעים צורה ומידות.</li>
+          <li>בלשונית <b>שולחנות</b> מוסיפים שולחן או ממלאים את החדר.</li>
+          <li>גוררים שולחן באצבע. לחיצה עליו פותחת סיבוב, שכפול ומחיקה.</li>
+        </ol>
+        <button type="button" class="btn solid" id="tipOk" style="width:100%">הבנתי</button>
+      </div>
     </div>
-    <div class="grid2" style="margin-top:12px">
-      <label for="gapWall">מרחק מהקיר
-        <span class="field"><input id="gapWall" type="number" inputmode="numeric" min="0" max="400"><span class="unit">ס״מ</span></span>
-      </label>
-      <label for="gapTable">מרחק בין שולחנות
-        <span class="field"><input id="gapTable" type="number" inputmode="numeric" min="0" max="400"><span class="unit">ס״מ</span></span>
-      </label>
-    </div>
-    <p class="hint">נמדד משפת השולחן. מרחק מהקיר חל גם על עמודים. למשחק נוח עם מקל רגיל ממליצים על כ־140 ס״מ.</p>
-    <div class="tools" id="selTools" hidden>
-      <span id="selName" style="font-weight:700"></span>
-      <button type="button" class="btn" id="rotTable">סיבוב 90°</button>
-      <button type="button" class="btn" id="delTable" style="border-color:var(--bad);color:var(--bad)">מחיקה</button>
-    </div>
-    <div class="legend">
-      <span><i style="background:var(--felt)"></i>שולחן (גוררים עם האצבע, לחיצה בוחרת)</span>
-      <span><i style="border:2px dashed var(--zone)"></i>מרחק מהקיר</span>
-      <span><i style="background:var(--pillar)"></i>עמוד</span>
-    </div>
-    <p class="hint">קווי המידה מראים את המרחק מהשולחן המסומן לקיר, לעמוד או לשולחן הבא. מספר אדום אומר שהמרחק קטן ממה שהגדרתם.</p>
   </section>
 
-  <section>
-    <h2>גדלי שולחנות</h2>
-    <p class="hint" style="margin:0 0 8px">המידות הן של השולחן כולו, בס״מ, וכל מידה ניתנת לשינוי. "+ לחדר" מוסיף שולחן בגודל הזה. אפשר לשלב כמה גדלים באותו חדר. "מלא את החדר" משתמש בגודל המסומן. הסטטוס הוא לשולחן אחד בחדר ריק.</p>
-    <div class="list" id="list"></div>
-    <div class="btns"><button type="button" class="btn" id="addSize">+ גודל חדש</button></div>
-  </section>
-
-  <p class="note">כל המידות בס״מ. "נכנס" אומר שיש סביב השולחן את המרחק מהקיר שהגדרתם. מידות השולחנות לדוגמה; אפשר לשנות כל אחת לפי הדגם שלכם.</p>
+  <nav class="tabs" role="tablist" aria-label="הגדרות">
+    <button type="button" role="tab" id="tab-room" aria-controls="panel" data-tab="room">חדר</button>
+    <button type="button" role="tab" id="tab-tables" aria-controls="panel" data-tab="tables">שולחנות</button>
+    <button type="button" role="tab" id="tab-gaps" aria-controls="panel" data-tab="gaps">מרחקים</button>
+  </nav>
+  <main class="panel" id="panel" role="tabpanel"></main>
 </div>
+<div class="toast" id="toast" role="status" hidden></div>
 
 <script>
 const RAIL=13, CELL=5;
 const $=id=>document.getElementById(id);
-const clamp=(v,a,b)=>Math.min(b,Math.max(a,+v||0));
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,Math.round(+v||0)));
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store={
+  get(k,d){ try{ const v=JSON.parse(localStorage.getItem(k)); return v==null?d:v; }catch(e){ return d; } },
+  set(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} },
+};
 
-// Table sizes are the whole table in cm. Billiard and snooker get cue room around the playing surface;
-// foosball and air hockey get a fixed amount of standing room.
-const KIND={cue:null, foos:{n:[80,200],t:[40,160]}, air:{n:[180,120],t:[120,80]}};
+/* ---------- saved settings ---------- */
+const KIND={cue:true, foos:true, air:true};
 const DEFAULT_SIZES=[
   {name:"ביליארד 7 פיט", kind:"cue", L:213, W:122},
   {name:"ביליארד 8 פיט", kind:"cue", L:244, W:137},
@@ -194,41 +181,58 @@ const DEFAULT_SIZES=[
   {name:"כדורגל שולחן", kind:"foos", L:145, W:75},
   {name:"הוקי אוויר 7 פיט", kind:"air", L:213, W:121},
 ];
-let items;
-try{ items=JSON.parse(localStorage.getItem("tf-sizes-v1")); }catch(e){}
+let items=store.get("tf-sizes-v1",null);
 if(!Array.isArray(items)||!items.length) items=DEFAULT_SIZES.map(x=>({...x}));
-items.forEach(x=>{ if(x.name==="ביליארד 9 פיט (תחרותי)"&&x.L===280&&x.W===155){x.L=292;x.W=161;} });
-const GAP={wall:140, table:140};
-try{ Object.assign(GAP, JSON.parse(localStorage.getItem("tf-gaps-v1"))||{}); }catch(e){}
-const saveGaps=()=>{ try{ localStorage.setItem("tf-gaps-v1",JSON.stringify(GAP)); }catch(e){} };
-const saveSizes=()=>{ try{ localStorage.setItem("tf-sizes-v1",JSON.stringify(items.map(({name,kind,L,W,custom})=>({name,kind,L,W,custom})))); }catch(e){} };
+items.forEach(x=>{ if(!KIND[x.kind]) x.kind="cue"; if(x.name==="ביליארד 9 פיט (תחרותי)"&&x.L===280&&x.W===155){x.L=292;x.W=161;} });
+const saveSizes=()=>store.set("tf-sizes-v1",items.map(({name,kind,L,W,custom})=>({name,kind,L,W,custom})));
+const GAP=Object.assign({wall:140,table:140},store.get("tf-gaps-v1",{}));
+const saveGaps=()=>store.set("tf-gaps-v1",GAP);
 
 const SHAPES={
-  rect:{label:"מלבן", icon:"M3 6h18v12H3z", cut:null},
+  rect:{label:"מלבן", icon:"M3 6h18v12H3z"},
   L:{label:"צורת L", icon:"M3 6h10v5h8v7H3z", cut:["אורך הפינה החסרה","רוחב הפינה החסרה"],
-     hint:"הפינה החסרה היא החלק שנחתך מהמלבן בפינה הימנית העליונה, למשל פינת מטבח.",
+     hint:"הפינה החסרה נמצאת בצד ימין למעלה בציור, למשל פינת מטבח.",
      pts:(L,W,a,b)=>[[0,0],[L-a,0],[L-a,b],[L,b],[L,W],[0,W]]},
   U:{label:"צורת U", icon:"M3 6h6v5h6V6h6v12H3z", cut:["רוחב השקע","עומק השקע"],
-     hint:"שקע באמצע הקיר העליון, למשל ארון קיר בנוי או חדר מדרגות.",
+     hint:"שקע באמצע הקיר העליון, למשל ארון בנוי או חדר מדרגות.",
      pts:(L,W,a,b)=>{const x0=(L-a)/2,x1=(L+a)/2;return [[0,0],[x0,0],[x0,b],[x1,b],[x1,0],[L,0],[L,W],[0,W]]}},
-  diag:{label:"פינה באלכסון", icon:"M3 6h12l6 5v7H3z", cut:["אורך הקיר שנחתך","רוחב הקיר שנחתך"],
+  diag:{label:"פינה אלכסונית", icon:"M3 6h12l6 5v7H3z", cut:["אורך החיתוך","עומק החיתוך"],
      hint:"פינה ימנית עליונה שנחתכה בקיר אלכסוני.",
      pts:(L,W,a,b)=>[[0,0],[L-a,0],[L,b],[L,W],[0,W]]},
 };
 
-const state={
-  shape:"rect", L:560, W:440, a:180, b:140,
-  custom:null,               // points from an analysed sketch
-  cols:[], sel:1, tables:[],
+const firstRun=!store.get("tf-room-v1",null);
+const state=Object.assign({shape:"rect",L:600,W:450,a:180,b:140,custom:null,cols:[],tables:[]},store.get("tf-room-v1",{}));
+const saveRoom=()=>store.set("tf-room-v1",{shape:state.shape,L:state.L,W:state.W,a:state.a,b:state.b,custom:state.custom,cols:state.cols,tables:state.tables});
+let tab=store.get("tf-tab","tables");
+let sel=null;           // {type:"t"|"c", o:object}
+let editOpen=false;     // size editor open in the selection bar
+let openSize=-1;        // size card expanded for editing
+
+/* ---------- undo ---------- */
+const undoStack=[]; let lastPush=0;
+function snapshot(){ return JSON.stringify({shape:state.shape,L:state.L,W:state.W,a:state.a,b:state.b,custom:state.custom,cols:state.cols,tables:state.tables}); }
+// Rapid changes (stepper taps, a drag) collapse into one undo step.
+function pushUndo(force){
+  const now=Date.now();
+  if(!force && now-lastPush<900){ lastPush=now; return; }
+  lastPush=now; undoStack.push(snapshot()); if(undoStack.length>60) undoStack.shift();
+  $("undo").disabled=false;
+}
+$("undo").onclick=()=>{
+  const s=undoStack.pop(); if(!s) return;
+  Object.assign(state,JSON.parse(s)); lastPush=0;
+  $("undo").disabled=!undoStack.length;
+  P=roomPoints(); G=buildGrid(P); select(null); renderPanel(); toast("בוטל");
 };
 
-/* ---------- room geometry ---------- */
+/* ---------- geometry ---------- */
 function roomPoints(){
   if(state.custom) return state.custom;
   const {L,W}=state;
-  if(state.shape==="rect") return [[0,0],[L,0],[L,W],[0,W]];
-  const a=Math.min(state.a,L-50), b=Math.min(state.b,W-50);
-  return SHAPES[state.shape].pts(L,W,Math.max(0,a),Math.max(0,b));
+  if(state.shape==="rect"||!SHAPES[state.shape]) return [[0,0],[L,0],[L,W],[0,W]];
+  const a=Math.max(0,Math.min(state.a,L-50)), b=Math.max(0,Math.min(state.b,W-50));
+  return SHAPES[state.shape].pts(L,W,a,b);
 }
 function inPoly(x,y,P){
   let c=false;
@@ -238,8 +242,8 @@ function inPoly(x,y,P){
   }
   return c;
 }
-// A 5 cm grid of the floor: blocked where outside the walls or under a column.
-// A prefix sum lets us test any rectangle for free floor in constant time.
+// A 5 cm grid of the floor, blocked outside the walls and under columns.
+// A prefix sum answers "is this rectangle free floor?" in constant time.
 function buildGrid(P){
   const maxX=Math.max(...P.map(p=>p[0])), maxY=Math.max(...P.map(p=>p[1]));
   const nx=Math.ceil(maxX/CELL), ny=Math.ceil(maxY/CELL);
@@ -256,363 +260,451 @@ function buildGrid(P){
   }
   return {nx,ny,S,maxX,maxY};
 }
-function freeRect(G,i,j,w,h){
-  const n=G.nx+1, S=G.S;
-  return S[(j+h)*n+i+w]-S[j*n+i+w]-S[(j+h)*n+i]+S[j*n+i]===0;
-}
-// Find where a w×h zone fits, closest to the middle of the room. Tries both orientations.
-function place(d,G){
-  let best=null, bestD=Infinity;
-  const tx=G.maxX/2, ty=G.maxY/2;
-  for(const [dw,dh] of [[d[0],d[1]],[d[1],d[0]]]){
-    const w=Math.ceil(dw/CELL), h=Math.ceil(dh/CELL);
-    if(w>G.nx||h>G.ny) continue;
-    for(let j=0;j+h<=G.ny;j++) for(let i=0;i+w<=G.nx;i++){
-      if(!freeRect(G,i,j,w,h)) continue;
-      const cx=(i+w/2)*CELL, cy=(j+h/2)*CELL, dd=(cx-tx)**2+(cy-ty)**2;
-      if(dd<bestD){bestD=dd; best={cx,cy,rot:dw<dh};}
-    }
-  }
-  return best;
-}
-function sizeDims(kind,L,W){
-  const O=[L,W], w=GAP.wall, N=[L+2*w,W+2*w];
-  const PL=kind==="cue"?[Math.max(20,L-2*RAIL),Math.max(20,W-2*RAIL)]:[L*.82,W*.7];
-  return {O,PL,N};
-}
-function prep(it){ const d=sizeDims(it.kind,it.L,it.W); it.outer=d.O; it.need=d.N; }
-function status(it,G){
-  let p=place(it.need,G); if(p) return {cls:"ok",txt:"נכנס",p};
-  p=place(it.outer,G); if(p) return {cls:"warn",txt:"בלי מרחק מלא",p};
-  return {cls:"bad",txt:"לא נכנס",p:{cx:G.maxX/2,cy:G.maxY/2,rot:G.maxX<G.maxY}};
-}
-
-/* ---------- controls ---------- */
-function renderShapes(){
-  const box=$("shapes"); box.innerHTML="";
-  for(const [k,s] of Object.entries(SHAPES)){
-    const b=document.createElement("button");
-    b.type="button"; b.setAttribute("aria-pressed", !state.custom && state.shape===k);
-    b.innerHTML=`<svg viewBox="0 0 24 24"><path d="${s.icon}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>${s.label}`;
-    b.onclick=()=>{state.shape=k; state.custom=null; syncInputs(); draw();};
-    box.appendChild(b);
-  }
-}
-function syncInputs(){
-  const s=SHAPES[state.shape];
-  $("dimL").value=state.L; $("dimW").value=state.W; $("dimA").value=state.a; $("dimB").value=state.b;
-  const showCut=!state.custom && !!s.cut;
-  $("cutBox").hidden=!showCut;
-  if(showCut){$("labA").textContent=s.cut[0]; $("labB").textContent=s.cut[1];}
-  $("dimL").disabled=$("dimW").disabled=!!state.custom;
-  $("shapeHint").textContent = state.custom
-    ? "הצורה נלקחה מהשרטוט. לחיצה על אחת הצורות למעלה תחזיר לעריכה ידנית."
-    : (s.hint||"");
-  renderShapes();
-}
-function renderCols(){
-  const box=$("cols"); box.innerHTML="";
-  state.cols.forEach((c,i)=>{
-    const row=document.createElement("div"); row.className="col";
-    const f=(k,lab)=>`<label for="col${i}${k}">${lab}<span class="field"><input id="col${i}${k}" type="number" inputmode="numeric" min="0" value="${Math.round(c[k])}"></span></label>`;
-    row.innerHTML=f("x","מהקיר השמאלי")+f("y","מהקיר העליון")+f("w","רוחב")+f("h","עומק")+
-      `<button type="button" class="del" aria-label="מחיקת עמוד ${i+1}">✕</button>`;
-    ["x","y","w","h"].forEach(k=>row.querySelector(`#col${i}${k}`).oninput=e=>{c[k]=clamp(e.target.value,k==="w"||k==="h"?5:0,2000);draw();});
-    row.querySelector(".del").onclick=()=>{state.cols.splice(i,1);renderCols();draw();};
-    box.appendChild(row);
-  });
-}
-$("addCol").onclick=()=>{
-  const P=roomPoints(), mx=Math.max(...P.map(p=>p[0])), my=Math.max(...P.map(p=>p[1]));
-  state.cols.push({x:Math.round(mx*.25),y:Math.round(my*.3),w:40,h:40});
-  renderCols(); draw();
-};
-
-/* ---------- placed tables ---------- */
-// Each placed table keeps its own size, so one can be changed without touching the others.
-function makeTable(it){ return {name:it.name, kind:it.kind, L:it.L, W:it.W, cx:0, cy:0, rot:false}; }
-function dims(t,rot=t.rot){
-  const D=sizeDims(t.kind,t.L,t.W), r=d=>rot?[d[1],d[0]]:d;
-  return {O:r(D.O),PL:r(D.PL),N:r(D.N)};
-}
-const box=(cx,cy,d)=>({x:cx-d[0]/2,y:cy-d[1]/2,w:d[0],h:d[1]});
-const hit=(a,b)=>a.x<b.x+b.w-1&&b.x<a.x+a.w-1&&a.y<b.y+b.h-1&&b.y<a.y+a.h-1;
+function freeRect(G,i,j,w,h){ const n=G.nx+1,S=G.S; return S[(j+h)*n+i+w]-S[j*n+i+w]-S[(j+h)*n+i]+S[j*n+i]===0; }
 function gridFree(G,r){
   const i0=Math.round(r.x/CELL),j0=Math.round(r.y/CELL),i1=Math.round((r.x+r.w)/CELL),j1=Math.round((r.y+r.h)/CELL);
   if(i0<0||j0<0||i1>G.nx||j1>G.ny||i1<=i0||j1<=j0) return false;
   return freeRect(G,i0,j0,i1-i0,j1-j0);
 }
-// Clear distance between two rectangles (0 when they touch or overlap).
+function placeAny(d,G){
+  let best=null,bestD=Infinity; const tx=G.maxX/2,ty=G.maxY/2;
+  for(const [dw,dh] of [[d[0],d[1]],[d[1],d[0]]]){
+    const w=Math.ceil(dw/CELL),h=Math.ceil(dh/CELL); if(w>G.nx||h>G.ny) continue;
+    for(let j=0;j+h<=G.ny;j++) for(let i=0;i+w<=G.nx;i++){
+      if(!freeRect(G,i,j,w,h)) continue;
+      const cx=(i+w/2)*CELL,cy=(j+h/2)*CELL,dd=(cx-tx)**2+(cy-ty)**2;
+      if(dd<bestD){bestD=dd;best={cx,cy,rot:dw<dh};}
+    }
+  }
+  return best;
+}
+const box=(cx,cy,d)=>({x:cx-d[0]/2,y:cy-d[1]/2,w:d[0],h:d[1]});
+const hit=(a,b)=>a.x<b.x+b.w-1&&b.x<a.x+a.w-1&&a.y<b.y+b.h-1&&b.y<a.y+a.h-1;
 function sep(a,b){
   const dx=Math.max(0,a.x-(b.x+b.w),b.x-(a.x+a.w)), dy=Math.max(0,a.y-(b.y+b.h),b.y-(a.y+a.h));
   return dx&&dy?Math.hypot(dx,dy):Math.max(dx,dy);
 }
-function tableStatus(t,G){
+function dims(t,rot=t.rot){
+  const r=d=>rot?[d[1],d[0]]:d, L=t.L, W=t.W;
+  const PL=t.kind==="cue"?[Math.max(20,L-2*RAIL),Math.max(20,W-2*RAIL)]:[L*.82,W*.7];
+  return {O:r([L,W]),PL:r(PL),N:r([L+2*GAP.wall,W+2*GAP.wall])};
+}
+function sizeStatus(it){
+  const d=dims({...it,rot:false});
+  if(placeAny(d.N,G)) return {cls:"ok",txt:"נכנס"};
+  if(placeAny(d.O,G)) return {cls:"warn",txt:"צפוף"};
+  return {cls:"bad",txt:"לא נכנס"};
+}
+function tableStatus(t){
   const D=dims(t), body=box(t.cx,t.cy,D.O);
   const others=state.tables.filter(o=>o!==t).map(o=>box(o.cx,o.cy,dims(o).O));
   if(!gridFree(G,body)||others.some(o=>hit(o,body))) return "bad";
-  const wallOk=gridFree(G,box(t.cx,t.cy,D.N));
-  const tableOk=others.every(o=>sep(o,body)>=GAP.table-1);
+  const wallOk=gridFree(G,box(t.cx,t.cy,D.N)), tableOk=others.every(o=>sep(o,body)>=GAP.table-1);
   return wallOk&&tableOk?"ok":"warn";
 }
 // First free spot scanning from the top-left corner, so repeated adds pack the room in rows.
-function findSpot(t,G){
+function findSpot(t,byCol=false,rots=[false,true]){
   let best=null;
-  const bodies=state.tables.map(o=>box(o.cx,o.cy,dims(o).O));
-  for(const rot of [false,true]){
-    const D=dims(t,rot), Z=D.N;
-    const w=Math.ceil(Z[0]/CELL), h=Math.ceil(Z[1]/CELL);
-    for(let j=0;j+h<=G.ny;j++){
-      if(best&&j>=best.j) break;
-      for(let i=0;i+w<=G.nx;i++){
+  const bodies=state.tables.filter(o=>o!==t).map(o=>box(o.cx,o.cy,dims(o).O));
+  for(const rot of rots){
+    const D=dims(t,rot), Z=D.N, w=Math.ceil(Z[0]/CELL), h=Math.ceil(Z[1]/CELL);
+    const A=byCol?G.nx-w:G.ny-h, B=byCol?G.ny-h:G.nx-w;
+    for(let a=0;a<=A;a++){
+      if(best&&a>=best.a) break;
+      for(let b=0;b<=B;b++){
+        const i=byCol?a:b, j=byCol?b:a;
         if(!freeRect(G,i,j,w,h)) continue;
-        const cx=i*CELL+Z[0]/2, cy=j*CELL+Z[1]/2, b=box(cx,cy,D.O);
-        if(bodies.some(o=>sep(o,b)<GAP.table-0.5||hit(o,b))) continue;
-        best={i,j,cx,cy,rot}; break;
+        const cx=i*CELL+Z[0]/2, cy=j*CELL+Z[1]/2, bb=box(cx,cy,D.O);
+        if(bodies.some(o=>hit(o,bb)||sep(o,bb)<GAP.table-.5)) continue;
+        best={a,cx,cy,rot}; break;
       }
     }
   }
   return best;
 }
-// Distance from a point along an axis to the nearest wall, column or other table.
-function rayDist(x,y,dx,dy,P,self){
+function rayDist(x,y,dx,dy,self){
   const segs=[];
-  const rectSegs=(b,kind)=>{const q=[[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]]; for(let i=0;i<4;i++) segs.push([q[i],q[(i+1)%4],kind]);};
-  for(const o of state.tables){ if(o!==self) rectSegs(box(o.cx,o.cy,dims(o).O),"table"); }
+  const rectSegs=(b,k)=>{const q=[[b.x,b.y],[b.x+b.w,b.y],[b.x+b.w,b.y+b.h],[b.x,b.y+b.h]];for(let i=0;i<4;i++) segs.push([q[i],q[(i+1)%4],k]);};
+  for(const o of state.tables) if(o!==self) rectSegs(box(o.cx,o.cy,dims(o).O),"table");
   for(let i=0;i<P.length;i++) segs.push([P[i],P[(i+1)%P.length],"wall"]);
   for(const c of state.cols) rectSegs(c,"wall");
-  let best=Infinity, kind="wall";
+  let best=Infinity,kind="wall";
   for(const [p,q,k] of segs){
     let d;
     if(dx){ if((p[1]>y)===(q[1]>y)) continue; d=(p[0]+(y-p[1])*(q[0]-p[0])/(q[1]-p[1])-x)*dx; }
     else  { if((p[0]>x)===(q[0]>x)) continue; d=(p[1]+(x-p[0])*(q[1]-p[1])/(q[0]-p[0])-y)*dy; }
-    if(d>=-.5&&d<best){best=Math.max(0,d); kind=k;}
+    if(d>=-.5&&d<best){best=Math.max(0,d);kind=k;}
   }
   return {d:best,kind};
 }
 
-/* ---------- drawing ---------- */
-let G=null, P=null, selT=null;
-function renderSizes(){
-  const list=$("list"); list.innerHTML="";
-  items.forEach((it,i)=>{
-    const row=document.createElement("div");
-    row.className="srow"; row.setAttribute("aria-current", i===state.sel);
-    row.innerHTML=`<button type="button" class="pick">${it.custom
-        ? `<input class="nameIn" id="sn${i}" value="" aria-label="שם הגודל">`
-        : `<span class="name">${it.name}</span>`}<span class="size" id="sz${i}"></span></button>
-      <span class="pill" id="sp${i}"></span>
-      <div class="sdims">
-        <label for="sL${i}">אורך<span class="field"><input id="sL${i}" type="number" inputmode="numeric" min="40" max="600" value="${it.L}"><span class="unit">ס״מ</span></span></label>
-        <label for="sW${i}">רוחב<span class="field"><input id="sW${i}" type="number" inputmode="numeric" min="30" max="400" value="${it.W}"><span class="unit">ס״מ</span></span></label>
-        <button type="button" class="btn solid sm" id="sa${i}">+ לחדר</button>
-        ${it.custom?`<button type="button" class="del" id="sd${i}" aria-label="מחיקת הגודל">✕</button>`:"<span></span>"}
-      </div>`;
-    list.appendChild(row);
-    if(it.custom){const n=$("sn"+i); n.value=it.name; n.oninput=()=>{it.name=n.value||"שולחן מותאם"; saveSizes();}; n.onclick=e=>e.stopPropagation();}
-    row.querySelector(".pick").onclick=()=>{state.sel=i; renderSizes(); updateSizes();};
-    const upd=()=>{it.L=clamp($("sL"+i).value,40,600); it.W=clamp($("sW"+i).value,30,400); saveSizes(); updateSizes();};
-    $("sL"+i).oninput=upd; $("sW"+i).oninput=upd;
-    $("sa"+i).onclick=()=>{state.sel=i; renderSizes(); updateSizes(); addTable(it);};
-    if(it.custom) $("sd"+i).onclick=()=>{items.splice(i,1); state.sel=Math.min(state.sel,items.length-1); saveSizes(); renderSizes(); updateSizes();};
-  });
-}
-function updateSizes(){
-  items.forEach((it,i)=>{
-    prep(it);
-    const s=status(it,G);
-    const pill=$("sp"+i); pill.className="pill "+s.cls; pill.textContent=s.txt;
-    $("sz"+i).textContent=`צריך ${it.need[0]}×${it.need[1]} ס״מ`;
-  });
-}
-function drawList(){
-  P=roomPoints(); G=buildGrid(P);
-  if(!$("sp0")||$("list").children.length!==items.length) renderSizes();
-  updateSizes();
-}
-$("addSize").onclick=()=>{
-  items.push({name:"שולחן מותאם", kind:"cue", L:230, W:130, custom:true});
-  state.sel=items.length-1; saveSizes(); renderSizes(); updateSizes();
-  $("sn"+state.sel)?.focus();
-};
+/* ---------- plan ---------- */
+let G=null, P=null;
+function refreshRoom(){ P=roomPoints(); G=buildGrid(P); drawPlan(); updateSizeStatus(); }
 function drawPlan(){
-  const maxX=G.maxX, maxY=G.maxY, pad=Math.max(30,Math.max(maxX,maxY)*.07);
-  const vw=maxX+pad*2, sw=vw/220, fs=sw*9;
+  const maxX=G.maxX,maxY=G.maxY,pad=Math.max(25,Math.max(maxX,maxY)*.06);
+  const vw=maxX+pad*2, sw=Math.max(maxX,maxY)/220, fs=sw*9;
   const svg=$("svg");
   svg.setAttribute("viewBox",`${-pad} ${-pad} ${vw} ${maxY+pad*2}`);
   svg.setAttribute("aria-label",`חדר ${Math.round(maxX)} על ${Math.round(maxY)} ס״מ עם ${state.tables.length} שולחנות`);
   const col={ok:"var(--zone)",warn:"var(--warn)",bad:"var(--bad)"};
   const counts={ok:0,warn:0,bad:0};
-  let zonesSvg="", tablesSvg="", dimsSvg="";
+  let zones="",tables="",dimsSvg="";
+  const selT=sel?.type==="t"?sel.o:null;
   state.tables.forEach((t,k)=>{
-    const st=tableStatus(t,G); counts[st]++;
-    const D=dims(t), z=box(t.cx,t.cy,D.N), o=box(t.cx,t.cy,D.O), p=box(t.cx,t.cy,D.PL);
-    const sel=t===selT;
-    zonesSvg+=`<rect x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" fill="none" stroke="${col[st]}" stroke-width="${sw*(sel?1.4:.8)}" stroke-dasharray="${sw*4} ${sw*3}"/>`;
-    const sizeTxt=`${t.L}×${t.W}`;
-    const tfs=Math.min(fs*1.1, Math.min(D.PL[0],D.PL[1])/4);
-    tablesSvg+=`<g data-t="${k}" style="cursor:grab">
-      <rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*3}" fill="var(--wood)" stroke="${sel?"var(--ink)":"none"}" stroke-width="${sw*1.5}"/>
+    const st=tableStatus(t); counts[st]++;
+    const D=dims(t), z=box(t.cx,t.cy,D.N), o=box(t.cx,t.cy,D.O), p=box(t.cx,t.cy,D.PL), isSel=t===selT;
+    zones+=`<rect x="${z.x}" y="${z.y}" width="${z.w}" height="${z.h}" fill="${isSel?"var(--felt-soft)":"none"}" fill-opacity=".55" stroke="${col[st]}" stroke-width="${sw*(isSel?1.2:.7)}" stroke-dasharray="${sw*4} ${sw*3}"/>`;
+    const tfs=Math.min(fs*1.15,Math.min(D.PL[0],D.PL[1])/3.6);
+    tables+=`<g data-t="${k}" style="cursor:grab">
+      <rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*3}" fill="var(--wood)"/>
       <rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" fill="var(--felt)"/>
-      ${st!=="ok"?`<rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*3}" fill="none" stroke="${col[st]}" stroke-width="${sw*1.5}"/>`:""}
-      <text x="${t.cx}" y="${t.cy-tfs*.15}" text-anchor="middle" font-size="${tfs}" fill="#fff" font-weight="700" font-family="Assistant">${k+1}</text>
-      <text x="${t.cx}" y="${t.cy+tfs*1.05}" text-anchor="middle" font-size="${tfs*.8}" fill="#fff" font-family="Assistant">${sizeTxt}</text>
+      ${st!=="ok"||isSel?`<rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*3}" fill="none" stroke="${isSel&&st==="ok"?"var(--ink)":col[st]}" stroke-width="${sw*1.6}"/>`:""}
+      <text x="${t.cx}" y="${t.cy-tfs*.12}" text-anchor="middle" font-size="${tfs}" fill="#fff" font-weight="700" font-family="Assistant">${k+1}</text>
+      <text x="${t.cx}" y="${t.cy+tfs*.95}" text-anchor="middle" font-size="${tfs*.75}" fill="#fff" font-family="Assistant">${t.L}×${t.W}</text>
     </g>`;
-    if(sel||state.tables.length===1){
-      // dimension lines from each side of the table body to the nearest wall or column
+    if(isSel||state.tables.length===1){
       for(const [dx,dy,sx,sy] of [[-1,0,o.x,t.cy],[1,0,o.x+o.w,t.cy],[0,-1,t.cx,o.y],[0,1,t.cx,o.y+o.h]]){
-        const r=rayDist(sx,sy,dx,dy,P,t), d=r.d; if(!isFinite(d)) continue;
-        const short=d<(r.kind==="table"?GAP.table:GAP.wall)-0.5, lc=short?"var(--bad)":"var(--ink)";
+        const r=rayDist(sx,sy,dx,dy,t), d=r.d; if(!isFinite(d)) continue;
+        const short=d<(r.kind==="table"?GAP.table:GAP.wall)-.5, lc=short?"var(--bad)":"var(--ink)";
         const ex=sx+dx*d, ey=sy+dy*d, mx=(sx+ex)/2, my=(sy+ey)/2;
         dimsSvg+=`<line x1="${sx}" y1="${sy}" x2="${ex}" y2="${ey}" stroke="${lc}" stroke-width="${sw*.6}"/>
           <circle cx="${ex}" cy="${ey}" r="${sw*1.4}" fill="${lc}"/>
-          <text x="${mx+(dy?fs*.4:0)}" y="${my-(dx?fs*.35:0)}" text-anchor="${dy?"start":"middle"}" font-size="${fs*.95}" font-weight="700" fill="${lc}" stroke="var(--bg)" stroke-width="${sw*2.5}" paint-order="stroke" font-family="Assistant">${Math.round(d)}</text>`;
+          <text x="${mx+(dy?fs*.4:0)}" y="${my-(dx?fs*.35:0)}" text-anchor="${dy?"start":"middle"}" font-size="${fs*1.05}" font-weight="700" fill="${lc}" stroke="var(--surface)" stroke-width="${sw*2.6}" paint-order="stroke" font-family="Assistant">${Math.round(d)}</text>`;
       }
     }
   });
-  svg.innerHTML =
-    `<path d="M${P.map(q=>q.join(" ")).join("L")}Z" fill="var(--bg)" stroke="var(--ink)" stroke-width="${sw*2}" stroke-linejoin="round"/>` +
-    zonesSvg + tablesSvg +
-    state.cols.map((c,i)=>`<rect data-col="${i}" x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" fill="var(--pillar)" stroke="var(--ink)" stroke-width="${sw*.6}" style="cursor:grab"/>`).join("") +
-    dimsSvg +
-    `<text x="${maxX/2}" y="${-pad*.25}" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant" direction="rtl">${Math.round(maxX)} ס״מ</text>` +
-    `<text transform="translate(${-pad*.3} ${maxY/2}) rotate(-90)" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant" direction="rtl">${Math.round(maxY)} ס״מ</text>`;
-  const n=state.tables.length;
-  $("summary").textContent = n===0 ? "החדר ריק. בחרו סוג שולחן ולחצו על הוספה."
-    : `בחדר ${n} שולחנות: ${counts.ok} במרחק שהגדרתם`+(counts.warn?`, ${counts.warn} קרובים מדי`:"")+(counts.bad?`, ${counts.bad} נוגעים בקיר, בעמוד או בשולחן`:"")+".";
-  $("summary").className="summary "+(counts.bad?"bad":counts.warn?"warn":"ok");
+  const selC=sel?.type==="c"?sel.o:null;
+  svg.innerHTML=
+    `<path d="M${P.map(q=>q.join(" ")).join("L")}Z" fill="var(--bg)" stroke="var(--ink)" stroke-width="${sw*2}" stroke-linejoin="round"/>`+
+    zones+tables+
+    state.cols.map((c,i)=>`<rect data-col="${i}" x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" fill="var(--pillar)" stroke="${c===selC?"var(--felt)":"transparent"}" stroke-width="${c===selC?sw*2:sw*10}" style="cursor:grab"/>`).join("")+
+    dimsSvg+
+    `<text x="${maxX/2}" y="${-pad*.3}" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant" direction="rtl">${Math.round(maxX)} ס״מ</text>`+
+    `<text transform="translate(${-pad*.35} ${maxY/2}) rotate(-90)" text-anchor="middle" font-size="${fs}" fill="var(--muted)" font-family="Assistant" direction="rtl">${Math.round(maxY)} ס״מ</text>`;
+  const n=state.tables.length, sum=$("summary");
+  if(!n){ sum.textContent="אין עדיין שולחנות בחדר"; sum.className="sum"; }
+  else if(!counts.warn&&!counts.bad){ sum.textContent=`${n} שולחנות · הכל במרחק תקין`; sum.className="sum ok"; }
+  else { sum.textContent=`${n} שולחנות · `+[counts.warn&&`${counts.warn} קרובים מדי`,counts.bad&&`${counts.bad} חוסמים`].filter(Boolean).join(" · "); sum.className="sum "+(counts.bad?"bad":"warn"); }
+  saveRoom();
 }
-function draw(){ drawList(); drawPlan(); }
 
-/* ---------- selected table ---------- */
-function renderSel(){
-  const box=$("selTools");
-  box.hidden=!selT;
-  if(!selT) return;
-  const k=state.tables.indexOf(selT)+1;
-  $("selName").textContent=`שולחן ${k} · ${selT.name}`;
-  let f=$("selDims");
-  if(!f){f=document.createElement("div");f.id="selDims";f.className="grid2";f.style.width="100%";box.prepend(f);}
-  f.innerHTML=`<label for="selLen">אורך השולחן<span class="field"><input id="selLen" type="number" inputmode="numeric" min="40" max="600" value="${selT.L}"><span class="unit">ס״מ</span></span></label>
-    <label for="selWid">רוחב השולחן<span class="field"><input id="selWid" type="number" inputmode="numeric" min="30" max="400" value="${selT.W}"><span class="unit">ס״מ</span></span></label>`;
-  const upd=()=>{selT.L=clamp($("selLen").value,40,600); selT.W=clamp($("selWid").value,30,400); drawPlan();};
-  $("selLen").oninput=upd; $("selWid").oninput=upd;
-}
-function select(t){ selT=t; renderSel(); drawPlan(); }
-
-function addTable(it){
-  const t=makeTable(it);
-  const s=findSpot(t,G);
-  if(s){t.cx=s.cx;t.cy=s.cy;t.rot=s.rot;}
-  else {t.cx=G.maxX/2;t.cy=G.maxY/2;t.rot=G.maxX<G.maxY;}
-  state.tables.push(t); select(t);
-}
-$("addTable").onclick=()=>addTable(items[state.sel]);
-$("fillRoom").onclick=()=>{
-  state.tables=[];
-  for(let n=0;n<80;n++){
-    const t=makeTable(items[state.sel]), s=findSpot(t,G);
-    if(!s) break;
-    t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; state.tables.push(t);
-  }
-  select(null);
+/* ---------- selection bar ---------- */
+const ICON={
+  rot:'<path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/>',
+  dup:'<rect x="8" y="8" width="12" height="12" rx="2"/><path d="M4 16V6a2 2 0 0 1 2-2h10"/>',
+  ruler:'<path d="M3 17 17 3l4 4L7 21z"/><path d="M7 13l2 2M10 10l2 2M13 7l2 2"/>',
+  del:'<path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/>',
 };
-$("clearRoom").onclick=()=>{state.tables=[]; select(null);};
-$("rotTable").onclick=()=>{if(selT){selT.rot=!selT.rot;drawPlan();}};
-$("delTable").onclick=()=>{if(selT){state.tables.splice(state.tables.indexOf(selT),1);select(null);}};
-$("gapWall").value=GAP.wall; $("gapTable").value=GAP.table;
-$("gapWall").oninput=e=>{GAP.wall=clamp(e.target.value,0,400); saveGaps(); draw();};
-$("gapTable").oninput=e=>{GAP.table=clamp(e.target.value,0,400); saveGaps(); drawPlan();};
+const ic=k=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>`;
+function renderSelBar(){
+  const bar=$("selbar");
+  if(!sel){ bar.hidden=true; bar.innerHTML=""; return; }
+  bar.hidden=false;
+  if(sel.type==="t"){
+    const t=sel.o, k=state.tables.indexOf(t)+1, st=tableStatus(t);
+    const stTxt={ok:"",warn:" · קרוב מדי",bad:" · חוסם"}[st];
+    bar.innerHTML=`<div class="selhead"><b>שולחן ${k} · ${esc(t.name)}</b><span class="${st}" style="font-size:.85rem;font-weight:700">${stTxt}</span>
+        <button type="button" class="x" id="selX" aria-label="סגירה">✕</button></div>
+      <div class="acts">
+        <button type="button" class="act" id="aRot">${ic("rot")}סיבוב</button>
+        <button type="button" class="act" id="aDup">${ic("dup")}שכפול</button>
+        <button type="button" class="act" id="aSize" aria-pressed="${editOpen}">${ic("ruler")}מידות</button>
+        <button type="button" class="act danger" id="aDel">${ic("del")}מחיקה</button>
+      </div>
+      <div class="grid2" id="selEdit" ${editOpen?"":"hidden"}></div>`;
+    $("aRot").onclick=()=>{pushUndo(true); t.rot=!t.rot; drawPlan(); renderSelBar();};
+    $("aDup").onclick=()=>{pushUndo(true); const c={...t}; state.tables.push(c); const s=findSpot(c); if(s){c.cx=s.cx;c.cy=s.cy;c.rot=s.rot;} else {c.cx+=40;c.cy+=40; toast("אין מקום פנוי לעוד שולחן. הוא סומן באדום, גררו אותו למקום אחר.");} select({type:"t",o:c});};
+    $("aSize").onclick=()=>{editOpen=!editOpen; renderSelBar();};
+    $("aDel").onclick=()=>{pushUndo(true); state.tables.splice(state.tables.indexOf(t),1); select(null); toast("השולחן נמחק. אפשר לבטל עם הכפתור למעלה.");};
+    if(editOpen){
+      const e=$("selEdit");
+      e.append(stepper("selL","אורך השולחן",t.L,{step:5,min:40,max:600,onChange:v=>{pushUndo();t.L=v;drawPlan();}}),
+               stepper("selW","רוחב השולחן",t.W,{step:5,min:30,max:400,onChange:v=>{pushUndo();t.W=v;drawPlan();}}));
+    }
+  } else {
+    const c=sel.o;
+    bar.innerHTML=`<div class="selhead"><b>עמוד</b><span class="hint" style="margin:0">גררו אותו למקום הנכון</span>
+        <button type="button" class="x" id="selX" aria-label="סגירה">✕</button></div>
+      <div class="grid2" id="selEdit"></div>
+      <button type="button" class="btn danger" id="cDel">מחיקת העמוד</button>`;
+    $("selEdit").append(
+      stepper("colW","רוחב",c.w,{step:5,min:5,max:1000,onChange:v=>{pushUndo();c.w=v;refreshRoom();}}),
+      stepper("colH","עומק",c.h,{step:5,min:5,max:1000,onChange:v=>{pushUndo();c.h=v;refreshRoom();}}));
+    $("cDel").onclick=()=>{pushUndo(true); state.cols.splice(state.cols.indexOf(c),1); select(null); refreshRoom();};
+  }
+  $("selX").onclick=()=>select(null);
+}
+function select(s){ if(sel?.o!==s?.o) editOpen=false; sel=s; renderSelBar(); drawPlan(); }
 
-/* drag tables and columns on the plan */
+/* ---------- stepper control ---------- */
+function stepper(id,label,val,{step=10,min=0,max=3000,unit="ס״מ",onChange}){
+  const w=document.createElement("div"); w.className="stp";
+  w.innerHTML=`<label for="${id}">${label}</label>
+    <div class="stp-row"><button type="button" class="stp-b" aria-label="פחות">−</button>
+      <span class="stp-mid"><input id="${id}" type="number" inputmode="numeric" value="${val}"><span class="unit">${unit}</span></span>
+      <button type="button" class="stp-b" aria-label="יותר">+</button></div>`;
+  const inp=w.querySelector("input"), [minus,plus]=w.querySelectorAll(".stp-b");
+  const set=v=>{v=clamp(v,min,max); inp.value=v; onChange(v);};
+  minus.onclick=()=>set(+inp.value-step); plus.onclick=()=>set(+inp.value+step);
+  inp.oninput=()=>{ if(inp.value!==""&&+inp.value>=min) onChange(clamp(inp.value,min,max)); };
+  inp.onblur=()=>{ inp.value=clamp(inp.value,min,max); };
+  inp.onfocus=()=>inp.select();
+  return w;
+}
+
+/* ---------- tables ---------- */
+function newTable(it){ return {name:it.name,kind:it.kind,L:it.L,W:it.W,cx:0,cy:0,rot:false}; }
+function addTable(it){
+  pushUndo(true);
+  const t=newTable(it); state.tables.push(t);
+  const s=findSpot(t);
+  if(s){t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; toast(`נוסף ${it.name}. גררו אותו כדי להזיז.`);}
+  else { t.cx=G.maxX/2; t.cy=G.maxY/2; t.rot=G.maxX<G.maxY; toast("אין מקום פנוי במרחקים שקבעתם. השולחן סומן באדום."); }
+  select({type:"t",o:t});
+}
+function fillRoom(it){
+  pushUndo(true);
+  let bestSet=[];
+  for(const byCol of [false,true]) for(const rots of [[false,true],[false],[true]]){
+    state.tables=[];
+    for(let n=0;n<100;n++){ const t=newTable(it); const s=findSpot(t,byCol,rots); if(!s) break; t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; state.tables.push(t); }
+    if(state.tables.length>bestSet.length) bestSet=state.tables;
+  }
+  state.tables=bestSet;
+  select(null);
+  const n=state.tables.length;
+  toast(n?`נכנסו ${n} שולחנות ${it.name}. אפשר לגרור כל אחד.`:"לא נכנס אף שולחן במרחקים שקבעתם. נסו מרחקים קטנים יותר.");
+}
+
+/* ---------- panel ---------- */
+function setTab(t){
+  tab=t; store.set("tf-tab",t);
+  document.querySelectorAll(".tabs button").forEach(b=>b.setAttribute("aria-selected",b.dataset.tab===t));
+  $("panel").setAttribute("aria-labelledby","tab-"+t);
+  renderPanel(); $("panel").scrollTop=0;
+}
+document.querySelectorAll(".tabs button").forEach(b=>b.onclick=()=>setTab(b.dataset.tab));
+function renderPanel(){ ({room:renderRoom,tables:renderTables,gaps:renderGaps})[tab](); }
+
+function section(title){ const s=document.createElement("section"); if(title) s.innerHTML=`<h3>${title}</h3>`; return s; }
+
+function renderRoom(){
+  const p=$("panel"); p.innerHTML="";
+  const s1=section("צורת החדר"), chips=document.createElement("div"); chips.className="chips";
+  for(const [k,sh] of Object.entries(SHAPES)){
+    const b=document.createElement("button"); b.type="button"; b.className="chip";
+    b.setAttribute("aria-pressed",!state.custom&&state.shape===k);
+    b.innerHTML=`<svg viewBox="0 0 24 24"><path d="${sh.icon}" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>${sh.label}`;
+    b.onclick=()=>{pushUndo(true); state.shape=k; state.custom=null; refreshRoom(); renderRoom();};
+    chips.append(b);
+  }
+  s1.append(chips); p.append(s1);
+
+  const s2=section("מידות החדר");
+  if(state.custom){
+    s2.insertAdjacentHTML("beforeend",`<p class="hint" style="margin:0 0 8px">הצורה נלקחה מהשרטוט: ${Math.round(G.maxX)}×${Math.round(G.maxY)} ס״מ. בחירה של צורה למעלה מחזירה לעריכה ידנית.</p>`);
+  } else {
+    const g=document.createElement("div"); g.className="grid2";
+    g.append(stepper("rL","אורך",state.L,{step:10,min:100,max:3000,onChange:v=>{pushUndo();state.L=v;refreshRoom();}}),
+             stepper("rW","רוחב",state.W,{step:10,min:100,max:3000,onChange:v=>{pushUndo();state.W=v;refreshRoom();}}));
+    s2.append(g);
+    const sh=SHAPES[state.shape];
+    if(sh.cut){
+      const g2=document.createElement("div"); g2.className="grid2"; g2.style.marginTop="12px";
+      g2.append(stepper("rA",sh.cut[0],state.a,{step:10,min:0,max:3000,onChange:v=>{pushUndo();state.a=v;refreshRoom();}}),
+                stepper("rB",sh.cut[1],state.b,{step:10,min:0,max:3000,onChange:v=>{pushUndo();state.b=v;refreshRoom();}}));
+      s2.append(g2);
+      s2.insertAdjacentHTML("beforeend",`<p class="hint">${sh.hint}</p>`);
+    }
+  }
+  p.append(s2);
+
+  const s3=section("עמודים");
+  s3.insertAdjacentHTML("beforeend",`<div class="row"><button type="button" class="btn" id="addCol">+ הוספת עמוד</button></div>
+    <p class="hint">${state.cols.length?`בחדר ${state.cols.length} עמודים. `:""}גוררים עמוד בציור. לחיצה עליו משנה מידות או מוחקת.</p>`);
+  p.append(s3);
+  $("addCol").onclick=()=>{pushUndo(true); const c={x:Math.round(G.maxX/2-20),y:Math.round(G.maxY/2-20),w:40,h:40}; state.cols.push(c); refreshRoom(); select({type:"c",o:c}); renderRoom();};
+
+  const s4=section("שרטוט עם מידות");
+  if(sample){
+    s4.insertAdjacentHTML("beforeend",`<div class="sketch"><img id="skImg" alt="השרטוט" ${sketchURL?`src="${sketchURL}"`:"hidden"}>
+      <div style="display:flex;flex-direction:column;gap:8px;flex:1">
+        <label class="btn ghost" for="skFile">${sketchURL?"החלפת שרטוט":"העלאת שרטוט או צילום"}<input id="skFile" type="file" accept="image/*" hidden></label>
+        ${sketchURL?`<button type="button" class="btn solid" id="skGo">זיהוי המידות מהשרטוט</button>`:""}
+      </div></div><p class="status" id="skStatus" hidden></p>`);
+  } else {
+    s4.insertAdjacentHTML("beforeend",`<p class="hint" style="margin:0">זיהוי מידות משרטוט זמין כשפותחים את האפליקציה מתוך Claude. אפשר גם לשלוח את השרטוט ל־Claude בשיחה.</p>`);
+  }
+  p.append(s4);
+  if(sample){
+    $("skFile").onchange=e=>{ const f=e.target.files?.[0]; if(!f) return; sketchBlob=f; sketchURL=URL.createObjectURL(f); renderRoom(); };
+    if($("skGo")) $("skGo").onclick=analyzeSketch;
+  }
+
+  const s5=section("");
+  s5.insertAdjacentHTML("beforeend",`<button type="button" class="btn ghost" id="resetRoom">התחלת חדר חדש</button>`);
+  p.append(s5);
+  $("resetRoom").onclick=()=>{pushUndo(true); Object.assign(state,{shape:"rect",L:600,W:450,a:180,b:140,custom:null,cols:[],tables:[]}); select(null); refreshRoom(); renderRoom(); toast("החדר אופס. אפשר לבטל עם הכפתור למעלה.");};
+}
+
+function renderTables(){
+  const p=$("panel"); p.innerHTML="";
+  const s=section("בחרו גודל שולחן");
+  s.insertAdjacentHTML("beforeend",`<p class="hint" style="margin:-4px 0 10px">"הוספה" שמה שולחן אחד. "מילוי החדר" מסדר כמה שיותר שולחנות מהגודל הזה.</p>`);
+  const list=document.createElement("div"); list.className="sizes";
+  items.forEach((it,i)=>{
+    const c=document.createElement("div"); c.className="size";
+    c.innerHTML=`<div class="size-top"><div class="size-name"><b>${esc(it.name)}</b><span>${it.L}×${it.W} ס״מ</span></div><span class="pill" id="sp${i}"></span></div>
+      <div class="size-acts">
+        <button type="button" class="btn solid" data-a="add">+ הוספה</button>
+        <button type="button" class="btn" data-a="fill">מילוי החדר</button>
+        <button type="button" class="edit" data-a="edit" aria-expanded="${openSize===i}" aria-label="עריכת המידות של ${esc(it.name)}">${ic("ruler")}</button>
+      </div>
+      <div class="size-edit" ${openSize===i?"":"hidden"}></div>`;
+    c.querySelector('[data-a="add"]').onclick=()=>addTable(it);
+    c.querySelector('[data-a="fill"]').onclick=()=>fillRoom(it);
+    c.querySelector('[data-a="edit"]').onclick=c.querySelector(".size-name").onclick=()=>{openSize=openSize===i?-1:i; renderTables();};
+    if(openSize===i){
+      const e=c.querySelector(".size-edit");
+      if(it.custom){
+        const n=document.createElement("input"); n.className="text"; n.id="sn"+i; n.value=it.name; n.setAttribute("aria-label","שם");
+        n.oninput=()=>{it.name=n.value||"שולחן משלי"; c.querySelector(".size-name b").textContent=it.name; saveSizes();};
+        e.append(n);
+      }
+      const g=document.createElement("div"); g.className="grid2";
+      const upd=()=>{saveSizes(); c.querySelector(".size-name span").textContent=`${it.L}×${it.W} ס״מ`; updateSizeStatus();};
+      g.append(stepper("sL"+i,"אורך",it.L,{step:1,min:40,max:600,onChange:v=>{it.L=v;upd();}}),
+               stepper("sW"+i,"רוחב",it.W,{step:1,min:30,max:400,onChange:v=>{it.W=v;upd();}}));
+      e.append(g);
+      e.insertAdjacentHTML("beforeend",`<p class="hint" style="margin:0">מידות השולחן כולו, כולל המסגרת. שולחנות שכבר בחדר לא משתנים.</p>`);
+      if(it.custom){ const d=document.createElement("button"); d.type="button"; d.className="btn danger"; d.textContent="מחיקת הגודל"; d.onclick=()=>{items.splice(i,1); openSize=-1; saveSizes(); renderTables();}; e.append(d); }
+    }
+    list.append(c);
+  });
+  s.append(list); p.append(s);
+  const s2=section("");
+  s2.insertAdjacentHTML("beforeend",`<div class="row"><button type="button" class="btn ghost" id="addSize">+ גודל משלי</button>
+    <button type="button" class="btn ghost" id="clearAll" ${state.tables.length?"":"disabled"}>הוצאת כל השולחנות</button></div>`);
+  p.append(s2);
+  $("addSize").onclick=()=>{items.push({name:"שולחן משלי",kind:"cue",L:250,W:140,custom:true}); openSize=items.length-1; saveSizes(); renderTables(); $("sn"+openSize)?.select();};
+  $("clearAll").onclick=()=>{pushUndo(true); state.tables=[]; select(null); renderTables(); toast("כל השולחנות הוצאו. אפשר לבטל עם הכפתור למעלה.");};
+  updateSizeStatus();
+}
+function updateSizeStatus(){
+  if(tab!=="tables") return;
+  items.forEach((it,i)=>{ const el=$("sp"+i); if(!el) return; const s=sizeStatus(it); el.className="pill "+s.cls; el.textContent=s.txt; });
+}
+
+function renderGaps(){
+  const p=$("panel"); p.innerHTML="";
+  const s1=section("מרחק סביב כל שולחן");
+  const presets=[["צפוף",100],["רגיל",140],["מרווח",160]];
+  const chips=document.createElement("div"); chips.className="chips three";
+  presets.forEach(([n,v])=>{
+    const b=document.createElement("button"); b.type="button"; b.className="chip";
+    b.setAttribute("aria-pressed",GAP.wall===v&&GAP.table===v);
+    b.innerHTML=`${n}<small>${v} ס״מ</small>`;
+    b.onclick=()=>{GAP.wall=GAP.table=v; saveGaps(); refreshRoom(); renderGaps();};
+    chips.append(b);
+  });
+  s1.append(chips);
+  s1.insertAdjacentHTML("beforeend",`<p class="hint">מודדים משפת השולחן. למשחק נוח עם מקל רגיל מקובל כ־140 ס״מ. במקום צפוף אפשר לשחק עם מקל קצר.</p>`);
+  p.append(s1);
+  const s2=section("או לקבוע לבד"), g=document.createElement("div"); g.className="grid2";
+  const sync=()=>document.querySelectorAll(".chips.three .chip").forEach((b,i)=>b.setAttribute("aria-pressed",GAP.wall===presets[i][1]&&GAP.table===presets[i][1]));
+  g.append(stepper("gW","מהקיר ומעמודים",GAP.wall,{step:10,min:0,max:400,onChange:v=>{GAP.wall=v;saveGaps();refreshRoom();sync();}}),
+           stepper("gT","בין שולחנות",GAP.table,{step:10,min:0,max:400,onChange:v=>{GAP.table=v;saveGaps();drawPlan();sync();}}));
+  s2.append(g); p.append(s2);
+  p.insertAdjacentHTML("beforeend",`<p class="hint" style="margin:0">אחרי שינוי מרחקים, "מילוי החדר" בלשונית שולחנות מסדר מחדש לפי המרחקים החדשים. מספר אדום בציור אומר שהמרחק קטן ממה שקבעתם.</p>`);
+}
+
+/* ---------- toast ---------- */
+let toastT=0;
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2800); }
+
+/* ---------- dragging on the plan ---------- */
 let drag=null, raf=0;
 const svgEl=$("svg");
 function toRoom(e){const pt=svgEl.createSVGPoint();pt.x=e.clientX;pt.y=e.clientY;return pt.matrixTransform(svgEl.getScreenCTM().inverse());}
 svgEl.addEventListener("pointerdown",e=>{
-  const g=e.target.closest("[data-t],[data-col]"); if(!g) return;
+  const g=e.target.closest("[data-t],[data-col]");
+  if(!g){ drag={none:true}; return; }
   const q=toRoom(e);
-  if(g.dataset.t!==undefined){
-    const t=state.tables[+g.dataset.t];
-    drag={kind:"t",o:t,dx:q.x-t.cx,dy:q.y-t.cy,moved:false};
-    if(selT!==t) select(t);
-  } else {
-    const c=state.cols[+g.dataset.col];
-    drag={kind:"c",o:c,i:+g.dataset.col,dx:q.x-c.x,dy:q.y-c.y,moved:false};
-  }
+  if(g.dataset.t!==undefined){ const t=state.tables[+g.dataset.t]; drag={o:t,t:true,dx:q.x-t.cx,dy:q.y-t.cy,moved:false}; if(sel?.o!==t) select({type:"t",o:t}); }
+  else { const c=state.cols[+g.dataset.col]; drag={o:c,t:false,dx:q.x-c.x,dy:q.y-c.y,moved:false}; if(sel?.o!==c) select({type:"c",o:c}); }
   svgEl.setPointerCapture(e.pointerId); e.preventDefault();
 });
 svgEl.addEventListener("pointermove",e=>{
-  if(!drag) return;
+  if(!drag||drag.none) return;
   const q=toRoom(e), snap=v=>Math.round(v/CELL)*CELL;
-  drag.moved=true;
-  if(drag.kind==="t"){ drag.o.cx=snap(q.x-drag.dx); drag.o.cy=snap(q.y-drag.dy); }
-  else {
-    drag.o.x=Math.max(0,snap(q.x-drag.dx)); drag.o.y=Math.max(0,snap(q.y-drag.dy));
-    const ix=$(`col${drag.i}x`), iy=$(`col${drag.i}y`); if(ix) ix.value=drag.o.x; if(iy) iy.value=drag.o.y;
-    G=buildGrid(P);
-  }
-  cancelAnimationFrame(raf); raf=requestAnimationFrame(drawPlan);
+  if(!drag.moved){ pushUndo(true); drag.moved=true; }
+  if(drag.t){ drag.o.cx=snap(q.x-drag.dx); drag.o.cy=snap(q.y-drag.dy); }
+  else { drag.o.x=Math.max(0,snap(q.x-drag.dx)); drag.o.y=Math.max(0,snap(q.y-drag.dy)); G=buildGrid(P); }
+  cancelAnimationFrame(raf); raf=requestAnimationFrame(()=>{drawPlan(); if(sel) renderSelHead();});
 });
-const endDrag=()=>{ if(drag&&drag.kind==="c"&&drag.moved) drawList(); drag=null; };
-svgEl.addEventListener("pointerup",endDrag); svgEl.addEventListener("pointercancel",endDrag);
-svgEl.addEventListener("click",e=>{ if(!e.target.closest("[data-t]")&&!drag) select(null); });
-/* ---------- inputs ---------- */
-[["dimL","L",100,2000],["dimW","W",100,2000],["dimA","a",0,2000],["dimB","b",0,2000]].forEach(([id,k,a,b])=>
-  $(id).addEventListener("input",e=>{state[k]=clamp(e.target.value,a,b);draw();}));
+function renderSelHead(){ if(sel?.type==="t"){ const st=tableStatus(sel.o), el=$("selbar").querySelector(".selhead span"); if(el){el.className=st; el.textContent={ok:"",warn:" · קרוב מדי",bad:" · חוסם"}[st];} } }
+const endDrag=()=>{
+  if(drag?.none){ select(null); }
+  else if(drag&&!drag.t&&drag.moved) updateSizeStatus();
+  drag=null;
+};
+svgEl.addEventListener("pointerup",endDrag); svgEl.addEventListener("pointercancel",()=>{drag=null;});
 
-/* ---------- sketch upload and analysis ---------- */
-let sketchBlob=null, sample=null;
-const say=(t,cls)=>{const s=$("sketchStatus");s.hidden=!t;s.textContent=t||"";s.className="status "+(cls||"");};
-$("sketchFile").addEventListener("change",e=>{
-  const f=e.target.files?.[0]; if(!f) return;
-  sketchBlob=f;
-  const img=$("sketchImg"); img.src=URL.createObjectURL(f); img.hidden=false;
-  if(sample){$("analyze").hidden=false; say("");}
-  else say("הניתוח האוטומטי עובד כשפותחים את האפליקציה בתוך Claude. בינתיים אפשר להעתיק את המידות מהשרטוט לשדות למטה.","warn");
-});
+/* ---------- sketch analysis (only inside Claude) ---------- */
+let sample=null, sketchBlob=null, sketchURL="";
 (async()=>{
   try{
-    const s=window.claude?.use ? await window.claude.use("sample") : null;
+    const s=window.claude?.use?await window.claude.use("sample"):null;
     if(!s) return;
     const lim=await s.limits().catch(()=>null);
-    if(lim && lim.images) sample=s;
+    if(lim&&lim.images){ sample=s; if(tab==="room") renderRoom(); }
   }catch(e){}
 })();
-
-const PROMPT=`זהו שרטוט של חדר (תוכנית קומה במבט מלמעלה) עם מידות בסנטימטרים, ייתכן שבכתב יד.
+const PROMPT=`זהו שרטוט של חדר (תוכנית קומה במבט מלמעלה) עם מידות, ייתכן שבכתב יד.
 החזר JSON בלבד, בלי טקסט נוסף, בצורה:
 {"points":[[x,y],...],"columns":[{"x":0,"y":0,"w":0,"h":0}],"notes":"..."}
 - points: פינות הקירות לפי הסדר, בס"מ. ראשית הצירים בפינה השמאלית העליונה של השרטוט, x גדל ימינה, y גדל למטה.
 - columns: עמודים או בליטות בתוך החדר (מלבנים), x,y הם הפינה השמאלית העליונה שלהם. רשימה ריקה אם אין.
-- אם המידות כתובות במטרים, המר לס"מ. אם חסרה מידה, הערך אותה מהפרופורציות וציין זאת ב-notes בעברית.
+- אם המידות במטרים, המר לס"מ. אם חסרה מידה, הערך מהפרופורציות וציין זאת ב-notes בעברית.
 - notes: משפט קצר בעברית על מה זוהה ועל כל הנחה שעשית.`;
-$("analyze").onclick=async()=>{
-  if(!sample||!sketchBlob) return;
-  const btn=$("analyze"); btn.disabled=true; say("מנתח את השרטוט, זה יכול לקחת עד דקה...");
+async function analyzeSketch(){
+  const btn=$("skGo"), st=$("skStatus");
+  const say=(t,c)=>{st.hidden=false; st.textContent=t; st.className="status "+(c||"");};
+  btn.disabled=true; say("מזהה את המידות, זה יכול לקחת עד דקה...");
   try{
     const r=await sample.json(PROMPT,{images:[sketchBlob],modelTier:"complex"});
     const pts=(r.points||[]).map(p=>[Math.round(+p[0]),Math.round(+p[1])]).filter(p=>isFinite(p[0])&&isFinite(p[1]));
     if(pts.length<3) throw {code:"shape"};
+    pushUndo(true);
     const mx=Math.min(...pts.map(p=>p[0])), my=Math.min(...pts.map(p=>p[1]));
     state.custom=pts.map(p=>[p[0]-mx,p[1]-my]);
-    state.L=Math.max(...state.custom.map(p=>p[0])); state.W=Math.max(...state.custom.map(p=>p[1]));
     state.cols=(r.columns||[]).map(c=>({x:Math.round(c.x-mx),y:Math.round(c.y-my),w:Math.max(5,Math.round(c.w)),h:Math.max(5,Math.round(c.h))})).filter(c=>[c.x,c.y,c.w,c.h].every(isFinite));
-    syncInputs(); renderCols(); draw();
-    say("זוהה: "+(r.notes||"צורת החדר עודכנה לפי השרטוט.")+" כדאי לבדוק את הציור מול השרטוט.","ok");
+    state.tables=[]; select(null); refreshRoom(); renderRoom();
+    $("skStatus").hidden=false; $("skStatus").className="status ok";
+    $("skStatus").textContent="זוהה: "+(r.notes||"צורת החדר עודכנה.")+" כדאי להשוות את הציור לשרטוט.";
   }catch(e){
-    const m={not_granted:"צריך לאשר ל-Claude לנתח את התמונה כדי להשתמש בזה.",rate_limited:"יותר מדי בקשות ברגע זה. נסו שוב בעוד דקה.",shape:"לא הצלחתי לזהות את קירות החדר. נסו צילום ברור יותר, עם המידות כתובות על כל קיר."};
-    say(m[e?.code]||"הניתוח לא הצליח. נסו שוב, או הכניסו את המידות ידנית.","bad");
-  }finally{btn.disabled=false;}
-};
+    const m={not_granted:"צריך לאשר ל־Claude לקרוא את התמונה.",rate_limited:"יותר מדי בקשות כרגע. נסו שוב בעוד דקה.",shape:"לא הצלחתי לזהות את הקירות. נסו צילום ברור יותר, עם מידה כתובה על כל קיר."};
+    say(m[e?.code]||"הזיהוי לא הצליח. נסו שוב או הכניסו את המידות ידנית.","bad");
+    btn.disabled=false;
+  }
+}
 
-syncInputs(); renderCols(); drawList();
-{ const t=makeTable(items[state.sel]); const s=status(items[state.sel],G); t.cx=s.p.cx; t.cy=s.p.cy; t.rot=s.p.rot; state.tables.push(t); }
+/* ---------- start ---------- */
+P=roomPoints(); G=buildGrid(P);
+if(firstRun){
+  const it=items.find(x=>/9 פיט/.test(x.name))||items[0], t=newTable(it), s=placeAny(dims(t).N,G)||placeAny(dims(t).O,G);
+  if(s){t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; state.tables.push(t);}
+}
+if(!store.get("tf-tip-done",false)) $("tip").hidden=false;
+$("tipOk").onclick=()=>{ $("tip").hidden=true; store.set("tf-tip-done",true); };
+setTab(["room","tables","gaps"].includes(tab)?tab:"tables");
 drawPlan();
 </script>
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="6";
+const APP_VERSION="7";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
