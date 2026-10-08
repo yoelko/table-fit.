@@ -1,0 +1,804 @@
+{
+ "missing_dims": [
+  {
+   "name": "שולחן ביליארד 7 פיט outdoor regiis",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%91%d7%99%d7%9c%d7%99%d7%90%d7%a8%d7%93-7-%d7%a4%d7%99%d7%98-outdoor-regiis/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: No dims anywhere on page (only '7 פיט' in title). No dimensions filled."
+  },
+  {
+   "name": "שולחן פול 8 פיט Rasson Trillium",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a4%d7%95%d7%9c-8-%d7%a4%d7%99%d7%98-rasson-trillium/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: Only 'גודל: 8 פיט' in spec list; no cm dims in description, attributes or alt text. No dimensions filled."
+  },
+  {
+   "name": "שולחן סנוקר 12 פיט אלגנס יד 2",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-12-%d7%a4%d7%99%d7%98-%d7%90%d7%9c%d7%92%d7%a0%d7%a1-%d7%99%d7%93-2/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: Used. No L/W/H or playing area; only 'חמישה פלטות שיש צפחה בעובי 4 ס\"מ'. No dimensions filled."
+  },
+  {
+   "name": "שולחן פול 9 פיט regiis",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a4%d7%95%d7%9c-9-%d7%a4%d7%99%d7%98-regiis/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: No table dims; only '9 פיט' and ball set 'סט כדורי פול 57 מ\"מ'. No dimensions filled."
+  },
+  {
+   "name": "שולחן סנוקר 12 פיט Rasson Magnum",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-12-%d7%a4%d7%99%d7%98-rasson-magnum/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: No L/W/H or playing area; only slate 'שיש בעיבוד מקצועי בעובי 5 ס\"מ'. No dimensions filled."
+  },
+  {
+   "name": "שולחן סנוקר 7 פיט מקצועי Regiis Pro",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-7-%d7%a4%d7%99%d7%98-%d7%9e%d7%a7%d7%a6%d7%95%d7%a2%d7%99-regiis-pro/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: No L/W/H; only slate 'פלטות שיש בעובי 4 ס\"מ'. No dimensions filled."
+  },
+  {
+   "name": "שולחן סנוקר 12 פיט Sword Rasson",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-12-%d7%a4%d7%99%d7%98-sword-rasson/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: No L/W/H or playing area; only slate 'שיש בעובי 4.5 ס\"מ'. No dimensions filled."
+  },
+  {
+   "name": "שולחן סנוקר 12 פיט star quin",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-12-%d7%a4%d7%99%d7%98-star-quin/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: No L/W/H or playing area; only 'חמש פלטות שיש בעובי 4.5 ס\"מ'. No dimensions filled."
+  },
+  {
+   "name": "שולחן סנוקר 12 פיט אלגנס יד 2",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-12-%d7%a4%d7%99%d7%98-%d7%90%d7%9c%d7%92%d7%a0%d7%a1-%d7%99%d7%93-2-2/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: Used, out of stock. No L/W/H or playing area; only 'פלטות שיש צפחה בעובי 4 ס\"מ'. No dimensions filled."
+  },
+  {
+   "name": "שולחן ביליארד 5 פיט מתקפל",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%91%d7%99%d7%9c%d7%99%d7%90%d7%a8%d7%93-5-%d7%a4%d7%99%d7%98-%d7%9e%d7%aa%d7%a7%d7%a4%d7%9c/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: No dims anywhere (only '5 פיט'). No dimensions filled."
+  },
+  {
+   "name": "שולחן ביליארד 7 פיט משולב 3 ב1 עם שולחן פינגפונג ופלטת אוכל",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%91%d7%99%d7%9c%d7%99%d7%90%d7%a8%d7%93-7-%d7%a4%d7%99%d7%98-%d7%9e%d7%a9%d7%95%d7%9c%d7%91-3-%d7%911-%d7%a2%d7%9d-%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a4%d7%99%d7%a0/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: No cm dims; description only 'בגודל 7 פיט'. No dimensions filled."
+  },
+  {
+   "name": "שולחן ביליארד 7 פיט מקצועי הכולל פלטת פינגפונג",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%91%d7%99%d7%9c%d7%99%d7%90%d7%a8%d7%93-7-%d7%a4%d7%99%d7%98-%d7%9e%d7%a7%d7%a6%d7%95%d7%a2%d7%99-%d7%94%d7%9b%d7%9f%d7%9a%d7%9a-%d7%a4%d7%9c%d7%98%d7%aa-%d7%a4%d7%99/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: No L/W/H; only 'משטח ביליארד מקצועי בעובי כ־15 מ\"מ'. No dimensions filled."
+  },
+  {
+   "name": "שולחן כדורגל 4 פיט",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%9b%d7%93%d7%95%d7%a8%d7%92%d7%9c-4-%d7%a4%d7%99%d7%98-2/",
+   "L": 121,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: Re-checked: still only 'מידות: 121/83/61' with no labels saying which is W vs H, so only L=121 kept (same as before). No dimensions filled."
+  },
+  {
+   "name": "שולחן כדורגל Outdoor תוצרת דינמיק איטליה",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%9b%d7%93%d7%95%d7%a8%d7%92%d7%9c-outdoor-%d7%aa%d7%95%d7%a6%d7%a8%d7%aa-%d7%93%d7%99%d7%a0%d7%9e%d7%99%d7%a7-%d7%90%d7%99%d7%98%d7%9c%d7%99%d7%94/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: No dims anywhere on page. No dimensions filled."
+  },
+  {
+   "name": "שולחן הוקי אוויר 5 פיט",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%94%d7%95%d7%a7%d7%99-%d7%90%d7%95%d7%99%d7%a8-5-%d7%a4%d7%99%d7%98/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: No dims (only '5 פיט' in title). No dimensions filled."
+  },
+  {
+   "name": "שולחן קלפים מתומן מקצועי",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a7%d7%9c%d7%a4%d7%99%d7%9d-%d7%9e%d7%aa%d7%95%d7%9e%d7%9f-%d7%9e%d7%a7%d7%a6%d7%95%d7%a2%d7%99/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: No dims; description says 'השולחן מתאים לשמונה שחקנים'. No dimensions filled."
+  },
+  {
+   "name": "שולחן פוקר ל10 שחקנים ודילר",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a4%d7%95%d7%a7%d7%a8-%d7%9c10-%d7%a9%d7%97%d7%a7%d7%a0%d7%99%d7%9d-%d7%95%d7%93%d7%99%d7%9c%d7%a8/",
+   "L": null,
+   "W": null,
+   "H": null,
+   "playL": null,
+   "playW": null,
+   "source_note": "Re-checked product page (description, short description, additional-info tab, attributes, image alt/filenames) on 2026-10-09: No dims; title says 10 players + dealer. No dimensions filled."
+  }
+ ],
+ "missing_dims_gallery_images": {
+  "שולחן ביליארד 7 פיט outdoor regiis": [
+   "https://www.playon.co.il/wp-content/uploads/2025/12/WhatsApp-Image-2025-12-28-at-11.06.57-1.jpeg"
+  ],
+  "שולחן פול 8 פיט Rasson Trillium": [
+   "https://www.playon.co.il/wp-content/uploads/2026/05/תמונה1.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2026/05/55-140-08-1-Billardtisch-Pool-Rasson-Trillium-8-ft-Fuss-walnuss-von-der-SeiteXzNNpWyNi4lqP.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2026/05/55-140-08-1-Billardtisch-Pool-Rasson-Trillium-8-ft-Fuss-walnuss-Bande-mit-Dynamic-LogonrqtG1JBtUiJT.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2026/05/55-140-08-1-Billardtisch-Pool-Rasson-Trillium-8-ft-Fuss-walnuss-EckeDRZksbDrq4Liv.jpg"
+  ],
+  "שולחן סנוקר 12 פיט אלגנס יד 2 [%99%d7%93-2/]": [
+   "https://www.playon.co.il/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-12-at-10.28.17.jpeg",
+   "https://www.playon.co.il/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-12-at-10.28.19.jpeg",
+   "https://www.playon.co.il/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-12-at-10.28.20.jpeg"
+  ],
+  "שולחן פול 9 פיט regiis": [
+   "https://www.playon.co.il/wp-content/uploads/2025/04/c031956b42718cb745f69c8ab45c1ebaac7cd031.jpg"
+  ],
+  "שולחן סנוקר 12 פיט Rasson Magnum": [
+   "https://www.playon.co.il/wp-content/uploads/2025/04/מוצר20.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/04/8b8f6096117be8de42ce673f38795b5f8565cf7b.jpg"
+  ],
+  "שולחן סנוקר 7 פיט מקצועי Regiis Pro": [
+   "https://www.playon.co.il/wp-content/uploads/2025/04/688f2c157b193634f81da04b724aee05c9afc321.jpg"
+  ],
+  "שולחן סנוקר 12 פיט Sword Rasson": [
+   "https://www.playon.co.il/wp-content/uploads/2025/04/מוצר21.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/07/327a7427d23da8f928489ed4c752bcf3840ea54d.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/07/a751786ba4765b61b4d0f2a76a5e98dfe8c69cde.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/07/a554dc5caa72bb0e57ced703563aa5c7fff770e4.jpg"
+  ],
+  "שולחן סנוקר 12 פיט star quin": [
+   "https://www.playon.co.il/wp-content/uploads/2025/07/d7232632d7ce74b4087c3c92fc96a3a8fc6e3449.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/07/bb4fdf06e223311576f79a6804e6c03439053a34.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/07/fd4361f2d6eb7f5adea629f3f9c59fd8b38267ea.jpg"
+  ],
+  "שולחן סנוקר 12 פיט אלגנס יד 2 [9%d7%93-2-2/]": [
+   "https://www.playon.co.il/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-10-at-17.28.42.jpeg",
+   "https://www.playon.co.il/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-10-at-17.28.42-2.jpeg",
+   "https://www.playon.co.il/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-10-at-17.28.42-1.jpeg",
+   "https://www.playon.co.il/wp-content/uploads/2025/09/WhatsApp-Image-2025-09-10-at-17.28.43-3.jpeg"
+  ],
+  "שולחן ביליארד 5 פיט מתקפל": [
+   "https://www.playon.co.il/wp-content/uploads/2025/07/657b9c58d1d0befcc22fc408594ec4c13098e04e.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/07/ac66b66dfff0462d289e7c6c99e83f9ffb45a9da.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/07/957765d32f23f7e4419e180680269247cb6bb747.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/07/5103f43439a921385c563e9d950b07dbed0424b2.jpg"
+  ],
+  "שולחן ביליארד 7 פיט משולב 3 ב1 עם שולחן פינגפונג ופלטת אוכל": [
+   "https://www.playon.co.il/wp-content/uploads/2026/09/WhatsApp-Image-2026-09-18-at-11.36.43.jpeg",
+   "https://www.playon.co.il/wp-content/uploads/2026/09/WhatsApp-Image-2026-09-18-at-11.36.45.jpeg",
+   "https://www.playon.co.il/wp-content/uploads/2026/09/WhatsApp-Image-2026-09-18-at-11.36.44.jpeg"
+  ],
+  "שולחן ביליארד 7 פיט מקצועי הכולל פלטת פינגפונג": [
+   "https://www.playon.co.il/wp-content/uploads/2026/09/WhatsApp-Image-2026-09-14-at-11.33.33.jpeg",
+   "https://www.playon.co.il/wp-content/uploads/2026/09/111.png"
+  ],
+  "שולחן כדורגל 4 פיט": [
+   "https://www.playon.co.il/wp-content/uploads/2025/04/20908cc1e387d803ea72073daf3e1b3461abfa9e-3.jpg"
+  ],
+  "שולחן כדורגל Outdoor תוצרת דינמיק איטליה": [
+   "https://www.playon.co.il/wp-content/uploads/2025/06/0e0e614435f1993a4ac71e55c03960945557a687.png"
+  ],
+  "שולחן הוקי אוויר 5 פיט": [
+   "https://www.playon.co.il/wp-content/uploads/2025/06/98e0a91737cab06cb515d97d98dd7aa90458c34c.jpg"
+  ],
+  "שולחן קלפים מתומן מקצועי": [
+   "https://www.playon.co.il/wp-content/uploads/2026/09/WhatsApp-Image-2026-09-09-at-13.20.05.jpeg",
+   "https://www.playon.co.il/wp-content/uploads/2026/09/WhatsApp-Image-2026-09-09-at-13.20.05-1.jpeg",
+   "https://www.playon.co.il/wp-content/uploads/2026/09/WhatsApp-Image-2026-09-09-at-13.20.05-2.jpeg"
+  ],
+  "שולחן פוקר ל10 שחקנים ודילר": [
+   "https://www.playon.co.il/wp-content/uploads/2025/04/WhatsApp-Image-2025-12-24-at-12.05.03.jpeg"
+  ]
+ },
+ "room_guidance": [
+  {
+   "topic": "12 ft snooker table size",
+   "quote": "שולחן סנוקר מקצועי מגיע בגודל סטנדרטי של 12 רגל על 6 רגל (כ-3.65 מטר על 1.85 מטר)",
+   "numbers": {
+    "L_m": 3.65,
+    "W_m": 1.85
+   },
+   "url": "https://www.playon.co.il/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-%d7%9e%d7%a7%d7%a6%d7%95%d7%a2%d7%99-%d7%94%d7%9e%d7%93%d7%a8%d7%99%d7%9a-%d7%94%d7%9e%d7%a7%d7%99%d7%a3-%d7%9c%d7%91%d7%97/"
+  },
+  {
+   "topic": "12 ft snooker minimum room + cue",
+   "quote": "לשולחן בגודל 12 רגל נדרש חדר בגודל מינימלי של כ-6.7 מטר על 5.2 מטר ... כדי לאפשר מרווח נוח למשחק עם קיו סטנדרטי (כ-145 ס\"מ)",
+   "numbers": {
+    "room_L_m": 6.7,
+    "room_W_m": 5.2,
+    "cue_cm": 145
+   },
+   "url": "https://www.playon.co.il/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-%d7%9e%d7%a7%d7%a6%d7%95%d7%a2%d7%99-%d7%94%d7%9e%d7%93%d7%a8%d7%99%d7%9a-%d7%94%d7%9e%d7%a7%d7%99%d7%a3-%d7%9c%d7%91%d7%97/"
+  },
+  {
+   "topic": "ceiling height (snooker)",
+   "quote": "חשוב לקחת בחשבון גם את גובה התקרה (מינימום 2.4 מטר)",
+   "numbers": {
+    "min_ceiling_m": 2.4
+   },
+   "url": "https://www.playon.co.il/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-%d7%9e%d7%a7%d7%a6%d7%95%d7%a2%d7%99-%d7%94%d7%9e%d7%93%d7%a8%d7%99%d7%9a-%d7%94%d7%9e%d7%a7%d7%99%d7%a3-%d7%9c%d7%91%d7%97/"
+  },
+  {
+   "topic": "snooker table height",
+   "quote": "המרווח בין הרצפה לבסיס השולחן הוא כ-80-85 ס\"מ",
+   "numbers": {
+    "H_cm": "80-85"
+   },
+   "url": "https://www.playon.co.il/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-%d7%9e%d7%a7%d7%a6%d7%95%d7%a2%d7%99-%d7%94%d7%9e%d7%93%d7%a8%d7%99%d7%9a-%d7%94%d7%9e%d7%a7%d7%99%d7%a3-%d7%9c%d7%91%d7%97/"
+  },
+  {
+   "topic": "12 ft snooker vs billiard",
+   "quote": "שולחן סנוקר מקצועי הוא בגודל 12 פיט (כ-3.65 מטר על 1.85 מטר)... לשולחן 12 פיט נדרש חדר בגודל מינימלי של כ-6.7 מטר על 5.2 מטר. ... שולחן סנוקר כמעט כפול בשטח משולחן ביליארד 8 פיט",
+   "numbers": {
+    "room_L_m": 6.7,
+    "room_W_m": 5.2
+   },
+   "url": "https://www.playon.co.il/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%91%d7%99%d7%9c%d7%99%d7%90%d7%a8%d7%93-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-%d7%94%d7%9e%d7%93%d7%a8%d7%99%d7%9a-%d7%9c%d7%94%d7%91%d7%a0%d7%aa-%d7%94%d7%94/"
+  },
+  {
+   "topic": "ball diameters",
+   "quote": "קוטר של 52.5 מ\"מ לעומת 57.2 מ\"מ בביליארד אמריקאי",
+   "numbers": {
+    "snooker_ball_mm": 52.5,
+    "pool_ball_mm": 57.2
+   },
+   "url": "https://www.playon.co.il/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%91%d7%99%d7%9c%d7%99%d7%90%d7%a8%d7%93-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-%d7%94%d7%9e%d7%93%d7%a8%d7%99%d7%9a-%d7%9c%d7%94%d7%91%d7%a0%d7%aa-%d7%94%d7%94/"
+  },
+  {
+   "topic": "9 ft pool table size + room",
+   "quote": "שאורכו 9 רגל (כ-2.74 מטר) ורוחבו 4.5 רגל (כ-1.37 מטר) ... לשולחן 9 פיט נדרש חדר בגודל מינימלי של כ-5 מטר על 4 מטר (עם קיו סטנדרטי) ... את אורך הקיו (כ-145 ס\"מ)",
+   "numbers": {
+    "L_m": 2.74,
+    "W_m": 1.37,
+    "room_L_m": 5,
+    "room_W_m": 4,
+    "cue_cm": 145
+   },
+   "url": "https://www.playon.co.il/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%91%d7%99%d7%9c%d7%99%d7%90%d7%a8%d7%93-9-%d7%a4%d7%99%d7%98-%d7%94%d7%90%d7%99%d7%96%d7%95%d7%9f-%d7%94%d7%9e%d7%95%d7%a9%d7%9c%d7%9d-%d7%91%d7%99%d7%9f/"
+  },
+  {
+   "topic": "9 ft snooker table size + room",
+   "quote": "באורך של כ-2.74 מטר ורוחב של כ-1.37 מטר ... שולחן סנוקר 9 פיט דורש חדר בגודל מינימלי של כ-5 מטר על 4 מטר, לעומת כ-6.7 מטר על 5.2 מטר לשולחן 12 פיט",
+   "numbers": {
+    "L_m": 2.74,
+    "W_m": 1.37,
+    "room_L_m": 5,
+    "room_W_m": 4
+   },
+   "url": "https://www.playon.co.il/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-9-%d7%a4%d7%99%d7%98-%d7%94%d7%a4%d7%a9%d7%a8%d7%94-%d7%94%d7%97%d7%9b%d7%9e%d7%94-%d7%91%d7%99%d7%9f-%d7%a1%d7%a0%d7%95%d7%a7/"
+  },
+  {
+   "topic": "snooker cue length / tip",
+   "quote": "מקל סנוקר סטנדרטי הוא בערך 145 ס\"מ (57-58 אינץ') ... קצה המקל בסנוקר ... בקוטר של 9-10 מ\"מ בלבד, לעומת 12-13 מ\"מ בביליארד אמריקאי",
+   "numbers": {
+    "cue_cm": 145,
+    "cue_in": "57-58"
+   },
+   "url": "https://www.playon.co.il/%d7%9e%d7%a7%d7%9c%d7%95%d7%aa-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-%d7%9e%d7%a7%d7%a6%d7%95%d7%a2%d7%99%d7%99%d7%9d-%d7%94%d7%9b%d7%9c%d7%99-%d7%a9%d7%a2%d7%95%d7%a9%d7%94-%d7%90%d7%aa-%d7%9b/"
+  },
+  {
+   "topic": "poker table sizes + clearance",
+   "quote": "הגדלים הסטנדרטיים נעים בין שולחנות של 2.1 מטר (ל-8 שחקנים) ועד 2.7 מטר (ל-10 שחקנים) ... לקבוצה של 6-8 שחקנים מתאים שולחן בגודל של כ-2.1 מטר, בעוד ל-9-10 שחקנים מומלץ שולחן גדול יותר של 2.4-2.7 מטר ... מומלץ להשאיר לפחות מטר מכל צד של השולחן",
+   "numbers": {
+    "table_8p_m": 2.1,
+    "table_10p_m": "2.4-2.7",
+    "clearance_each_side_m": 1
+   },
+   "url": "https://www.playon.co.il/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%a4%d7%95%d7%a7%d7%a8-%d7%9e%d7%a7%d7%a6%d7%95%d7%a2%d7%99-%d7%94%d7%9e%d7%93%d7%a8%d7%99%d7%9a-%d7%94%d7%9e%d7%9c%d7%90-%d7%9c%d7%9e%d7%a9%d7%97%d7%a7/"
+  },
+  {
+   "topic": "folding poker table sizes",
+   "quote": "שולחן קטן (1.5-1.8 מטר) ל-6 שחקנים; שולחן בינוני (2.0-2.2 מטר) ל-8 שחקנים; שולחן גדול (2.4-2.7 מטר) ל-10 שחקנים; שולחנות עגולים מתאימים ל-4-6 שחקנים; שולחנות אליפטיים ... 8-10 שחקנים. זכרו להתחשב גם במרווח נדרש סביב השולחן (no number)",
+   "numbers": {
+    "6p_m": "1.5-1.8",
+    "8p_m": "2.0-2.2",
+    "10p_m": "2.4-2.7"
+   },
+   "url": "https://www.playon.co.il/%d7%a9%d7%95%d7%9c%d7%97%d7%a0%d7%95%d7%aa-%d7%a4%d7%95%d7%a7%d7%a8-%d7%9e%d7%aa%d7%a7%d7%a4%d7%9c%d7%99%d7%9d-%d7%94%d7%a4%d7%aa%d7%a8%d7%95%d7%9f-%d7%94%d7%9e%d7%95%d7%a9%d7%9c%d7%9d/"
+  },
+  {
+   "topic": "slate thickness (buying guide)",
+   "quote": "לוח השיש עשוי מאבן טבעית איכותית בעובי של 2.5-3 ס\"מ לפחות; (snooker guide) עובי לוח השיש בשולחן סנוקר מקצועי הוא 4.5-5 ס\"מ",
+   "numbers": {},
+   "url": "https://www.playon.co.il/%d7%a9%d7%95%d7%9c%d7%97%d7%9f-%d7%91%d7%99%d7%9c%d7%99%d7%90%d7%a8%d7%93-%d7%9e%d7%a7%d7%a6%d7%95%d7%a2%d7%99-%d7%94%d7%9e%d7%93%d7%a8%d7%99%d7%9a-%d7%94%d7%9e%d7%9c%d7%90-%d7%9c%d7%91/"
+  },
+  {
+   "topic": "NOT FOUND on site",
+   "quote": "No numbers anywhere on the site for: ping-pong, foosball or air-hockey room size/clearance; lamp hanging height; how many tables fit a club; short cues for tight rooms; 7/8 ft pool room sizes. Showroom page has only address/hours. Only one WP post + a 10-article knowledge center (מרכז הידע) exist.",
+   "numbers": {},
+   "url": "https://www.playon.co.il/%d7%9e%d7%a8%d7%9b%d7%96-%d7%94%d7%99%d7%93%d7%a2/"
+  }
+ ],
+ "accessories_for_clubs": [
+  {
+   "type": "lamp",
+   "name": "מנורה 3 קנים",
+   "url": "https://www.playon.co.il/product/%d7%9e%d7%a0%d7%95%d7%a8%d7%94-3-%d7%a7%d7%a0%d7%99%d7%9d/",
+   "price_ils": 650,
+   "in_stock": true,
+   "dimensions": "No cm dims; 'מתאים לשולחנות 7-10' (suits 7-10 ft tables)",
+   "look": "3-shade billiard lamp, silver with green ('צבע כסף בשילוב ירוק')",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/07/83675826b68cb69912d7e89bcd218c3d2ff5bed9-1.jpg"
+  },
+  {
+   "type": "lamp",
+   "name": "מנורה 3 קנים יד 2",
+   "url": "https://www.playon.co.il/product/%d7%9e%d7%a0%d7%95%d7%a8%d7%94-3-%d7%a7%d7%a0%d7%99%d7%9d-%d7%99%d7%93-2/",
+   "price_ils": 290,
+   "in_stock": false,
+   "dimensions": "No cm dims; 'מתאים לשולחנות 7-10 פיט'",
+   "look": "Used 3-shade lamp, silver metal frame, green shades; out of stock",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/04/e133d49a461d614caa6f923142674daff80ff2d3.jpg"
+  },
+  {
+   "type": "cue_rack",
+   "name": "מעמד רצפתי למקלות (6 מקלות ) כולל משטח הגשה מעץ",
+   "url": "https://www.playon.co.il/product/%d7%9e%d7%a2%d7%9e%d7%93-%d7%a8%d7%a6%d7%a4%d7%aa%d7%99-%d7%9c%d7%9e%d7%a7%d7%9c%d7%95%d7%aa-6-%d7%9e%d7%a7%d7%9c%d7%95%d7%aa-%d7%9b%d7%95%d7%9c%d7%9c-%d7%9e%d7%a9%d7%98%d7%97-%d7%94%d7%92%d7%a9/",
+   "price_ils": 340,
+   "in_stock": true,
+   "dimensions": "6 cues; no cm dims",
+   "look": "Floor-standing cue stand with wooden serving top",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-12-at-11.04.10-1.jpeg"
+  },
+  {
+   "type": "cue_rack",
+   "name": "מעמד מקלות עגול מפואר",
+   "url": "https://www.playon.co.il/product/%d7%9e%d7%a2%d7%9e%d7%93-%d7%9e%d7%a7%d7%9c%d7%95%d7%aa-%d7%a2%d7%92%d7%95%d7%9c-%d7%9e%d7%a4%d7%95%d7%90%d7%a8/",
+   "price_ils": 690,
+   "in_stock": true,
+   "dimensions": "'מתאים לתשעה מקלות' (9 cues); no cm dims",
+   "look": "Round rotating luxury floor cue stand",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-12-at-11.04.11-5.jpeg"
+  },
+  {
+   "type": "cue_rack",
+   "name": "מעמד קירי ל6 מקלות ציפוי כסף",
+   "url": "https://www.playon.co.il/product/%d7%9e%d7%a2%d7%9e%d7%93-%d7%a7%d7%99%d7%a8%d7%99-%d7%9c6-%d7%9e%d7%a7%d7%9c%d7%95%d7%aa-%d7%a6%d7%99%d7%a4%d7%95%d7%99-%d7%9b%d7%a1%d7%a3/",
+   "price_ils": 120,
+   "in_stock": true,
+   "dimensions": "6 cues; no cm dims",
+   "look": "Silver-plated wall-mounted cue rack",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/08/WhatsApp-Image-2025-08-12-at-11.04.12-7.jpeg"
+  },
+  {
+   "type": "cue_rack",
+   "name": "מעמד מפואר ל 8 מקלות",
+   "url": "https://www.playon.co.il/product/%d7%9e%d7%a2%d7%9e%d7%93-%d7%9e%d7%a4%d7%95%d7%90%d7%a8-%d7%9c-8-%d7%9e%d7%a7%d7%9c%d7%95%d7%aa-2/",
+   "price_ils": 340,
+   "in_stock": true,
+   "dimensions": "8 cues; no cm dims",
+   "look": "Decorative stand for 8 cues",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/06/3b622bcaa1660672c3c7543c027c7974854de84a-scaled.jpg"
+  },
+  {
+   "type": "cue_rack",
+   "name": "מעמד קיר לשישה מקלות",
+   "url": "https://www.playon.co.il/product/%d7%9e%d7%a2%d7%9e%d7%93-%d7%a7%d7%99%d7%a8-%d7%9c%d7%a9%d7%99%d7%a9%d7%94-%d7%9e%d7%a7%d7%9c%d7%95%d7%aa/",
+   "price_ils": 75,
+   "in_stock": true,
+   "dimensions": "6 cues; no cm dims",
+   "look": "Simple wall rack for six cues",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/04/14315df092d1d61cf785913c20aa10d5d50db80c-scaled.jpg"
+  },
+  {
+   "type": "cue_rack",
+   "name": "מעמד מקלות יוקרתי",
+   "url": "https://www.playon.co.il/product/%d7%9e%d7%a2%d7%9e%d7%93-%d7%9e%d7%a7%d7%9c%d7%95%d7%aa-%d7%99%d7%95%d7%a7%d7%a8%d7%aa%d7%99/",
+   "price_ils": 420,
+   "in_stock": true,
+   "dimensions": "'מקום לכדורים 8 מקלות ומשולש' (balls, 8 cues, triangle); no cm dims",
+   "look": "Wooden luxury cue + ball stand",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/07/ec4542af2e6d2db0c74a554d38d71f9098e421f5.jpg"
+  },
+  {
+   "type": "scoreboard",
+   "name": "לוח תוצאות משטח פלסטיק",
+   "url": "https://www.playon.co.il/product/%d7%9c%d7%95%d7%97-%d7%aa%d7%95%d7%a6%d7%90%d7%95%d7%aa-%d7%9e%d7%a9%d7%98%d7%97-%d7%a4%d7%9c%d7%a1%d7%98%d7%99%d7%a7/",
+   "price_ils": 190,
+   "in_stock": true,
+   "dimensions": "No dims; for up to 4 players",
+   "look": "Plastic-surface wall scoreboard",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/04/e1e1fd53a99735e48b843e5e86f4c8e3491c852e-scaled.jpg"
+  },
+  {
+   "type": "wall_decor",
+   "name": "שעון לחדר ביליארד מתומן",
+   "url": "https://www.playon.co.il/product/%d7%a9%d7%a2%d7%95%d7%9f-%d7%9c%d7%97%d7%93%d7%a8-%d7%91%d7%99%d7%9c%d7%99%d7%90%d7%a8%d7%93-%d7%9e%d7%aa%d7%95%d7%9e%d7%9f/",
+   "price_ils": 160,
+   "in_stock": true,
+   "dimensions": "No dims",
+   "look": "Octagonal billiard-room wall clock",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/04/6bec7f45df604a1962eb8c693539c7b3e984ed8b.png"
+  },
+  {
+   "type": "cover",
+   "name": "כיסוי 7 פיט מקצועי",
+   "url": "https://www.playon.co.il/product/%d7%9b%d7%99%d7%a1%d7%95%d7%99-7-%d7%a4%d7%99%d7%98-%d7%9e%d7%a7%d7%a6%d7%95%d7%a2%d7%99/",
+   "price_ils": 450,
+   "in_stock": true,
+   "dimensions": "'230/120/85' (no unit stated; presumably cm L/W/drop)",
+   "look": "Heavy-duty fitted PVC table cover",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/06/WhatsApp-Image-2025-07-27-at-12.54.48-1.jpeg"
+  },
+  {
+   "type": "cover",
+   "name": "כיסוי 8 פיט מקצועי",
+   "url": "https://www.playon.co.il/product/%d7%9b%d7%99%d7%a1%d7%95%d7%99-8-%d7%a4%d7%99%d7%98-%d7%9e%d7%a7%d7%a6%d7%95%d7%a2%d7%99/",
+   "price_ils": 550,
+   "in_stock": true,
+   "dimensions": "'265/145/85' (no unit stated); short description says 'כיסוי 9 פיט' (site inconsistency)",
+   "look": "Heavy-duty fitted PVC table cover",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/06/WhatsApp-Image-2025-07-27-at-12.54.48-1.jpeg"
+  },
+  {
+   "type": "cover",
+   "name": "כיסוי 9 פיט מקצועי",
+   "url": "https://www.playon.co.il/product/%d7%9b%d7%99%d7%a1%d7%95%d7%99-9-%d7%a4%d7%99%d7%98-%d7%9e%d7%a7%d7%a6%d7%95%d7%a2%d7%99/",
+   "price_ils": 650,
+   "in_stock": true,
+   "dimensions": "'295/165/85' (no unit stated)",
+   "look": "Heavy-duty fitted PVC table cover",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/06/WhatsApp-Image-2025-07-27-at-12.54.48-1.jpeg"
+  },
+  {
+   "type": "cover",
+   "name": "כיסוי לשולחן 7 פיט",
+   "url": "https://www.playon.co.il/product/%d7%9b%d7%99%d7%a1%d7%95%d7%99-%d7%9c%d7%a9%d7%95%d7%9c%d7%97%d7%9f-7-%d7%a4%d7%99%d7%98/",
+   "price_ils": 130,
+   "in_stock": true,
+   "dimensions": "No dims (7 ft)",
+   "look": "Basic table cover",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/06/041738da928288c6e0d0ad123baa06786ff0f8c7.png"
+  },
+  {
+   "type": "cover",
+   "name": "כיסוי לשולחן 8 פיט",
+   "url": "https://www.playon.co.il/product/%d7%9b%d7%99%d7%a1%d7%95%d7%99-%d7%9c%d7%a9%d7%95%d7%9c%d7%97%d7%9f-8-%d7%a4%d7%99%d7%98/",
+   "price_ils": 140,
+   "in_stock": true,
+   "dimensions": "No dims (8 ft)",
+   "look": "Basic table cover",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/04/f3cf8b28c3effe3d4ac94e92630ad87c8c9466d1.png"
+  },
+  {
+   "type": "cover",
+   "name": "כיסוי לשולחן 9 פיט",
+   "url": "https://www.playon.co.il/product/%d7%9b%d7%99%d7%a1%d7%95%d7%99-%d7%9c%d7%a9%d7%95%d7%9c%d7%97%d7%9f-9-%d7%a4%d7%99%d7%98/",
+   "price_ils": 180,
+   "in_stock": true,
+   "dimensions": "No dims (9 ft)",
+   "look": "Basic table cover",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/04/e0230d2374328e70830b12e54c3e2c37263eaf43.png"
+  },
+  {
+   "type": "cover",
+   "name": "כיסוי לשולחן 12 פיט",
+   "url": "https://www.playon.co.il/product/%d7%9b%d7%99%d7%a1%d7%95%d7%99-%d7%9c%d7%a9%d7%95%d7%9c%d7%97%d7%9f-12-%d7%a4%d7%99%d7%98/",
+   "price_ils": 220,
+   "in_stock": true,
+   "dimensions": "No dims (12 ft)",
+   "look": "Basic table cover",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/04/0cac07ee5946911ec85353b78c693ba2a497c0bb.png"
+  },
+  {
+   "type": "ball_set",
+   "name": "סט סנוקר 22 כדורים שנקאי 52 מ\"מ (2-1/16)",
+   "url": "https://www.playon.co.il/product/%d7%a1%d7%98-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-22-%d7%9b%d7%93%d7%95%d7%a8%d7%99%d7%9d-%d7%a9%d7%a0%d7%a7%d7%a8%d7%90%d7%99-52-%d7%9e%d7%9e-2-1-16/",
+   "price_ils": 280,
+   "in_stock": true,
+   "dimensions": "22 balls, 52 mm",
+   "look": "Budget full snooker set",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/04/3d6a9b5e4c1beac2fdfe79648569822ea187d8ae-scaled.jpg"
+  },
+  {
+   "type": "ball_set",
+   "name": "סט סנוקר 57 אינץ' 22 כדורים ארמיס",
+   "url": "https://www.playon.co.il/product/%d7%a1%d7%98-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-57-%d7%90%d7%99%d7%a0%d7%a6-22-%d7%9b%d7%93%d7%95%d7%a8%d7%99%d7%9d-%d7%90%d7%a8%d7%9e%d7%99%d7%a1/",
+   "price_ils": 690,
+   "in_stock": true,
+   "dimensions": "22 balls, '57' (site writes inch, means 57 mm)",
+   "look": "Aramith 22-ball snooker set",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/04/728f5760827fb3c50bcf9744c9a3b71a1afcd710.png"
+  },
+  {
+   "type": "ball_set",
+   "name": "סט סנוקר 52 אינץ' 22 כדורים ארמיס",
+   "url": null,
+   "price_ils": 650,
+   "in_stock": true,
+   "dimensions": "22 balls, '52' (site writes inch, means 52 mm)",
+   "look": "Aramith 22-ball snooker set",
+   "image": null
+  },
+  {
+   "type": "ball_set",
+   "name": "סט סנוקר 52 אינץ' 17 כדורים ארמיס",
+   "url": "https://www.playon.co.il/product/%d7%a1%d7%98-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-52-%d7%90%d7%99%d7%a0%d7%a6-17-%d7%9b%d7%93%d7%95%d7%a8%d7%99%d7%9d-%d7%90%d7%a8%d7%9e%d7%99%d7%a1/",
+   "price_ils": 580,
+   "in_stock": true,
+   "dimensions": "17 balls, 52",
+   "look": "Aramith 17-ball snooker set",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/04/19e6dd143beafe0d394409c2959f875d92f40842-scaled.jpg"
+  },
+  {
+   "type": "ball_set",
+   "name": "סט סנוקר 13 כדורים 52 מ\"מ (2-1/16) ארמיס",
+   "url": "https://www.playon.co.il/product/%d7%a1%d7%98-%d7%a1%d7%a0%d7%95%d7%a7%d7%a8-13-%d7%9b%d7%93%d7%95%d7%a8%d7%99%d7%9d-52-%d7%9e%d7%9e-2-1-16-%d7%90%d7%a8%d7%9e%d7%99%d7%a1-2/",
+   "price_ils": 430,
+   "in_stock": true,
+   "dimensions": "13 balls, 52 mm (another listing id 1394 at 530)",
+   "look": "Aramith 13-ball snooker set",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/04/23fcc80ae31f6c06a8a3bc22757ac8c4a38803cc-2.jpg"
+  },
+  {
+   "type": "ball_set",
+   "name": "סט כדורי פול אראמיט 2-1/4 (57 מ\"מ)",
+   "url": "https://www.playon.co.il/product/%d7%a1%d7%98-%d7%9b%d7%93%d7%95%d7%a8%d7%99-%d7%a4%d7%95%d7%9c-%d7%90%d7%a8%d7%9e%d7%99%d7%98-2-1-4-57-%d7%9e%d7%9e/",
+   "price_ils": 650,
+   "in_stock": true,
+   "dimensions": "57 mm pool balls",
+   "look": "Aramith (Belgium) pool ball set",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/07/e7f26db752cd4332d6a059f37ccb46cd234b5528-scaled.jpg"
+  },
+  {
+   "type": "ball_set",
+   "name": "סט פול 57 אינץ אראמיס קונטיננטל",
+   "url": "https://www.playon.co.il/product/%d7%a1%d7%98-%d7%a4%d7%95%d7%9c-57-%d7%90%d7%99%d7%a0%d7%a6-%d7%90%d7%a8%d7%9e%d7%99%d7%a1-%d7%a7%d7%95%d7%a0%d7%98%d7%99%d7%a0%d7%a0%d7%98%d7%9c/",
+   "price_ils": 560,
+   "in_stock": true,
+   "dimensions": "57",
+   "look": "Aramith Continental pool set",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/04/cdd66646e1266276e86ba162d345fc2ea29db697.png"
+  },
+  {
+   "type": "ball_set",
+   "name": "סט פול 52 אינץ ארמיס פרימייר",
+   "url": "https://www.playon.co.il/product/%d7%a1%d7%98-%d7%a4%d7%95%d7%9c-52-%d7%90%d7%99%d7%a0%d7%a6-%d7%90%d7%a8%d7%9e%d7%99%d7%a1-%d7%a4%d7%a8%d7%99%d7%9e%d7%99%d7%99%d7%a8/",
+   "price_ils": 580,
+   "in_stock": true,
+   "dimensions": "52",
+   "look": "Aramith Premier pool set",
+   "image": "https://www.playon.co.il/wp-content/uploads/2025/04/be95ffd75bb867a19433a958bf9e93f5fd80c7d4.png"
+  },
+  {
+   "type": "ball_set",
+   "name": "סט כדורי פול 52 מ\"מ (2-1/16)",
+   "url": null,
+   "price_ils": 220,
+   "in_stock": true,
+   "dimensions": "52 mm",
+   "look": "Budget pool ball set",
+   "image": null
+  },
+  {
+   "type": "ball_set",
+   "name": "סט פול 52 אינץ ארמיס קזינו (שני צבעים)",
+   "url": null,
+   "price_ils": 350,
+   "in_stock": true,
+   "dimensions": "52; two-colour set",
+   "look": "Aramith Casino two-colour set",
+   "image": null
+  }
+ ],
+ "accessories_not_sold": "Searched Store API for כיסא/כסא/כיסאות/בר/תאורה: the store sells no bar stools, chairs, bars or card-table chairs. Only one lamp model (3-shade, new + used). Also related: cue cases, cloths (PNS, Simonis), cushions rubber, triangles, chalk, brushes, posters.",
+ "images": {
+  "שולחן פוקר מתומן מתקפל ל8 שחקנים": [
+   "https://www.playon.co.il/wp-content/uploads/2025/04/שולחן-מעוגל_3.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/04/שולחן-מעוגל.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/04/שולחן-מעוגל_1.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/04/שולחן-מעוגל_2.jpg"
+  ],
+  "Regiis שולחן קלפים מקצועי ל10 שחקנים": [
+   "https://www.playon.co.il/wp-content/uploads/2025/04/אובלי-עץ-פרונט.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/04/אובלי-עץ-אלכסון.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/04/אובלי-עץ-פרונט-1.jpg",
+   "https://www.playon.co.il/wp-content/uploads/2025/04/אובלי-עץ-רוחב.jpg"
+  ],
+  "Legacy שולחן קלפים ושולחן אוכל מרובע דגם Rustic מעץ מאסיבי": [
+   "https://www.playon.co.il/wp-content/uploads/2025/04/מוצ822.jpg"
+  ]
+ },
+ "categories": [
+  {
+   "id": 117,
+   "name": "10 פיט",
+   "parent": 50,
+   "count": 2
+  },
+  {
+   "id": 116,
+   "name": "12 פיט",
+   "parent": 50,
+   "count": 5
+  },
+  {
+   "id": 111,
+   "name": "5 פיט",
+   "parent": 50,
+   "count": 1
+  },
+  {
+   "id": 112,
+   "name": "6 פיט",
+   "parent": 50,
+   "count": 1
+  },
+  {
+   "id": 113,
+   "name": "7 פיט",
+   "parent": 50,
+   "count": 9
+  },
+  {
+   "id": 114,
+   "name": "8 פיט",
+   "parent": 50,
+   "count": 5
+  },
+  {
+   "id": 115,
+   "name": "9 פיט",
+   "parent": 50,
+   "count": 7
+  },
+  {
+   "id": 45,
+   "name": "אביזרי ביליארד",
+   "parent": 102,
+   "count": 140
+  },
+  {
+   "id": 106,
+   "name": "אביזרי קלפים",
+   "parent": 104,
+   "count": 10
+  },
+  {
+   "id": 102,
+   "name": "ביליארד",
+   "parent": 0,
+   "count": 190
+  },
+  {
+   "id": 109,
+   "name": "טניס שולחן",
+   "parent": 47,
+   "count": 7
+  },
+  {
+   "id": 46,
+   "name": "יד שנייה",
+   "parent": 0,
+   "count": 4
+  },
+  {
+   "id": 40,
+   "name": "כללי",
+   "parent": 0,
+   "count": 103
+  },
+  {
+   "id": 43,
+   "name": "מוצרים חמים",
+   "parent": 0,
+   "count": 5
+  },
+  {
+   "id": 105,
+   "name": "מזוודות פוקר וז'יטונים",
+   "parent": 104,
+   "count": 16
+  },
+  {
+   "id": 103,
+   "name": "מקלות סנוקר ופול",
+   "parent": 102,
+   "count": 24
+  },
+  {
+   "id": 47,
+   "name": "משחקים אחרים",
+   "parent": 0,
+   "count": 17
+  },
+  {
+   "id": 145,
+   "name": "מתנפחים",
+   "parent": 0,
+   "count": 5
+  },
+  {
+   "id": 110,
+   "name": "מתקן חצים",
+   "parent": 47,
+   "count": 2
+  },
+  {
+   "id": 104,
+   "name": "קלפים ופוקר",
+   "parent": 0,
+   "count": 43
+  },
+  {
+   "id": 108,
+   "name": "שולחנות הוקי אוויר",
+   "parent": 47,
+   "count": 3
+  },
+  {
+   "id": 48,
+   "name": "שולחנות כדורגל",
+   "parent": 47,
+   "count": 7
+  },
+  {
+   "id": 50,
+   "name": "שולחנות סנוקר ופול",
+   "parent": 102,
+   "count": 30
+  },
+  {
+   "id": 49,
+   "name": "שולחנות פוקר וקלפים",
+   "parent": 104,
+   "count": 21
+  }
+ ]
+}

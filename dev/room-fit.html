@@ -187,11 +187,20 @@ button{font:inherit;color:inherit}
 /* 3D view */
 .viz{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 .viz-top{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--bar);color:var(--bar-ink)}
-.viz-top input{flex:1;min-width:0;background:rgb(255 255 255 / .08);border-color:rgb(255 255 255 / .15);color:var(--bar-ink)}
+.viz-top input{flex:1;min-width:0;background:transparent;border:0;border-bottom:1px solid transparent;border-radius:0;color:var(--bar-ink);font-family:var(--display);font-weight:700;font-size:1.15rem;padding:6px 2px;transition:border-color .2s}
+.viz-top input:hover,.viz-top input:focus{border-bottom-color:rgb(201 162 77 / .6);outline:none}
+.viz-top .brandmark{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:600;color:#c9a24d;letter-spacing:.02em;font-size:1.05rem;white-space:nowrap;opacity:.95}
 .viz-top input::placeholder{color:var(--bar-muted)}
 .viz-main{flex:1;min-height:0;display:flex;flex-direction:column}
 .viz-stage{flex:1;min-height:0;position:relative;margin:12px 16px 0;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#e9e4dc;touch-action:none}
 .viz-stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.viz-stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 95% at 50% 45%,transparent 62%,rgb(20 10 4 / .22) 100%);z-index:1}
+.viz-stage .dimlabels,.viz-stage .viz-views{z-index:2}
+.vizstyle summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:.9rem;padding:4px 0}
+.vizstyle summary::-webkit-details-marker{display:none}
+.vizstyle summary::after{content:"";width:8px;height:8px;border-inline-end:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-inline-end:4px;transition:transform .2s}
+.vizstyle[open] summary::after{transform:rotate(-135deg)}
+.vizstyle .opts{display:flex;flex-direction:column;gap:10px;padding-top:8px}
 .viz-msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;font-weight:700;color:#3a2a22}
 .viz-views{position:absolute;top:10px;inset-inline-start:10px;display:flex;gap:4px;background:rgb(255 255 255 / .9);padding:3px;border-radius:8px;box-shadow:0 2px 8px rgb(0 0 0 / .15)}
 .viz-views button{all:unset;cursor:pointer;color:#2a1712;font-weight:500;font-size:.82rem;padding:6px 10px;border-radius:6px}
@@ -211,7 +220,7 @@ button{font:inherit;color:inherit}
 .vizacts{display:grid;grid-template-columns:1.3fr 1fr;gap:8px}
 .sharebox{display:flex;flex-direction:column;gap:8px}
 .sharebox .row .btn{flex:1}
-.viewer #vizClose,.viewer .viz-bar .opt{display:none}
+.viewer #vizClose,.viewer .viz-bar .opt,.viewer .vizstyle{display:none}
 .viewer .viz-top input{pointer-events:none;background:transparent;border-color:transparent;font-family:var(--display);font-weight:700;font-size:1.1rem}
 .sw[aria-pressed="true"]{border-color:var(--accent);background:var(--sel);font-weight:700}
 
@@ -336,6 +345,7 @@ button{font:inherit;color:inherit}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
     </button>
     <input class="text" id="vizTitle" placeholder="שם הלקוח או המועדון" aria-label="שם הלקוח או המועדון">
+    <span class="brandmark" dir="ltr">Regiis</span>
   </div>
   <div class="viz-main">
     <div class="viz-stage" id="vizStage">
@@ -456,7 +466,7 @@ const SHAPES={
 
 /* ---------- projects: each one keeps a whole room and its look ---------- */
 const DEFAULT_ROOM=()=>({shape:"rect",L:600,W:450,a:180,b:140,custom:null,cols:[],tables:[],furn:[]});
-const DEFAULT_STYLE=()=>({felt:"green",floor:"wood",wall:"light",title:"",brand:"Regiis",dims:false});
+const DEFAULT_STYLE=()=>({felt:"green",floor:"herring",wall:"light",title:"",brand:"Regiis",dims:false});
 const newId=()=>"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const clone=o=>JSON.parse(JSON.stringify(o));
 let PROJ=store.get("tf-projects-v1",null);
@@ -628,7 +638,7 @@ function rayDist(x,y,dx,dy,self){
   for(const o of state.tables) if(o!==self) rectSegs(box(o.cx,o.cy,dims(o).O),"table");
   for(let i=0;i<P.length;i++) segs.push([P[i],P[(i+1)%P.length],"wall"]);
   for(const c of state.cols) if(c!==self) rectSegs(c,"wall");
-  for(const f of state.furn) if(f!==self) rectSegs(fBox(f),"wall");
+  for(const f of state.furn) if(f!==self) rectSegs(fBox(f),"furn");
   let best=Infinity,kind="wall";
   for(const [p,q,k] of segs){
     let d;
@@ -691,9 +701,9 @@ function furnIcon(type){
   const F=FURN[type], m=Math.max(F.w,F.h)*1.15;
   return `<svg viewBox="${-m/2} ${-m/2} ${m} ${m}">${furnShape(type,F.w,F.h,m/60)}</svg>`;
 }
-function findFurnSpot(f){
+function findFurnSpot(f,relax){
   const [w0,h0]=fDims(f), w=Math.ceil(w0/CELL), h=Math.ceil(h0/CELL);
-  const zones=state.tables.map(t=>box(t.cx,t.cy,dims(t).N));
+  const zones=state.tables.map(t=>relax?box(t.cx,t.cy,dims(t).O.map(v=>v+50)):box(t.cx,t.cy,dims(t).N));
   for(let j=0;j+h<=G.ny;j++) for(let i=0;i+w<=G.nx;i++){
     if(!freeRect(G,i,j,w,h)) continue;
     const b={x:i*CELL,y:j*CELL,w:w0,h:h0};
@@ -703,11 +713,54 @@ function findFurnSpot(f){
   }
   return null;
 }
+// Where a new piece goes: wall pieces back against a wall (the bar a step away for the bartender),
+// stools in front of the bar, a coffee table in front of the sofa, chairs by a high table; plants in corners.
+const WALLBACK={tv:0,cuerack:0,backbar:0,sofa:0,armchair:0,plant:0,bar:105};
+const ANCHOR={stool:"bar",coffee:"sofa",chair:"hightable"};
+function smartFurnSpot(f,relax){
+  const zones=state.tables.map(t=>relax?box(t.cx,t.cy,dims(t).O.map(v=>v+50)):box(t.cx,t.cy,dims(t).N));
+  const wantBack=WALLBACK[f.type], anchorType=ANCHOR[f.type];
+  const anchor=anchorType&&[...state.furn].reverse().find(o=>o.type===anchorType&&o!==f);
+  if(wantBack===undefined&&!anchor) return null;
+  const others=state.furn.filter(o=>o!==f);
+  let best=null; const step=2;
+  for(const rot of (wantBack!==undefined&&!FURN[f.type].round?[0,90,180,270]:[0])){
+    const [w0,h0]=(rot%180)?[f.h,f.w]:[f.w,f.h], w=Math.ceil(w0/CELL), h=Math.ceil(h0/CELL);
+    for(let j=0;j+h<=G.ny;j+=step) for(let i=0;i+w<=G.nx;i+=step){
+      if(!freeRect(G,i,j,w,h)) continue;
+      const b={x:i*CELL,y:j*CELL,w:w0,h:h0}; if(zones.some(z=>hit(z,b))) continue;
+      if(!inPoly(b.x+2,b.y+2,P)||!inPoly(b.x+b.w-2,b.y+b.h-2,P)||!inPoly(b.x+b.w-2,b.y+2,P)||!inPoly(b.x+2,b.y+b.h-2,P)) continue;
+      const cx=b.x+w0/2, cy=b.y+h0/2; let sc;
+      if(anchor){
+        const [aw,ah]=fDims(anchor), a=anchor.rot, fx=a===90?-1:a===270?1:0, fy=a===0?1:a===180?-1:0;     // the anchor's front
+        const bx0=anchor.cx+fx*(aw/2+h0/2+15), by0=anchor.cy+fy*(ah/2+h0/2+15), ux=-fy, uy=fx, half=Math.max(0,(fx?ah:aw)/2-25);
+        const tt=Math.max(-half,Math.min(half,(cx-bx0)*ux+(cy-by0)*uy)), tx=bx0+ux*tt, ty=by0+uy*tt;
+        sc=Math.hypot(cx-tx,cy-ty)+others.filter(o=>o.type===f.type).reduce((s2,o)=>s2+Math.max(0,55-Math.hypot(o.cx-cx,o.cy-cy))*3,0);
+      } else {
+        const back=rot===0?[cx,b.y,0,-1]:rot===90?[b.x+w0,cy,1,0]:rot===180?[cx,b.y+h0,0,1]:[b.x,cy,-1,0];
+        const r=rayDist(back[0],back[1],back[2],back[3],f); if(!isFinite(r.d)) continue;
+        if(r.kind!=="wall"&&!(f.type==="bar"&&r.kind==="furn")) continue;
+        sc=Math.abs(r.d-(r.kind==="furn"?65:wantBack))*4;
+        if(f.type==="plant"){ const corner=Math.min(...P.map(([px,py])=>Math.hypot(px-cx,py-cy))); sc+=corner; }
+        else { const mid=(rot%180)?Math.abs(cy-G.maxY/2):Math.abs(cx-G.maxX/2); sc+=mid*.15; }
+        sc+=others.reduce((s2,o)=>s2+Math.max(0,120-Math.hypot(o.cx-cx,o.cy-cy)),0);
+        const mate={bar:"backbar",backbar:"bar"}[f.type], m=mate&&others.find(o=>o.type===mate);   // bar and back bar face each other
+        if(m) sc+=Math.hypot(m.cx-cx,m.cy-cy)*.9+(m.rot===rot?0:400);
+      }
+      if(!best||sc<best.sc) best={sc,cx,cy,rot};
+    }
+  }
+  return best;
+}
 function addFurn(type){
   pushUndo(true);
   const F=FURN[type], f={type,cx:0,cy:0,w:F.w,h:F.h,rot:0};
-  const s=findFurnSpot(f);
-  if(s){f.cx=s.cx;f.cy=s.cy;} else {f.cx=G.maxX/2;f.cy=G.maxY/2; toast("לא מצאתי מקום פנוי מחוץ לאזורי המשחק. גררו את הפריט למקום מתאים.");}
+  let sm=smartFurnSpot(f), s=sm||findFurnSpot(f), tight=false;
+  if(sm&&ANCHOR[type]&&sm.sc>120){ const r=smartFurnSpot(f,true); if(r&&r.sc<sm.sc-40){ sm=s=r; tight=true; } }
+  if(!s){ sm=smartFurnSpot(f,true); s=sm||findFurnSpot(f,true); tight=!!s; }
+  if(sm) f.rot=sm.rot;
+  if(s){f.cx=s.cx;f.cy=s.cy; if(tight) toast(`${F.name} נכנס רק בתוך מרחב המשחק של שולחן. כדאי לבדוק את המיקום.`);}
+  else {f.cx=G.maxX/2;f.cy=G.maxY/2; toast("אין מקום פנוי לפריט הזה. גררו אותו למקום מתאים.");}
   state.furn.push(f); P=roomPoints(); G=buildGrid(P);
   select({type:"f",o:f});
 }
@@ -786,7 +839,11 @@ function drawPlan(){
     :`<line x1="${-pad}" y1="${g.y}" x2="${maxX+pad}" y2="${g.y}" stroke="var(--accent)" stroke-width="${sw*.7}" stroke-dasharray="${sw*3} ${sw*2}" pointer-events="none"/>`).join("");
   svg.innerHTML=
     `<rect x="${-pad*4}" y="${-pad*4}" width="${maxX+pad*8}" height="${maxY+pad*8}" fill="transparent"/>`+
-    `<path d="M${P.map(q=>q.join(" ")).join("L")}Z" fill="var(--floor)" stroke="var(--ink)" stroke-width="${sw*2.2}" stroke-linejoin="round"/>`+
+    `<path d="M${P.map(q=>q.join(" ")).join("L")}Z" fill="var(--floor)" stroke="none"/>`+
+    // a faint one-metre grid inside the room, like an architect's sheet
+    `<clipPath id="roomClip"><path d="M${P.map(q=>q.join(" ")).join("L")}Z"/></clipPath><g clip-path="url(#roomClip)" stroke="var(--line)" stroke-width="${sw*.6}" opacity=".7" pointer-events="none">${
+      Array.from({length:Math.floor(maxX/100)},(_,i)=>`<line x1="${(i+1)*100}" y1="0" x2="${(i+1)*100}" y2="${maxY}"/>`).join("")+Array.from({length:Math.floor(maxY/100)},(_,i)=>`<line x1="0" y1="${(i+1)*100}" x2="${maxX}" y2="${(i+1)*100}"/>`).join("")}</g>`+
+    `<path d="M${P.map(q=>q.join(" ")).join("L")}Z" fill="none" stroke="var(--ink)" stroke-width="${sw*2.2}" stroke-linejoin="round" pointer-events="none"/>`+
     (cur.bg&&cur.bg.show?`<image href="${bgHref()}" x="0" y="0" width="${maxX}" height="${maxY}" preserveAspectRatio="none" opacity="${cur.bg.op??.45}" pointer-events="none"/>`:"")+
     zones+tables+furnSvg+
     state.cols.map((c,i)=>`<rect data-col="${i}" x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" fill="var(--pillar)" stroke="${c===selC?"var(--accent)":"transparent"}" stroke-width="${c===selC?sw*2:sw*10}" style="cursor:grab"/>`).join("")+
@@ -902,7 +959,12 @@ function tablePlan(t,o,p,sw){
       (lw?`<line x1="${o.x+i}" y1="${cy}" x2="${o.x+o.w-i}" y2="${cy}" stroke="#fff" stroke-width="${sw*.4}"/><line x1="${cx}" y1="${o.y-sw*2}" x2="${cx}" y2="${o.y+o.h+sw*2}" stroke="#e8e8e8" stroke-width="${sw*1.6}"/>`
          :`<line x1="${cx}" y1="${o.y+i}" x2="${cx}" y2="${o.y+o.h-i}" stroke="#fff" stroke-width="${sw*.4}"/><line x1="${o.x-sw*2}" y1="${cy}" x2="${o.x+o.w+sw*2}" y2="${cy}" stroke="#e8e8e8" stroke-width="${sw*1.6}"/>`); }
   if(t.kind==="poker"){ const sh=t.sh||"oval"; return planShape(sh,o,`fill="#1a1716"`,sw)+planShape(sh,p,`fill="${t.fin==="black"?"#2c2c2c":"#1f6b3c"}"`,sw); }
-  return `<rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*2.5}" fill="var(--wood)"/><rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" fill="var(--felt)"/>`;
+  const sh=`<rect x="${o.x+sw*1.2}" y="${o.y+sw*1.8}" width="${o.w}" height="${o.h}" rx="${sw*3}" fill="#000" opacity=".12"/>`;
+  let pk="";
+  if(t.kind==="cue"){ const r=Math.min(6.5,Math.min(p.w,p.h)*.06), lw=p.w>=p.h;
+    const pts=[[p.x,p.y],[p.x+p.w,p.y],[p.x,p.y+p.h],[p.x+p.w,p.y+p.h], lw?[p.x+p.w/2,p.y-r*.3]:[p.x-r*.3,p.y+p.h/2], lw?[p.x+p.w/2,p.y+p.h+r*.3]:[p.x+p.w+r*.3,p.y+p.h/2]];
+    pk=pts.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#160b07"/>`).join(""); }
+  return sh+`<rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*2.5}" fill="var(--wood)"/><rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" fill="var(--felt)"/>`+pk;
 }
 function newTable(it){ const t={name:it.name,kind:it.kind,L:it.L,W:it.W,cx:0,cy:0,rot:false}; if(it.fin) t.fin=it.fin; if(it.sh) t.sh=it.sh; return t; }
 function addTable(it){
@@ -912,6 +974,16 @@ function addTable(it){
   if(s){t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; toast(`נוסף ${it.name}`);}
   else { t.cx=G.maxX/2; t.cy=G.maxY/2; t.rot=G.maxX<G.maxY; toast("אין מקום פנוי במרחקים שקבעתם"); }
   select({type:"t",o:t});
+}
+// Packing starts in a corner; slide the whole group toward the middle as far as the room allows, so the margins are even.
+function centerTables(ts){
+  const bb=ts.map(t=>box(t.cx,t.cy,dims(t).O)), x0=Math.min(...bb.map(b=>b.x)), x1=Math.max(...bb.map(b=>b.x+b.w)), y0=Math.min(...bb.map(b=>b.y)), y1=Math.max(...bb.map(b=>b.y+b.h));
+  const ok=(dx,dy)=>ts.every(t=>gridFree(G,box(t.cx+dx,t.cy+dy,dims(t).N)));
+  const tx=(G.maxX-(x1-x0))/2-x0, ty=(G.maxY-(y1-y0))/2-y0;
+  let bx=0,by=0;
+  for(let k=20;k>=0;k--){ const dx=Math.round(tx*k/20); if(ok(dx,0)){ bx=dx; break; } }
+  for(let k=20;k>=0;k--){ const dy=Math.round(ty*k/20); if(ok(bx,dy)){ by=dy; break; } }
+  ts.forEach(t=>{ t.cx+=bx; t.cy+=by; });
 }
 // Tables already in the room stay where they are; the chosen table fills only the free floor around them.
 function fillRoom(it){
@@ -923,6 +995,7 @@ function fillRoom(it){
     if(state.tables.length>bestSet.length) bestSet=state.tables;
   }
   state.tables=bestSet;
+  if(!keep.length&&bestSet.length) centerTables(bestSet);
   select(null);
   const n=state.tables.length-keep.length;
   toast(n?(keep.length?`נוספו ${n} × ${it.name} לצד ${keep.length} השולחנות שכבר בחדר`:`נכנסו ${n} × ${it.name}`):(keep.length?`אין מקום פנוי ל${it.name} נוסף`:"לא נכנס אף שולחן. נסו מרחקים קטנים יותר."));
@@ -1252,8 +1325,8 @@ async function analyzeSketch(){
 }
 
 /* ---------- 3D visualization ---------- */
-const FELTS={green:["ירוק",0x2fae1f],dgreen:["ירוק כהה",0x1d6b3a],blue:["כחול",0x1f4f8f],red:["בורדו",0x7d1c2a],grey:["אפור",0x5b6369]};
-const FLOORS={wood:["פרקט",0xa0703f],carpet:["שטיח",0x4a2a30],stone:["בטון",0x9c9a94]};
+const FELTS={green:["ירוק",0x23893a],dgreen:["ירוק כהה",0x1d6b3a],blue:["כחול",0x1f4f8f],red:["בורדו",0x7d1c2a],grey:["אפור",0x5b6369]};
+const FLOORS={herring:["פרקט אגוז",0x6b4428],wood:["פרקט",0xa0703f],carpet:["שטיח",0x4a2a30],stone:["בטון",0x9c9a94]};
 const WALLS={light:["בהיר",0xe6e1d8],dark:["כהה",0x34393d],green:["ירוק כהה",0x23382f]};
 let THREE=null, V=null;
 function loadThree(){
@@ -1285,7 +1358,8 @@ function renderVizBar(){
   const bar=$("vizBar");
   const row=(label,map,key)=>`<div class="opt"><span>${label}</span>${Object.entries(map).map(([k,[n,c]])=>
     `<button type="button" class="sw" data-k="${key}" data-v="${k}" aria-pressed="${STYLE[key]===k}"><i style="background:#${c.toString(16).padStart(6,"0")}"></i>${n}</button>`).join("")}</div>`;
-  bar.innerHTML=row("צבע הבד",FELTS,"felt")+row("רצפה",FLOORS,"floor")+row("קירות",WALLS,"wall")+
+  const was=document.querySelector(".vizstyle"), open=was?was.open:isWide();
+  bar.innerHTML=`<details class="vizstyle" ${open?"open":""}><summary>עיצוב החדר</summary><div class="opts">`+row("צבע הבד",FELTS,"felt")+row("רצפה",FLOORS,"floor")+row("קירות",WALLS,"wall")+`</div></details>`+
     `<div class="vizacts"><button type="button" class="btn solid" id="vizShare">שליחת ההדמיה ללקוח</button><button type="button" class="btn" id="vizSave">שמירה כתמונה</button></div>
      ${VIEWER?`<button type="button" class="link" id="vizImport">שמירה כפרויקט שלי</button>`:""}
      <div class="sharebox" id="shareBox" hidden><input class="text" id="shareUrl" readonly dir="ltr" aria-label="קישור להדמיה"><div class="row"><button type="button" class="btn" id="shareCopy">העתקה</button><a class="btn" id="shareWa" target="_blank" rel="noopener">וואטסאפ</a></div></div>`;
@@ -1386,8 +1460,24 @@ function setView(v){
   const narrow=Math.max(1,1.15/a);
   if(v==="top"){ o.phi=.03; o.theta=0; o.r=fitTop; }
   else if(v==="eye"){ o.phi=1.38; o.theta=.5; o.r=s*.62*Math.sqrt(narrow); }
-  else { o.phi=.95; o.theta=.65; o.r=s*1.2*Math.sqrt(narrow); }
+  else { o.phi=.95; o.theta=.65; o.r=s*1.2*Math.sqrt(narrow);
+    if(a<.85){ o.phi=.78; o.theta=(V.mx>V.my?Math.PI/2:0)+.32; }   // tall screen: the long side runs into the picture, seen a little more from above
+  }
   markView(v); applyCam();
+  if(v==="angle"||v==="top") fitRoom(v==="top"?.9:.92);
+}
+// Pull the camera in or out until the whole floor (and the wall tops) just fits the picture, on any screen shape.
+function fitRoom(margin){
+  const o=V.orbit, pts=[], v=new THREE.Vector3(), hx=V.mx/2, hz=V.my/2;
+  for(const [x,z] of [[-hx,-hz],[hx,-hz],[hx,hz],[-hx,hz]]) for(const y of [0,o.phi>.2?120:0]) pts.push([x,y,z]);
+  const fits=r=>{ o.r=r; applyCamQuiet(); return pts.every(([x,y,z])=>{ v.set(x,y,z).project(V.cam); return Math.abs(v.x)<=margin&&Math.abs(v.y)<=margin&&v.z<1; }); };
+  let lo=V.size*.2, hi=V.size*6; for(let i=0;i<22;i++){ const mid=(lo+hi)/2; if(fits(mid)) hi=mid; else lo=mid; }
+  o.r=hi; applyCam();
+}
+function applyCamQuiet(){
+  const o=V.orbit, c=V.cam, ty=V.view==="eye"?110:40;
+  c.position.set(o.tx+o.r*Math.sin(o.phi)*Math.sin(o.theta), ty+o.r*Math.cos(o.phi), o.tz+o.r*Math.sin(o.phi)*Math.cos(o.theta));
+  c.lookAt(o.tx,ty*.6,o.tz); c.updateMatrixWorld();
 }
 function lampsFor(){ const show=V.orbit.phi>.35; if(V.lampsOn!==show){ V.lampsOn=show; V.shadowDirty=true; } (V.lamps||[]).forEach(l=>l.visible=show); }
 function applyCam(){
@@ -1405,8 +1495,15 @@ function labelSpots(){
   if(!STYLE.dims||!V.dimLabels) return [];
   const st=$("vizStage"), w=st.clientWidth, h=st.clientHeight, v=new THREE.Vector3(), out=[];
   for(const L of V.dimLabels){ v.set(L.x,L.y,L.z).project(V.cam); if(v.z>1||v.z<-1) continue;
-    const sx=(v.x+1)/2*w, sy=(1-v.y)/2*h; if(sx<-40||sx>w+40||sy<-20||sy>h+20) continue; out.push({...L,sx,sy}); }
-  return out;
+    const sx=(v.x+1)/2*w, sy=(1-v.y)/2*h; if(sx<-40||sx>w+40||sy<-20||sy>h+20) continue; out.push({...L,sx,sy,z:v.z}); }
+  // never let labels pile up: room size first, then table sizes, then distances (nearest to the camera first); a label that would touch one already shown is left out
+  const rank={room:0,size:1}, kept=[];
+  out.sort((a,b)=>(rank[a.cls]??2)-(rank[b.cls]??2)||a.z-b.z);
+  for(const o of out){ const bw=(o.cls==="room"?o.t.length*6:o.t.length*6.6+16)/2+3, bh=11+2;
+    const r={x0:o.sx-bw,x1:o.sx+bw,y0:o.sy-bh,y1:o.sy+bh};
+    if(kept.some(k=>r.x0<k.r.x1&&r.x1>k.r.x0&&r.y0<k.r.y1&&r.y1>k.r.y0)) continue;
+    o.r=r; kept.push(o); }
+  return kept;
 }
 function placeLabels(){
   const box=$("dimLabels"); if(!box) return;
@@ -1466,6 +1563,16 @@ function floorTexture(kind){
           g.beginPath(); g.moveTo(x,y); for(let k=0;k<=pw;k+=16) g.lineTo(x+k,y+Math.sin(k/60+i)*1.6); g.stroke(); }
         g.globalAlpha=1; g.strokeStyle="rgba(45,25,10,.55)"; g.lineWidth=1.4; g.strokeRect(x+.5,r*ph+.5,pw,ph); } }
   },1/320,1/320);
+  if(kind==="herring") return canvasTex("floor-chevron",1024,1024,(g,w,h)=>{
+    // walnut chevron parquet: 8 columns of 20 cm, planks 8 cm deep, alternating direction
+    const cw=w/8, ph=h/20, sk=cw*.55;
+    for(let c=0;c<8;c++) for(let r=-2;r<22;r++){ const x0=c*cw, y=r*ph, up=c%2===0, t=rnd();
+      const col=[78+t*42|0,48+t*26|0,28+t*16|0];
+      const pts=up?[[x0,y],[x0+cw,y-sk],[x0+cw,y-sk+ph],[x0,y+ph]]:[[x0,y-sk],[x0+cw,y],[x0+cw,y+ph],[x0,y-sk+ph]];
+      for(const dy of [0,h]){ g.beginPath(); pts.forEach(([px,py],i)=>i?g.lineTo(px,py-dy):g.moveTo(px,py-dy)); g.closePath(); g.fillStyle=`rgb(${col})`; g.fill();
+        g.save(); g.clip(); for(let i=0;i<7;i++){ g.globalAlpha=.07+rnd()*.1; g.strokeStyle=rnd()<.6?"#2a160a":"#c08a58"; g.lineWidth=.6+rnd()*1.4; const yy=y-dy+rnd()*ph; g.beginPath(); g.moveTo(x0,yy+(up?0:-sk)); g.lineTo(x0+cw,yy+(up?-sk:0)); g.stroke(); } g.restore();
+        g.globalAlpha=1; g.strokeStyle="rgba(20,10,4,.6)"; g.lineWidth=1.3; g.stroke(); } }
+  },1/160,1/160);
   if(kind==="carpet") return noiseTex("floor-carpet","#4a2a30",30,512,1/120);
   return canvasTex("floor-stone",1024,1024,(g,w,h)=>{ g.fillStyle="#9c9a94"; g.fillRect(0,0,w,h);
     for(let i=0;i<60;i++){ const x=rnd()*w,y=rnd()*h,r=40+rnd()*160, gr=g.createRadialGradient(x,y,1,x,y,r); const d=rnd()<.5; gr.addColorStop(0,d?"rgba(60,58,54,.12)":"rgba(255,255,250,.10)"); gr.addColorStop(1,"rgba(0,0,0,0)"); g.fillStyle=gr; g.fillRect(x-r,y-r,2*r,2*r); }
@@ -1774,17 +1881,34 @@ function buildScene(){
 
   // floor
   const shape=new THREE.Shape(Pp.map(p=>new THREE.Vector2(X(p[0]),Z(p[1]))));
-  const fl=new THREE.Mesh(new THREE.ShapeGeometry(shape),M(0xffffff,{map:floorTexture(STYLE.floor),side:THREE.DoubleSide,roughness:STYLE.floor==="wood"?.42:STYLE.floor==="carpet"?.98:.7,envMapIntensity:STYLE.floor==="wood"?.6:.25}));
+  const fl=new THREE.Mesh(new THREE.ShapeGeometry(shape),M(0xffffff,{map:floorTexture(STYLE.floor),side:THREE.DoubleSide,roughness:STYLE.floor==="wood"?.42:STYLE.floor==="herring"?.46:STYLE.floor==="carpet"?.98:.7,envMapIntensity:STYLE.floor==="wood"||STYLE.floor==="herring"?.6:.25}));
   fl.rotation.x=Math.PI/2; fl.receiveShadow=true; S.add(fl);
   // walls: one-sided, facing inward, so the walls nearest the camera disappear (doll-house view)
   const wm=M(wallC,{side:THREE.FrontSide,roughness:.92,map:noiseTex("wall",STYLE.wall==="light"?"#ffffff":"#bbbbbb",10,256,1/90),envMapIntensity:.3});
   const base=M(STYLE.wall==="light"?0x5a2a1c:0x0d0b0a,{side:THREE.FrontSide,roughness:.4});
+  const paintedW=STYLE.wall==="light";
+  const wainsTex=canvasTex(paintedW?"wains-paint":"wains-wood",512,436,(g,w,h)=>{
+    const base=paintedW?"#efe9df":"#3b1d10", lite=paintedW?"rgba(255,255,255,.9)":"rgba(160,96,58,.55)", dark=paintedW?"rgba(120,104,84,.35)":"rgba(10,4,2,.6)";
+    g.fillStyle=base; g.fillRect(0,0,w,h);
+    if(!paintedW) for(let i=0;i<60;i++){ g.globalAlpha=.06+rnd()*.08; g.strokeStyle=rnd()<.5?"#1a0b05":"#7a4426"; g.lineWidth=1+rnd()*2; const y=rnd()*h; g.beginPath(); g.moveTo(0,y); g.bezierCurveTo(w*.3,y+6,w*.6,y-6,w,y); g.stroke(); }
+    g.globalAlpha=1; const m=46, mx2=w-m, my2=h-m;
+    g.fillStyle=dark; g.fillRect(m-4,m-4,mx2-m+8,6); g.fillRect(m-4,m-4,6,my2-m+8);
+    g.fillStyle=lite; g.fillRect(m-4,my2-2,mx2-m+8,6); g.fillRect(mx2-2,m-4,6,my2-m+8);
+    g.fillStyle=lite; g.fillRect(m+10,m+10,mx2-m-20,3); g.fillRect(m+10,m+10,3,my2-m-20);
+    g.fillStyle=dark; g.fillRect(m+10,my2-13,mx2-m-20,3); g.fillRect(mx2-13,m+10,3,my2-m-20);
+  });
+  wainsTex.wrapS=THREE.RepeatWrapping;
+  const chairRail=M(paintedW?0xf7f3ec:0x5a2c18,{roughness:paintedW?.45:.28,side:THREE.FrontSide,emissive:new THREE.Color(paintedW?0x222018:0x120804)});
   for(let i=0;i<Pp.length;i++){
     const a=Pp[i], b=Pp[(i+1)%Pp.length], dx=b[0]-a[0], dz=b[1]-a[1], len=Math.hypot(dx,dz); if(len<1) continue;
     let nx=-dz/len, nz=dx/len; const mxp=(a[0]+b[0])/2, mzp=(a[1]+b[1])/2;
     if(!inPoly(mxp+nx*3,mzp+nz*3,Pp)){nx=-nx;nz=-nz;}
     const w=new THREE.Mesh(new THREE.PlaneGeometry(len+1,H),wm); w.position.set(X(mxp),H/2,Z(mzp)); w.rotation.y=Math.atan2(nx,nz); w.receiveShadow=true; S.add(w);
     const bb=new THREE.Mesh(new THREE.BoxGeometry(len+1,12,1.6),base); bb.position.set(X(mxp)+nx*.8,6,Z(mzp)+nz*.8); bb.rotation.y=w.rotation.y; bb.receiveShadow=true; S.add(bb);
+    // panelled wainscoting up to 110 cm with a chair rail (walnut on dark walls, painted on light ones)
+    const wt=wainsTex.clone(); wt.needsUpdate=true; wt.repeat.set(Math.max(1,Math.round(len/115)),1); wt.wrapS=THREE.RepeatWrapping;
+    const wp=new THREE.Mesh(new THREE.PlaneGeometry(len,98),M(0xffffff,{map:wt,roughness:STYLE.wall==="light"?.55:.35,side:THREE.FrontSide})); wp.position.set(X(mxp)+nx*.5,12+49,Z(mzp)+nz*.5); wp.rotation.y=w.rotation.y; wp.receiveShadow=true; S.add(wp);
+    const cr=new THREE.Mesh(new THREE.PlaneGeometry(len,4.5),chairRail); cr.position.set(X(mxp)+nx*1.6,110,Z(mzp)+nz*1.6); cr.rotation.y=w.rotation.y; cr.receiveShadow=true; S.add(cr);
   }
   for(const c of state.cols){ add(rbox(c.w,H,c.h,1.5,.5),M(0xd8d4cc,{roughness:.85}),X(c.x+c.w/2),H/2,Z(c.y+c.h/2)); }
 
