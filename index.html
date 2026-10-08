@@ -156,12 +156,15 @@ button{font:inherit;color:inherit}
 <div class="app" dir="rtl">
   <header class="top">
     <div>
-      <h1>איזה שולחן נכנס לחדר?</h1>
+      <h1>שולחן לחדר</h1>
       <p class="sum" id="summary"></p>
     </div>
     <div class="topbtns">
     <button type="button" class="iconbtn solid" id="vizOpen">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M12 3 3 8l9 5 9-5z"/><path d="M3 8v8l9 5 9-5V8"/><path d="M12 13v8"/></svg>הדמיה
+    </button>
+    <button type="button" class="iconbtn" id="themeBtn" aria-label="מצב כהה או בהיר">
+      <svg id="themeIco" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"></svg>
     </button>
     <button type="button" class="iconbtn" id="undo" disabled aria-label="ביטול הפעולה האחרונה">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 14l5-5-5-5"/><path d="M20 9H9a5 5 0 0 0 0 10h4"/></svg>
@@ -1120,6 +1123,21 @@ async function saveVizImage(){
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.append(a); a.click(); a.remove();
 }
 
+/* ---------- light / dark ---------- */
+const MOON='<path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z"/>';
+const SUN='<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/>';
+function isDark(){ const t=document.documentElement.dataset.theme; return t?t==="dark":matchMedia("(prefers-color-scheme: dark)").matches; }
+function applyTheme(t){
+  if(t) document.documentElement.dataset.theme=t;
+  const d=isDark();
+  $("themeIco").innerHTML=d?SUN:MOON;
+  $("themeBtn").setAttribute("aria-label",d?"מעבר למצב בהיר":"מעבר למצב כהה");
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content",d?"#121815":"#1f6b4a");
+}
+applyTheme(store.get("tf-theme",null));
+$("themeBtn").onclick=()=>{ const t=isDark()?"light":"dark"; store.set("tf-theme",t); applyTheme(t); };
+matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change",()=>applyTheme());
+
 /* ---------- start ---------- */
 P=roomPoints(); G=buildGrid(P);
 if(firstRun){
@@ -1134,7 +1152,7 @@ drawPlan();
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="8";
+const APP_VERSION="9";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
