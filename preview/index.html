@@ -2544,7 +2544,7 @@ function sandbox(room,fn){
   finally{ Object.assign(state,JSON.parse(save)); Object.assign(GAP,g0); P=roomPoints(); G=buildGrid(P); }
 }
 // Try several packing orders; most tables wins, and among equals the tidier one (all turned the same way, compact block).
-function packTables(it,limit=100){
+function packTables(it,limit=100,center=true){
   const keep=state.tables.slice(); let best=keep, bestSc=-Infinity;
   const tidy=ts=>{ const nw=ts.slice(keep.length); if(!nw.length) return 0; const bb=nw.map(t=>box(t.cx,t.cy,dims(t).O));
     const area=(Math.max(...bb.map(b=>b.x+b.w))-Math.min(...bb.map(b=>b.x)))*(Math.max(...bb.map(b=>b.y+b.h))-Math.min(...bb.map(b=>b.y)));
@@ -2555,7 +2555,7 @@ function packTables(it,limit=100){
     const sc=state.tables.length*1e6+tidy(state.tables);
     if(sc>bestSc){ bestSc=sc; best=state.tables; }
   }
-  state.tables=best; if(!keep.length&&best.length) centerTables(best);
+  state.tables=best; if(center==="all"||(center&&!keep.length&&best.length)) centerTables(best);
   return best.length-keep.length;
 }
 function addQuiet(type){ const F=FURN[type], f={type,cx:0,cy:0,w:F.w,h:F.h,rot:0}; const s=smartFurnSpot(f); if(!s) return false; f.rot=s.rot; f.cx=s.cx; f.cy=s.cy; state.furn.push(f); G=buildGrid(P); return true; }
@@ -2565,31 +2565,45 @@ function addLounge(bar){ let n=0; if(bar){ if(addQuiet("backbar")) n++; if(addQu
 function makeProposals(q){
   const upright=!isWide()&&innerHeight>innerWidth*1.15&&q.L>q.W*1.15&&(q.shape||"rect")==="rect";
   const room={shape:q.shape||"rect",L:upright?q.W:q.L,W:upright?q.L:q.W,a:Math.round(q.L*.3),b:Math.round(q.W*.3)};
-  const purpose=q.purpose||(q.L*q.W>=900*700?"pool":"home"), lim=q.count||100, props=[];
+  const purpose=q.purpose||(q.count>1||q.L*q.W>=900*700?"pool":"home"), lim=q.count||100, props=[];
+  const left=()=>Math.max(0,lim-state.tables.length);   // a stated number of tables is the most tables any proposal gets
   const cue=k=>advItem(k);
-  const add=(title,note,fn)=>{ const r=sandbox(room,fn); if(r.room.tables.length) props.push({title,note,...r}); };
+  // a proposal only counts if it really holds what its name promises (need: the kinds of table it must contain)
+  const add=(title,note,fn,need=[])=>{ const r=sandbox(room,fn); if(!r.room.tables.length) return; const has=k=>r.room.tables.some(t=>k==="snk"?t.kind==="cue"&&t.L>330:k==="pool"?t.kind==="cue"&&t.L<=330:t.kind===k);
+    if(need.some(k=>Array.isArray(k)?!k.some(has):!has(k))) return; props.push({title:describeLayout(r.room)||title,concept:title,note,...r}); };
   const sizeKey=q.ft>=12?"s12":q.ft>=10?"s10":q.ft===9?"p9":q.ft===8?"p8":q.ft===7?"p7":null;
   if(purpose==="snooker"){
     add("מועדון סנוקר מלא","כמה שיותר שולחנות 12 פיט במרחקי משחק מלאים",()=>{ packTables(cue(sizeKey||"s12"),lim); if(q.bar||q.lounge) addLounge(q.bar); });
     add("סנוקר עם בר ולאונג'","פחות שולחן אחד, ובמקומו פינת ישיבה ובר",()=>{ const n=sandboxCount(room,cue(sizeKey||"s12")); packTables(cue(sizeKey||"s12"),Math.max(1,Math.min(lim,n-1))); addLounge(true); });
-    add("סנוקר ופול משולב","שולחנות 12 פיט ולצידם 9 פיט",()=>{ packTables(cue("s12"),Math.max(1,Math.floor(Math.min(lim,sandboxCount(room,cue("s12")))/2))); packTables(cue("p9"),lim); if(q.bar) addLounge(true); });
+    add("סנוקר ופול משולב","שולחנות 12 פיט ולצידם 9 פיט",()=>{ packTables(cue("s12"),Math.max(1,Math.floor(Math.min(lim,sandboxCount(room,cue("s12")))/2)),false); packTables(cue("p9"),left(),"all"); if(q.bar) addLounge(true); },["snk","pool"]);
   } else if(purpose==="poker"){
-    add("מועדון פוקר","שולחנות פוקר ל-10 שחקנים, מטר פנוי מכל צד",()=>{ GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("poker"),lim); if(q.bar||q.lounge) addLounge(q.bar); });
-    add("פוקר וביליארד","שולחן ביליארד אחד, וסביבו שולחנות פוקר",()=>{ packTables(cue("p9"),1); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("poker"),lim); addLounge(q.bar); });
-    add("פוקר עם בר ולאונג'","שולחנות פוקר, בר, ספה ומסך",()=>{ GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); addLounge(true); packTables(cue("poker"),lim); });
+    add("מועדון פוקר","שולחנות פוקר ל-10 שחקנים, מטר פנוי מכל צד",()=>{ GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("poker"),lim); if(q.bar||q.lounge) addLounge(q.bar); },["poker"]);
+    add("פוקר וביליארד","שולחן ביליארד אחד, וסביבו שולחנות פוקר",()=>{ packTables(cue("p9"),1,false); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("poker"),left(),"all"); addLounge(q.bar); },["cue","poker"]);
+    if(q.pong) add("פוקר ופינג פונג","שולחנות פוקר ושולחן טניס",()=>{ GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("pong"),1,false); packTables(cue("poker"),left(),"all"); },["pong","poker"]);
+    add("פוקר עם בר ולאונג'","שולחנות פוקר, בר, ספה ומסך",()=>{ GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); addLounge(true); packTables(cue("poker"),lim); },["poker"]);
   } else if(purpose==="pool"){
     const k=sizeKey||"p9";
     add(`מועדון ביליארד ${PLAYON.find(r=>r[0]===ADV_PICK[k])?.[0]||""}`,"כמה שיותר שולחנות במרחקי משחק מלאים",()=>{ packTables(cue(k),lim); if(q.bar||q.lounge) addLounge(q.bar); });
     add("ביליארד עם בר ולאונג'","פחות שולחן אחד, ובמקומו בר וישיבה",()=>{ const n=sandboxCount(room,cue(k)); packTables(cue(k),Math.max(1,Math.min(lim,n-1))); addLounge(true); });
-    add("ביליארד ומשחקים","שולחנות ביליארד, ולצידם כדורגל והוקי אוויר",()=>{ const n=sandboxCount(room,cue(k)); packTables(cue(k),Math.max(1,Math.min(lim,n-1))); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("foos"),2); packTables(cue("air"),1); if(q.bar) addLounge(true); });
+    add("ביליארד ומשחקים","שולחנות ביליארד, ולצידם כדורגל והוקי אוויר",()=>{ const n=sandboxCount(room,cue(k)); packTables(cue(k),Math.max(1,Math.min(lim,n-1)),false); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("foos"),Math.min(2,left()),false); packTables(cue("air"),Math.min(1,left()),"all"); if(q.bar) addLounge(true); },["cue",["foos","air"]]);
   } else {
-    const main=["p9","p8","p7"].find(k=>sandboxCount(room,cue(k))>0)||"p7", k=sizeKey||main;
+    const main=["p9","p8","p7"].find(k=>sandboxCount(room,cue(k))>0), k=sizeKey||main||"p7";
+    if(!main){ for(const gap of [120,100]){ const g0={...GAP}; GAP.wall=Math.min(GAP.wall,gap); GAP.table=Math.min(GAP.table,gap);
+        const ok=sandboxCount(room,cue("p7"))>0; Object.assign(GAP,g0);
+        if(ok){ add("ביליארד 7 פיט במרחק קצר",`במרחק ${gap} ס״מ מהקיר – מתאים למקל קצר`,()=>{ GAP.wall=Math.min(GAP.wall,gap); GAP.table=Math.min(GAP.table,gap); packTables(cue("p7"),1); addQuiet("tv"); }); break; } } }
     add("חדר משחקים ביתי",`שולחן ${cue(k).name} במרכז, ספה ומסך`,()=>{ packTables(cue(k),1); addLounge(q.bar); });
-    add("ביליארד וכדורגל והוקי","שולחן ביליארד, כדורגל והוקי אוויר",()=>{ packTables(cue(k),1); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("foos"),1); packTables(cue("air"),1); addQuiet("sofa"); addQuiet("tv"); });
-    add(q.pong?"ביליארד ופינג פונג":"ביליארד ופוקר",q.pong?"שולחן ביליארד ושולחן טניס":"שולחן ביליארד ושולחן קלפים לערבי פוקר",()=>{ packTables(cue(k),1); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue(q.pong?"pong":"poker8"),1); addQuiet("sofa"); addQuiet("tv"); });
+    add("ביליארד וכדורגל והוקי","שולחן ביליארד, כדורגל והוקי אוויר",()=>{ packTables(cue(k),1); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("foos"),1); packTables(cue("air"),1); addQuiet("sofa"); addQuiet("tv"); },["cue",["foos","air"]]);
+    add(q.pong?"ביליארד ופינג פונג":"ביליארד ופוקר",q.pong?"שולחן ביליארד ושולחן טניס":"שולחן ביליארד ושולחן קלפים לערבי פוקר",()=>{ packTables(cue(k),1); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue(q.pong?"pong":"poker8"),1); addQuiet("sofa"); addQuiet("tv"); },["cue",q.pong?"pong":"poker"]);
   }
   // the same layout twice is not a choice
-  const seen=new Set(); return props.filter(p=>{ const k=p.room.tables.map(t=>t.name).sort().join("|")+p.room.furn.length; if(seen.has(k)) return false; seen.add(k); return true; });
+  const seen=new Set(); return props.filter(p=>{ if(seen.size>=3) return false; const k=p.title; if(seen.has(k)) return false; seen.add(k); return true; });
+}
+// "4 שולחנות סנוקר + 2 כדורגל · בר ולאונג'" – a title that says exactly what the layout holds
+function describeLayout(rd){
+  const c={}; for(const t of rd.tables){ const k=t.kind==="cue"?(t.L>330?"סנוקר":"ביליארד"):({foos:"כדורגל",air:"הוקי אוויר",pong:"פינג פונג",poker:"פוקר"}[t.kind]||"שולחן"); c[k]=(c[k]||0)+1; }
+  const parts=Object.entries(c).map(([k,n],i)=>i===0?(n>1?`${n} שולחנות ${k}`:`שולחן ${k}`):(n>1?`${n} ${k}`:k));
+  const has=t=>rd.furn.some(f=>f.type===t), extra=has("bar")?" · בר ולאונג'":(has("sofa")||has("tv"))?" · פינת ישיבה":"";
+  return parts.join(" + ")+extra;
 }
 function sandboxCount(room,it){ return sandbox(room,()=>({n:packTables(it)})).info.n; }
 function propSummary(rd){
@@ -2631,7 +2645,7 @@ function renderAdvProps(){
   const box=$("advProps");
   if(!advProps.length){ box.innerHTML=`<p class="hint" style="margin:8px 0">לא נכנס אף שולחן בחדר הזה עם המרחקים שנקבעו. אפשר להקטין מרחקים בלשונית "מרחקים".</p>`; return; }
   box.innerHTML=advProps.map((p,i)=>{ const s=propSummary(p.room);
-    return `<article class="pcard"><div class="pplan">${miniPlan(p.room)}</div><div class="pbody"><h3>${esc(p.title)}</h3><p class="hint" style="margin:0 0 8px">${esc(p.note)}</p>
+    return `<article class="pcard"><div class="pplan">${miniPlan(p.room)}</div><div class="pbody"><h3>${esc(p.title)}</h3><p class="hint" style="margin:0 0 8px">${esc(p.concept)} · ${esc(p.note)}</p>
       <ul class="plines">${s.lines}</ul>${s.furnLine?`<p class="pfurn">${esc(s.furnLine)}</p>`:""}
       ${s.total?`<div class="ptotal"><span>שולחנות לפי מחירי האתר${s.priced?"":" (בלי הדגמים שבהצעת מחיר)"}</span><b>₪${s.total.toLocaleString("he-IL")}</b></div>`:`<div class="ptotal"><span>מחיר השולחנות</span><b style="font-size:.95rem">בהצעת מחיר</b></div>`}
       <button type="button" class="btn solid" data-use="${i}">${!state.tables.length&&!state.furn.length?"בחירה בסידור הזה":"פתיחה כפרויקט חדש"}</button></div></article>`; }).join("");
@@ -2645,7 +2659,7 @@ function useProposal(p){
   if(empty){ // the open project is still empty: the proposal goes straight into it
     pushUndo(true); Object.assign(state,clone(p.room)); P=roomPoints(); G=buildGrid(P); select(null); renderPanel();
     $("adv").hidden=true; VIEW.z=1; VIEW.cx=VIEW.cy=null; drawPlan(); toast(`הסידור נכנס לפרויקט ${cur.name}`); return; }
-  const name=`${p.title} ${Math.round(p.room.L/10)/10}×${Math.round(p.room.W/10)/10}`;
+  const name=`${p.concept} ${Math.round(p.room.L/10)/10}×${Math.round(p.room.W/10)/10}`;
   const np={id:newId(),name,updated:Date.now(),room:clone(p.room),style:Object.assign(DEFAULT_STYLE(),{felt:STYLE.felt,floor:STYLE.floor,wall:STYLE.wall,title:name})};
   PROJ.list.push(np); cur=np; PROJ.current=np.id; saveProjects(); loadInto(np);
   $("adv").hidden=true; VIEW.z=1; VIEW.cx=VIEW.cy=null; drawPlan(); toast(`נפתח פרויקט חדש: ${name}`);
@@ -2855,7 +2869,7 @@ if(VIEWER){ $("tip").hidden=true; openShared(); }
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="n4";
+const APP_VERSION="r2";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
@@ -2870,6 +2884,6 @@ async function checkUpdate(){
 
 checkUpdate();
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") checkUpdate(); });
-</script><div style="position:fixed;left:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:99;background:#c9a24d;color:#1b120c;font:700 11px Heebo,Arial,sans-serif;padding:3px 8px;border-radius:99px;pointer-events:none;opacity:.9">גרסת ניסיון n4</div>
+</script><div style="position:fixed;left:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:99;background:#c9a24d;color:#1b120c;font:700 11px Heebo,Arial,sans-serif;padding:3px 8px;border-radius:99px;pointer-events:none;opacity:.9">גרסת ניסיון r2</div>
 </body>
 </html>
