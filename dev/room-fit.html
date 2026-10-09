@@ -2727,6 +2727,30 @@ function renderCatalog(){
   list.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{ const it=catItem(PLAYON[+b.dataset.i]); $("cat").hidden=true; setTab("tables"); toast(`נבחר ${it.name} · עכשיו "הוספת שולחן" או "מילוי החדר"`); });
   list.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{ const it=catItem(PLAYON[+b.dataset.add]); $("cat").hidden=true; setTab("tables"); addTable(it); });
 }
+/* ---------- projects sent from the Claude chat: inbox.json, published next to the app ---------- */
+// Each project there carries an id and an "updated" time; a project is taken once per update, so deleting it here keeps it deleted.
+async function checkInbox(){
+  if(VIEWER||!/^https?:/.test(location.protocol)) return;
+  let d; try{ const r=await fetch("inbox.json?t="+Date.now(),{cache:"no-store"}); if(!r.ok) return; d=await r.json(); }catch(e){ return; }
+  if(!d||!Array.isArray(d.projects)) return;
+  const seen=store.get("tf-inbox-seen",{}), got=[];
+  for(const p of d.projects){
+    if(!p||!p.id||!p.room) continue; const u=+p.updated||0; if((seen[p.id]||0)>=u) continue; seen[p.id]=u;
+    const np={id:p.id,name:p.name||"פרויקט",updated:u,room:p.room,style:Object.assign(DEFAULT_STYLE(),p.style||{})};
+    const i=PROJ.list.findIndex(x=>x.id===p.id); if(i<0) PROJ.list.push(np); else PROJ.list[i]=np;
+    if(p.gaps){ Object.assign(GAP,p.gaps); saveGaps(); }
+    if(Array.isArray(p.sizes)) for(const it of p.sizes) if(it&&it.name&&!items.some(x=>x.name===it.name&&x.L===it.L&&x.W===it.W)) items.push({name:it.name,kind:KIND[it.kind]?it.kind:"cue",L:+it.L,W:+it.W,custom:true,fin:it.fin,sh:it.sh});
+    got.push(np);
+  }
+  store.set("tf-inbox-seen",seen);
+  if(!got.length) return;
+  saveSizes(); saveRoom(true);
+  const last=got[got.length-1]; cur=last; PROJ.current=last.id; saveProjects(); loadInto(last);
+  VIEW.z=1; VIEW.cx=VIEW.cy=null; drawPlan();
+  toast(got.length>1?`התקבלו ${got.length} פרויקטים חדשים`:`התקבל פרויקט: ${last.name}`);
+}
+setTimeout(checkInbox,600);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) checkInbox(); });
 /* ---------- backup: every project (with its sketch), the table sizes and the clearances in one file ---------- */
 function renderBackupHint(){
   const t=store.get("tf-lastbackup",0);

@@ -174,6 +174,36 @@ button{font:inherit;color:inherit}
 .proj-head{display:flex;align-items:center;gap:10px}
 .proj-head h2{font-family:var(--display);font-weight:700;font-size:1.5rem;margin:0;flex:1}
 .newp{display:flex;gap:8px}
+.adv .lead{margin:-4px 0 14px;color:var(--muted)}
+.advin{position:relative;display:flex;gap:8px;align-items:stretch}
+.advin textarea{flex:1;min-width:0;resize:none;font:inherit;font-size:1rem;line-height:1.4;padding:12px}
+.micbtn{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-width:78px;border-radius:12px;background:var(--accent);color:#fff;font-size:.78rem;font-weight:700;padding:8px}
+.micbtn svg{width:24px;height:24px}
+.micbtn.on{background:#b3261e;animation:micpulse 1.2s infinite}
+@keyframes micpulse{0%,100%{box-shadow:0 0 0 0 rgb(179 38 30 / .45)}50%{box-shadow:0 0 0 10px rgb(179 38 30 / 0)}}
+#advEx{margin:10px 0 4px}#advEx button{font-size:.8rem;color:var(--muted)}
+.advf{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;margin:12px 0 10px}
+.advf label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;font-weight:700;color:var(--muted)}
+.advf .text{width:100%;box-sizing:border-box;font-size:1rem}
+.advgo{width:100%;padding:13px;font-size:1rem;margin-top:4px}
+.props{display:flex;flex-direction:column;gap:14px;margin-top:18px}
+.pcard{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);box-shadow:0 6px 18px var(--shadow)}
+.pplan{background:linear-gradient(180deg,#efe6d6,#e6dac5);padding:12px;display:grid;place-items:center}
+.pplan svg{width:100%;max-height:220px}
+.pbody{padding:14px 16px 16px}
+.pbody h3{font-family:var(--display);font-size:1.15rem;margin:0 0 2px}
+.plines{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px}
+.plines li{display:flex;justify-content:space-between;gap:10px;font-size:.92rem}
+.plines .pr{color:var(--muted);white-space:nowrap;font-variant-numeric:tabular-nums}
+.pfurn{margin:6px 0 0;font-size:.82rem;color:var(--muted)}
+.ptotal{display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid var(--line);margin:10px 0 12px;padding-top:8px;font-size:.85rem;color:var(--muted)}
+.ptotal b{font-size:1.15rem;color:var(--ink);font-variant-numeric:tabular-nums}
+.pbody .btn{width:100%}
+.advcard{all:unset;box-sizing:border-box;cursor:pointer;display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:12px;background:linear-gradient(135deg,#2b120d,#4a1d12);color:#f6ead2;box-shadow:0 4px 14px var(--shadow)}
+.advcard svg{width:26px;height:26px;flex:none;color:#c9a24d}
+.advcard b{display:block;font-size:.98rem}.advcard small{color:#d9c39a;font-size:.8rem}
+.emptycta{position:absolute;inset:auto 0 18px 0;margin:auto;width:min(92%,380px);z-index:3}
+@media (min-width:900px){ .props{display:grid;grid-template-columns:1fr 1fr;gap:16px} .adv .proj-in{max-width:980px} }
 .catbtn{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;padding:10px 14px;text-align:start}
 .catbtn span{font-weight:700}.catbtn small{color:var(--muted);font-weight:400}
 #catQ{width:100%;margin:4px 0 10px}
@@ -202,11 +232,20 @@ button{font:inherit;color:inherit}
 /* 3D view */
 .viz{position:fixed;inset:0;z-index:20;background:var(--bg);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 .viz-top{display:flex;align-items:center;gap:8px;padding:8px 16px;background:var(--bar);color:var(--bar-ink)}
-.viz-top input{flex:1;min-width:0;background:rgb(255 255 255 / .08);border-color:rgb(255 255 255 / .15);color:var(--bar-ink)}
+.viz-top input{flex:1;min-width:0;background:transparent;border:0;border-bottom:1px solid transparent;border-radius:0;color:var(--bar-ink);font-family:var(--display);font-weight:700;font-size:1.15rem;padding:6px 2px;transition:border-color .2s}
+.viz-top input:hover,.viz-top input:focus{border-bottom-color:rgb(201 162 77 / .6);outline:none}
+.viz-top .brandmark{font-family:Georgia,'Times New Roman',serif;font-style:italic;font-weight:600;color:#c9a24d;letter-spacing:.02em;font-size:1.05rem;white-space:nowrap;opacity:.95}
 .viz-top input::placeholder{color:var(--bar-muted)}
 .viz-main{flex:1;min-height:0;display:flex;flex-direction:column}
 .viz-stage{flex:1;min-height:0;position:relative;margin:12px 16px 0;border-radius:10px;overflow:hidden;border:1px solid var(--line);background:#e9e4dc;touch-action:none}
 .viz-stage canvas{display:block;width:100%;height:100%;touch-action:none}
+.viz-stage::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(120% 95% at 50% 45%,transparent 62%,rgb(20 10 4 / .22) 100%);z-index:1}
+.viz-stage .dimlabels,.viz-stage .viz-views{z-index:2}
+.vizstyle summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;font-weight:700;font-size:.9rem;padding:4px 0}
+.vizstyle summary::-webkit-details-marker{display:none}
+.vizstyle summary::after{content:"";width:8px;height:8px;border-inline-end:2px solid currentColor;border-bottom:2px solid currentColor;transform:rotate(45deg);margin-inline-end:4px;transition:transform .2s}
+.vizstyle[open] summary::after{transform:rotate(-135deg)}
+.vizstyle .opts{display:flex;flex-direction:column;gap:10px;padding-top:8px}
 .viz-msg{position:absolute;inset:0;display:grid;place-items:center;text-align:center;padding:20px;font-weight:700;color:#3a2a22}
 .viz-views{position:absolute;top:10px;inset-inline-start:10px;display:flex;gap:4px;background:rgb(255 255 255 / .9);padding:3px;border-radius:8px;box-shadow:0 2px 8px rgb(0 0 0 / .15)}
 .viz-views button{all:unset;cursor:pointer;color:#2a1712;font-weight:500;font-size:.82rem;padding:6px 10px;border-radius:6px}
@@ -217,16 +256,41 @@ button{font:inherit;color:inherit}
 .dl{direction:ltr;unicode-bidi:isolate;position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font:600 11px/1 Heebo,system-ui,sans-serif;color:#fbf3e3;background:rgb(28 14 9 / .72);padding:3px 7px 3px;border-radius:999px;letter-spacing:.02em;font-variant-numeric:tabular-nums;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);box-shadow:0 1px 4px rgb(0 0 0 / .25)}
 .dl.size{background:rgb(250 244 232 / .88);color:#3a1a10;border:1px solid rgb(156 114 36 / .55)}
 .dl.room{direction:rtl;background:transparent;color:#5c4636;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;font-weight:500}
-.viz-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);max-width:calc(100% - 20px);text-align:center;font-size:.74rem;font-weight:500;color:#2a1712;background:rgb(255 255 255 / .85);padding:4px 10px;border-radius:999px;pointer-events:none}
+.viz-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);max-width:calc(100% - 20px);text-align:center;font-size:.74rem;font-weight:500;color:#2a1712;background:rgb(255 255 255 / .85);padding:4px 10px;border-radius:999px;pointer-events:none;transition:opacity .6s;z-index:2}
+.viz-hint.gone{opacity:0}
+.viz-views button{white-space:nowrap}
+.sml{display:none}
+@media (max-width:420px){ .lgl{display:none} .sml{display:inline} .viz-views{inset-inline:8px;justify-content:space-between;gap:0} .viz-views button{padding:6px 7px;font-size:.78rem} }
+/* phone on its side: the 3D picture takes the height, the options sit beside it */
+@media (max-height:520px) and (orientation:landscape){
+  .viz-main{flex-direction:row}
+  .viz-stage{margin:8px 8px 8px 0}
+  .viz-bar{width:250px;max-height:none;padding:8px 12px}
+  .viz-top{padding:4px 12px}
+  .viz-bar .vizacts{grid-template-columns:1fr;gap:6px}
+  .viz-bar .vizacts .btn{padding:8px 10px}
+  .viz .viz-bar{overflow:auto;max-height:none}
+}
+/* presentation: the 3D room alone, slowly turning */
+.viz.present .viz-top,.viz.present .viz-bar,.viz.present .viz-hint{display:none}
+.viz.present .viz-stage{margin:0;border:0;border-radius:0}
+.viz.present .viz-views{opacity:.25;transition:opacity .3s}.viz.present .viz-views:hover{opacity:1}
+.viz.present .viz-views button:not(#tourBtn):not(#dimToggle){display:none}.viz.present .vsep{display:none}
 .viz-bar{padding:12px 16px 14px;display:flex;flex-direction:column;gap:10px;max-height:40vh;overflow:auto}
 .opt{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .opt>span{font-size:.8rem;font-weight:700;color:var(--muted);min-width:60px}
 .sw{all:unset;cursor:pointer;display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);font-weight:500;font-size:.82rem}
 .sw i{width:14px;height:14px;border-radius:50%;border:1px solid rgb(0 0 0 / .2)}
 .vizacts{display:grid;grid-template-columns:1.3fr 1fr;gap:8px}
+.vizacts .offerbtn{grid-column:1/-1;border-color:#c9a24d;color:var(--ink)}
+.viewer .offerbtn,.viewer #vizShare{display:none}
+.viewer .vizacts{grid-template-columns:1fr}
+.vizfoot{display:none;text-align:center;font-size:.8rem;color:var(--muted);padding-top:2px}
+.viewer .vizfoot{display:block}
+.vizfoot a{color:inherit}
 .sharebox{display:flex;flex-direction:column;gap:8px}
 .sharebox .row .btn{flex:1}
-.viewer #vizClose,.viewer .viz-bar .opt{display:none}
+.viewer #vizClose,.viewer .viz-bar .opt,.viewer .vizstyle{display:none}
 .viewer .viz-top input{pointer-events:none;background:transparent;border-color:transparent;font-family:var(--display);font-weight:700;font-size:1.1rem}
 .sw[aria-pressed="true"]{border-color:var(--accent);background:var(--sel);font-weight:700}
 
@@ -298,14 +362,17 @@ button{font:inherit;color:inherit}
     <div class="zoom">
       <button type="button" id="zIn" title="התקרבות" aria-label="התקרבות">+</button>
       <button type="button" id="zOut" title="התרחקות" aria-label="התרחקות">−</button>
+      <button type="button" id="zRot" title="סיבוב החדר כך שימלא את המסך" aria-label="סיבוב החדר כך שימלא את המסך" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.3-5.6"/><path d="M20 4v5h-5"/></svg></button>
       <button type="button" id="zFit" title="כל החדר" aria-label="הצגת כל החדר"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg></button>
     </div>
     <div class="selbar" id="selbar" hidden></div>
+    <div class="emptycta" id="emptyCta" hidden></div>
     <div class="tip" id="tip" hidden>
       <div class="card">
         <h2>ברוכים הבאים</h2>
         <ul>
-          <li>קובעים את החדר, ומוסיפים שולחנות וריהוט.</li>
+          <li>הכי מהיר: "תכנון חכם" – אומרים את גודל החדר ומקבלים סידור מוכן.</li>
+          <li>או קובעים את החדר בעצמכם, ומוסיפים שולחנות וריהוט.</li>
           <li>גוררים כדי להזיז. השולחן נצמד למרחק הנכון מהקיר ומהשולחן הסמוך.</li>
           <li>צביטה או גלגלת להתקרבות. במחשב: R סיבוב, Delete מחיקה, חצים להזזה.</li>
         </ul>
@@ -338,6 +405,25 @@ button{font:inherit;color:inherit}
     </div>
   </div>
 </div>
+<div class="proj adv" id="adv" dir="rtl" role="dialog" aria-label="תכנון חכם" hidden>
+  <div class="proj-in">
+    <div class="proj-head"><h2>תכנון חכם</h2><button type="button" class="btn ghost" id="advClose">סגירה</button></div>
+    <p class="lead">ספרו לי על החדר, ואציע סידור מוכן עם השולחנות של PlayOn.</p>
+    <div class="advin">
+      <textarea class="text" id="advText" rows="2" placeholder="למשל: חדר 12 על 8 מטר, מועדון סנוקר עם בר"></textarea>
+      <button type="button" class="micbtn" id="advMic" aria-label="הקלטה"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="advMicL">הקלטה</span></button>
+    </div>
+    <div class="ctags" id="advEx"><button type="button">חדר 12 על 8 מטר, מועדון סנוקר עם בר</button><button type="button">מרתף 7 על 5 מטר בבית, עם ספה וטלוויזיה</button><button type="button">אולם 15 על 10 מטר, מועדון ביליארד 9 פיט</button><button type="button">חדר 6 על 5 מטר לערבי פוקר</button></div>
+    <div class="advf">
+      <label>אורך (ס״מ)<input class="text" id="advL" type="number" inputmode="numeric" min="200" step="10"></label>
+      <label>רוחב (ס״מ)<input class="text" id="advW" type="number" inputmode="numeric" min="200" step="10"></label>
+      <label>צורה<select class="text" id="advShape"><option value="rect">מלבן</option><option value="L">צורת L</option><option value="U">צורת U</option><option value="slant">קיר אלכסוני</option><option value="round">עגול</option></select></label>
+    </div>
+    <div class="ctags" id="advPurpose"><button type="button" data-p="snooker">מועדון סנוקר</button><button type="button" data-p="pool">מועדון ביליארד</button><button type="button" data-p="home">חדר משחקים ביתי</button><button type="button" data-p="poker">פוקר</button></div>
+    <button type="button" class="btn solid advgo" id="advGo">הצעות לסידור</button>
+    <div id="advProps" class="props"></div>
+  </div>
+</div>
 <div class="proj" id="cat" dir="rtl" role="dialog" aria-label="קטלוג PlayOn" hidden>
   <div class="proj-in">
     <div class="proj-head"><h2>קטלוג PlayOn</h2><button type="button" class="btn ghost" id="catClose">סגירה</button></div>
@@ -353,6 +439,7 @@ button{font:inherit;color:inherit}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
     </button>
     <input class="text" id="vizTitle" placeholder="שם הלקוח או המועדון" aria-label="שם הלקוח או המועדון">
+    <span class="brandmark" dir="ltr">Regiis</span>
   </div>
   <div class="viz-main">
     <div class="viz-stage" id="vizStage">
@@ -360,9 +447,10 @@ button{font:inherit;color:inherit}
       <div class="viz-views" id="vizViews">
         <button type="button" data-v="angle">זווית</button>
         <button type="button" data-v="top">מלמעלה</button>
-        <button type="button" data-v="eye">גובה העיניים</button>
+        <button type="button" data-v="eye"><span class="lgl">גובה העיניים</span><span class="sml">עיניים</span></button>
         <span class="vsep" aria-hidden="true"></span>
         <button type="button" id="dimToggle" aria-pressed="false" title="הצגת מידות ומרחקים מהקיר">מידות</button>
+        <button type="button" id="tourBtn" aria-pressed="false" title="סיבוב איטי ומסך מלא, להצגה מול הלקוח">הצגה</button>
       </div>
       <div class="dimlabels" id="dimLabels" aria-hidden="true"></div>
       <div class="viz-hint">גוררים לסיבוב · צביטה או גלגלת להתקרבות</div>
@@ -473,7 +561,7 @@ const SHAPES={
 
 /* ---------- projects: each one keeps a whole room and its look ---------- */
 const DEFAULT_ROOM=()=>({shape:"rect",L:600,W:450,a:180,b:140,custom:null,cols:[],tables:[],furn:[]});
-const DEFAULT_STYLE=()=>({felt:"green",floor:"wood",wall:"light",title:"",brand:"Regiis",dims:false});
+const DEFAULT_STYLE=()=>({felt:"green",floor:"herring",wall:"light",title:"",brand:"Regiis",dims:false});
 const newId=()=>"p"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
 const clone=o=>JSON.parse(JSON.stringify(o));
 let PROJ=store.get("tf-projects-v1",null);
@@ -632,7 +720,15 @@ function findSpot(t,byCol=false,rots=[false,true]){
         const i=byCol?a:b, j=byCol?b:a;
         if(!freeRect(G,i,j,w,h)) continue;
         const cx=i*CELL+Z[0]/2, cy=j*CELL+Z[1]/2, bb=box(cx,cy,D.O);
-        if(bodies.some(o=>hit(o,bb)||sep(o,bb)<GAP.table-.5)) continue;
+        const bad=bodies.find(o=>hit(o,bb)||sep(o,bb)<GAP.table-.5);
+        if(bad){
+          // skip straight past the table in the way instead of testing every 5 cm (big rooms stay fast)
+          const off=(byCol?Z[1]-D.O[1]:Z[0]-D.O[0])/2;
+          const across=byCol?Math.max(0,bad.x-(bb.x+bb.w),bb.x-(bad.x+bad.w)):Math.max(0,bad.y-(bb.y+bb.h),bb.y-(bad.y+bad.h));
+          const need=across>0?Math.sqrt(Math.max(0,(GAP.table-.5)**2-across*across)):GAP.table-.5;
+          const edge=byCol?bad.y+bad.h:bad.x+bad.w, nb=Math.ceil((edge+need-off)/CELL)-1;
+          if(nb>b) b=nb;
+          continue; }
         best={a,cx,cy,rot}; break;
       }
     }
@@ -645,7 +741,7 @@ function rayDist(x,y,dx,dy,self){
   for(const o of state.tables) if(o!==self) rectSegs(box(o.cx,o.cy,dims(o).O),"table");
   for(let i=0;i<P.length;i++) segs.push([P[i],P[(i+1)%P.length],"wall"]);
   for(const c of state.cols) if(c!==self) rectSegs(c,"wall");
-  for(const f of state.furn) if(f!==self) rectSegs(fBox(f),"wall");
+  for(const f of state.furn) if(f!==self) rectSegs(fBox(f),"furn");
   let best=Infinity,kind="wall";
   for(const [p,q,k] of segs){
     let d;
@@ -708,9 +804,9 @@ function furnIcon(type){
   const F=FURN[type], m=Math.max(F.w,F.h)*1.15;
   return `<svg viewBox="${-m/2} ${-m/2} ${m} ${m}">${furnShape(type,F.w,F.h,m/60)}</svg>`;
 }
-function findFurnSpot(f){
+function findFurnSpot(f,relax){
   const [w0,h0]=fDims(f), w=Math.ceil(w0/CELL), h=Math.ceil(h0/CELL);
-  const zones=state.tables.map(t=>box(t.cx,t.cy,dims(t).N));
+  const zones=state.tables.map(t=>relax?box(t.cx,t.cy,dims(t).O.map(v=>v+50)):box(t.cx,t.cy,dims(t).N));
   for(let j=0;j+h<=G.ny;j++) for(let i=0;i+w<=G.nx;i++){
     if(!freeRect(G,i,j,w,h)) continue;
     const b={x:i*CELL,y:j*CELL,w:w0,h:h0};
@@ -720,11 +816,54 @@ function findFurnSpot(f){
   }
   return null;
 }
+// Where a new piece goes: wall pieces back against a wall (the bar a step away for the bartender),
+// stools in front of the bar, a coffee table in front of the sofa, chairs by a high table; plants in corners.
+const WALLBACK={tv:0,cuerack:0,backbar:0,sofa:0,armchair:0,plant:0,bar:105};
+const ANCHOR={stool:"bar",coffee:"sofa",chair:"hightable"};
+function smartFurnSpot(f,relax){
+  const zones=state.tables.map(t=>relax?box(t.cx,t.cy,dims(t).O.map(v=>v+50)):box(t.cx,t.cy,dims(t).N));
+  const wantBack=WALLBACK[f.type], anchorType=ANCHOR[f.type];
+  const anchor=anchorType&&[...state.furn].reverse().find(o=>o.type===anchorType&&o!==f);
+  if(wantBack===undefined&&!anchor) return null;
+  const others=state.furn.filter(o=>o!==f);
+  let best=null; const step=2;
+  for(const rot of (wantBack!==undefined&&!FURN[f.type].round?[0,90,180,270]:[0])){
+    const [w0,h0]=(rot%180)?[f.h,f.w]:[f.w,f.h], w=Math.ceil(w0/CELL), h=Math.ceil(h0/CELL);
+    for(let j=0;j+h<=G.ny;j+=step) for(let i=0;i+w<=G.nx;i+=step){
+      if(!freeRect(G,i,j,w,h)) continue;
+      const b={x:i*CELL,y:j*CELL,w:w0,h:h0}; if(zones.some(z=>hit(z,b))) continue;
+      if(!inPoly(b.x+2,b.y+2,P)||!inPoly(b.x+b.w-2,b.y+b.h-2,P)||!inPoly(b.x+b.w-2,b.y+2,P)||!inPoly(b.x+2,b.y+b.h-2,P)) continue;
+      const cx=b.x+w0/2, cy=b.y+h0/2; let sc;
+      if(anchor){
+        const [aw,ah]=fDims(anchor), a=anchor.rot, fx=a===90?-1:a===270?1:0, fy=a===0?1:a===180?-1:0;     // the anchor's front
+        const bx0=anchor.cx+fx*(aw/2+h0/2+15), by0=anchor.cy+fy*(ah/2+h0/2+15), ux=-fy, uy=fx, half=Math.max(0,(fx?ah:aw)/2-25);
+        const tt=Math.max(-half,Math.min(half,(cx-bx0)*ux+(cy-by0)*uy)), tx=bx0+ux*tt, ty=by0+uy*tt;
+        sc=Math.hypot(cx-tx,cy-ty)+others.filter(o=>o.type===f.type).reduce((s2,o)=>s2+Math.max(0,55-Math.hypot(o.cx-cx,o.cy-cy))*3,0);
+      } else {
+        const back=rot===0?[cx,b.y,0,-1]:rot===90?[b.x+w0,cy,1,0]:rot===180?[cx,b.y+h0,0,1]:[b.x,cy,-1,0];
+        const r=rayDist(back[0],back[1],back[2],back[3],f); if(!isFinite(r.d)) continue;
+        if(r.kind!=="wall"&&!(f.type==="bar"&&r.kind==="furn")) continue;
+        sc=Math.abs(r.d-(r.kind==="furn"?65:wantBack))*4;
+        if(f.type==="plant"){ const corner=Math.min(...P.map(([px,py])=>Math.hypot(px-cx,py-cy))); sc+=corner; }
+        else { const mid=(rot%180)?Math.abs(cy-G.maxY/2):Math.abs(cx-G.maxX/2); sc+=mid*.15; }
+        sc+=others.reduce((s2,o)=>s2+Math.max(0,120-Math.hypot(o.cx-cx,o.cy-cy)),0);
+        const mate={bar:"backbar",backbar:"bar"}[f.type], m=mate&&others.find(o=>o.type===mate);   // bar and back bar face each other
+        if(m) sc+=Math.hypot(m.cx-cx,m.cy-cy)*.9+(m.rot===rot?0:400);
+      }
+      if(!best||sc<best.sc) best={sc,cx,cy,rot};
+    }
+  }
+  return best;
+}
 function addFurn(type){
   pushUndo(true);
   const F=FURN[type], f={type,cx:0,cy:0,w:F.w,h:F.h,rot:0};
-  const s=findFurnSpot(f);
-  if(s){f.cx=s.cx;f.cy=s.cy;} else {f.cx=G.maxX/2;f.cy=G.maxY/2; toast("לא מצאתי מקום פנוי מחוץ לאזורי המשחק. גררו את הפריט למקום מתאים.");}
+  let sm=smartFurnSpot(f), s=sm||findFurnSpot(f), tight=false;
+  if(sm&&ANCHOR[type]&&sm.sc>120){ const r=smartFurnSpot(f,true); if(r&&r.sc<sm.sc-40){ sm=s=r; tight=true; } }
+  if(!s){ sm=smartFurnSpot(f,true); s=sm||findFurnSpot(f,true); tight=!!s; }
+  if(sm) f.rot=sm.rot;
+  if(s){f.cx=s.cx;f.cy=s.cy; if(tight) toast(`${F.name} נכנס רק בתוך מרחב המשחק של שולחן. כדאי לבדוק את המיקום.`);}
+  else {f.cx=G.maxX/2;f.cy=G.maxY/2; toast("אין מקום פנוי לפריט הזה. גררו אותו למקום מתאים.");}
   state.furn.push(f); P=roomPoints(); G=buildGrid(P);
   select({type:"f",o:f});
 }
@@ -733,6 +872,18 @@ function addFurn(type){
 let G=null, P=null;
 const VIEW={z:1,cx:null,cy:null};   // zoom and pan of the plan
 let VB={x:0,y:0,w:1,h:1};
+// Turn the whole room a quarter turn (walls, tables, furniture, columns) — handy on a phone held upright.
+function rotateRoom(){
+  pushUndo(true);
+  const H=G.maxY, f=(x,y)=>[H-y,x];
+  if(state.shape==="rect"||state.shape==="round"){ if(!state.custom){ [state.L,state.W]=[state.W,state.L]; } }
+  if(state.custom||!(state.shape==="rect"||state.shape==="round")){ state.custom=P.map(([x,y])=>f(x,y)); }
+  for(const t of state.tables){ [t.cx,t.cy]=f(t.cx,t.cy); t.rot=!t.rot; }
+  for(const o of state.furn){ [o.cx,o.cy]=f(o.cx,o.cy); o.rot=(o.rot+90)%360; }
+  for(const c of state.cols){ const [nx,ny]=f(c.x,c.y+c.h); [c.x,c.y,c.w,c.h]=[nx,ny,c.h,c.w]; }
+  if(cur.bg&&cur.bg.show){ cur.bg.show=false; saveProjects(); toast("השרטוט הוסתר כי הוא לא מסתובב עם החדר"); }
+  VIEW.z=1; VIEW.cx=VIEW.cy=null; select(null); refreshRoom(); renderPanel();
+}
 function refreshRoom(){ P=roomPoints(); G=buildGrid(P); drawPlan(); updateSizeStatus(); }
 function cmPerPx(){ const r=svgEl.getBoundingClientRect(); return Math.max(VB.w/Math.max(1,r.width),VB.h/Math.max(1,r.height)); }
 function setZoom(z,anchor){
@@ -803,7 +954,11 @@ function drawPlan(){
     :`<line x1="${-pad}" y1="${g.y}" x2="${maxX+pad}" y2="${g.y}" stroke="var(--accent)" stroke-width="${sw*.7}" stroke-dasharray="${sw*3} ${sw*2}" pointer-events="none"/>`).join("");
   svg.innerHTML=
     `<rect x="${-pad*4}" y="${-pad*4}" width="${maxX+pad*8}" height="${maxY+pad*8}" fill="transparent"/>`+
-    `<path d="M${P.map(q=>q.join(" ")).join("L")}Z" fill="var(--floor)" stroke="var(--ink)" stroke-width="${sw*2.2}" stroke-linejoin="round"/>`+
+    `<path d="M${P.map(q=>q.join(" ")).join("L")}Z" fill="var(--floor)" stroke="none"/>`+
+    // a faint one-metre grid inside the room, like an architect's sheet
+    `<clipPath id="roomClip"><path d="M${P.map(q=>q.join(" ")).join("L")}Z"/></clipPath><g clip-path="url(#roomClip)" stroke="var(--line)" stroke-width="${sw*.6}" opacity=".7" pointer-events="none">${
+      Array.from({length:Math.floor(maxX/100)},(_,i)=>`<line x1="${(i+1)*100}" y1="0" x2="${(i+1)*100}" y2="${maxY}"/>`).join("")+Array.from({length:Math.floor(maxY/100)},(_,i)=>`<line x1="0" y1="${(i+1)*100}" x2="${maxX}" y2="${(i+1)*100}"/>`).join("")}</g>`+
+    `<path d="M${P.map(q=>q.join(" ")).join("L")}Z" fill="none" stroke="var(--ink)" stroke-width="${sw*2.2}" stroke-linejoin="round" pointer-events="none"/>`+
     (cur.bg&&cur.bg.show?`<image href="${bgHref()}" x="0" y="0" width="${maxX}" height="${maxY}" preserveAspectRatio="none" opacity="${cur.bg.op??.45}" pointer-events="none"/>`:"")+
     zones+tables+furnSvg+
     state.cols.map((c,i)=>`<rect data-col="${i}" x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" fill="var(--pillar)" stroke="${c===selC?"var(--accent)":"transparent"}" stroke-width="${c===selC?sw*2:sw*10}" style="cursor:grab"/>`).join("")+
@@ -812,7 +967,10 @@ function drawPlan(){
     `<text transform="translate(${-pad*.4} ${maxY/2}) rotate(-90)" text-anchor="middle" font-size="${fs}" fill="var(--muted)" ${FONT} direction="rtl">${Math.round(maxY)} ס״מ</text>`;
   const n=state.tables.length, sum=$("summary");
   sum.innerHTML=`<b>${n}</b> שולחנות<span class="rd"> · חדר <bdi dir="ltr">${Math.round(maxX)}×${Math.round(maxY)}</bdi>${state.furn.length?` · ${state.furn.length} פריטי ריהוט`:""}</span>`;
-  saveRoom();
+  saveRoom(); renderEmptyCta();
+  // offer a quarter turn when the room lies across a tall screen (or the other way round) and would show small
+  const r=svgEl.getBoundingClientRect(), ra=maxX/Math.max(1,maxY), sa=r.width/Math.max(1,r.height);
+  $("zRot").hidden=VIEWER||!r.width||!((ra>1.25&&sa<.8)||(ra<.8&&sa>1.25));
 }
 
 /* ---------- selection bar ---------- */
@@ -919,7 +1077,12 @@ function tablePlan(t,o,p,sw){
       (lw?`<line x1="${o.x+i}" y1="${cy}" x2="${o.x+o.w-i}" y2="${cy}" stroke="#fff" stroke-width="${sw*.4}"/><line x1="${cx}" y1="${o.y-sw*2}" x2="${cx}" y2="${o.y+o.h+sw*2}" stroke="#e8e8e8" stroke-width="${sw*1.6}"/>`
          :`<line x1="${cx}" y1="${o.y+i}" x2="${cx}" y2="${o.y+o.h-i}" stroke="#fff" stroke-width="${sw*.4}"/><line x1="${o.x-sw*2}" y1="${cy}" x2="${o.x+o.w+sw*2}" y2="${cy}" stroke="#e8e8e8" stroke-width="${sw*1.6}"/>`); }
   if(t.kind==="poker"){ const sh=t.sh||"oval"; return planShape(sh,o,`fill="#1a1716"`,sw)+planShape(sh,p,`fill="${t.fin==="black"?"#2c2c2c":"#1f6b3c"}"`,sw); }
-  return `<rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*2.5}" fill="var(--wood)"/><rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" fill="var(--felt)"/>`;
+  const sh=`<rect x="${o.x+sw*1.2}" y="${o.y+sw*1.8}" width="${o.w}" height="${o.h}" rx="${sw*3}" fill="#000" opacity=".12"/>`;
+  let pk="";
+  if(t.kind==="cue"){ const r=Math.min(4.6,Math.min(p.w,p.h)*.045), lw=p.w>=p.h;
+    const pts=[[p.x,p.y],[p.x+p.w,p.y],[p.x,p.y+p.h],[p.x+p.w,p.y+p.h], lw?[p.x+p.w/2,p.y-r*.3]:[p.x-r*.3,p.y+p.h/2], lw?[p.x+p.w/2,p.y+p.h+r*.3]:[p.x+p.w+r*.3,p.y+p.h/2]];
+    pk=pts.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#160b07"/>`).join(""); }
+  return sh+`<rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*2.5}" fill="var(--wood)"/><rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" fill="var(--felt)"/>`+pk;
 }
 function newTable(it){ const t={name:it.name,kind:it.kind,L:it.L,W:it.W,cx:0,cy:0,rot:false}; if(it.fin) t.fin=it.fin; if(it.sh) t.sh=it.sh; return t; }
 function addTable(it){
@@ -930,16 +1093,21 @@ function addTable(it){
   else { t.cx=G.maxX/2; t.cy=G.maxY/2; t.rot=G.maxX<G.maxY; toast("אין מקום פנוי במרחקים שקבעתם"); }
   select({type:"t",o:t});
 }
+// Packing starts in a corner; slide the whole group toward the middle as far as the room allows, so the margins are even.
+function centerTables(ts){
+  const bb=ts.map(t=>box(t.cx,t.cy,dims(t).O)), x0=Math.min(...bb.map(b=>b.x)), x1=Math.max(...bb.map(b=>b.x+b.w)), y0=Math.min(...bb.map(b=>b.y)), y1=Math.max(...bb.map(b=>b.y+b.h));
+  const ok=(dx,dy)=>ts.every(t=>gridFree(G,box(t.cx+dx,t.cy+dy,dims(t).N)));
+  const tx=(G.maxX-(x1-x0))/2-x0, ty=(G.maxY-(y1-y0))/2-y0;
+  let bx=0,by=0;
+  for(let k=20;k>=0;k--){ const dx=Math.round(tx*k/20); if(ok(dx,0)){ bx=dx; break; } }
+  for(let k=20;k>=0;k--){ const dy=Math.round(ty*k/20); if(ok(bx,dy)){ by=dy; break; } }
+  ts.forEach(t=>{ t.cx+=bx; t.cy+=by; });
+}
 // Tables already in the room stay where they are; the chosen table fills only the free floor around them.
 function fillRoom(it){
   pushUndo(true);
-  const keep=state.tables.slice(); let bestSet=keep;
-  for(const byCol of [false,true]) for(const rots of [[false,true],[false],[true]]){
-    state.tables=keep.slice();
-    for(let n=0;n<100;n++){ const t=newTable(it); const s=findSpot(t,byCol,rots); if(!s) break; t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; state.tables.push(t); }
-    if(state.tables.length>bestSet.length) bestSet=state.tables;
-  }
-  state.tables=bestSet;
+  const keep=state.tables.slice();
+  packTables(it);
   select(null);
   const n=state.tables.length-keep.length;
   toast(n?(keep.length?`נוספו ${n} × ${it.name} לצד ${keep.length} השולחנות שכבר בחדר`:`נכנסו ${n} × ${it.name}`):(keep.length?`אין מקום פנוי ל${it.name} נוסף`:"לא נכנס אף שולחן. נסו מרחקים קטנים יותר."));
@@ -1009,9 +1177,10 @@ function renderRoom(){
   p.append(s2);
 
   const s3=section("");
-  s3.insertAdjacentHTML("beforeend",`<div class="row"><button type="button" class="btn" id="addCol">+ עמוד</button>
+  s3.insertAdjacentHTML("beforeend",`<div class="row"><button type="button" class="btn" id="addCol">+ עמוד</button><button type="button" class="btn" id="rotRoom" title="סיבוב כל החדר ברבע סיבוב">סיבוב החדר</button>
     <label class="btn" for="skFile">${cur.bg?"החלפת שרטוט":"העלאת שרטוט"}<input id="skFile" type="file" accept="image/*" hidden></label></div>`);
   p.append(s3);
+  $("rotRoom").onclick=rotateRoom;
   $("addCol").onclick=()=>{pushUndo(true); const c={x:Math.round(G.maxX/2-20),y:Math.round(G.maxY/2-20),w:40,h:40}; state.cols.push(c); refreshRoom(); select({type:"c",o:c});};
   $("skFile").onchange=e=>{ const f=e.target.files?.[0]; if(f) loadSketch(f); };
   if(cur.bg){
@@ -1070,6 +1239,8 @@ function renderTables(){
     list.append(r);
   });
   p.append(list);
+  p.insertAdjacentHTML("afterbegin",ADV_CARD("advFromTables"));
+  $("advFromTables").onclick=openAdvisor;
   p.insertAdjacentHTML("beforeend",`<button type="button" class="btn catbtn" id="catOpen"><span>קטלוג PlayOn</span><small>${PLAYON.length} דגמים במידות מהאתר</small></button>`);
   $("catOpen").onclick=openCatalog;
   p.insertAdjacentHTML("beforeend",`<div class="links"><button type="button" class="link" id="addSize">+ גודל משלי</button><button type="button" class="link" id="clearAll" ${state.tables.length?"":"disabled"}>הוצאת כל השולחנות</button></div>`);
@@ -1110,7 +1281,7 @@ function bgHref(){
       bgURL=URL.createObjectURL(new Blob([a],{type:(hd.match(/data:([^;]+)/)||[,"image/jpeg"])[1]})); }catch(e){ bgURL=bgFor; } }
   return bgURL;
 }
-function toast(msg){ const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2600); }
+function toast(msg){ if(matchMedia("(pointer: coarse)").matches) msg=String(msg).replace(" · Ctrl+Z לביטול"," · אפשר לבטל בחץ למעלה"); const t=$("toast"); t.textContent=msg; t.hidden=false; clearTimeout(toastT); toastT=setTimeout(()=>t.hidden=true,2600); }
 
 /* ---------- moving things on the plan ---------- */
 let drag=null, raf=0;
@@ -1156,7 +1327,8 @@ svgEl.addEventListener("pointermove",e=>{
   if(!drag.moved){ pushUndo(true); drag.moved=true; }
   const q=toRoom(e), snap=v=>Math.round(v), o=drag.o;
   if(drag.kind==="rs"){
-    const F=FURN[o.type]||{}, pw=Math.max(10,Math.round(q.x-drag.bx)), ph=Math.max(5,Math.round(q.y-drag.by));
+    // grows toward the pointer but never through the wall
+    const F=FURN[o.type]||{}, pw=Math.max(10,Math.min(G.maxX-drag.bx,Math.round(q.x-drag.bx))), ph=Math.max(5,Math.min(G.maxY-drag.by,Math.round(q.y-drag.by)));
     if(F.round){ const d=Math.max(pw,ph); o.w=o.h=d; o.cx=drag.bx+d/2; o.cy=drag.by+d/2; }
     else { const sw90=o.rot%180!==0; o.w=sw90?ph:pw; o.h=sw90?pw:ph; o.cx=drag.bx+pw/2; o.cy=drag.by+ph/2; }
     G=buildGrid(P); redraw(); return;
@@ -1180,12 +1352,13 @@ addEventListener("pointerup",e=>{ if(ptrs.has(e.pointerId)) endPtr(e); }); addEv
 svgEl.addEventListener("wheel",e=>{ e.preventDefault(); setZoom(VIEW.z*Math.exp(-e.deltaY*.0015),toRoom(e)); },{passive:false});
 $("zIn").onclick=()=>setZoom(VIEW.z*1.4);
 $("zOut").onclick=()=>setZoom(VIEW.z/1.4);
+$("zRot").onclick=()=>{ rotateRoom(); toast("החדר הסתובב כדי למלא את המסך · Ctrl+Z לביטול"); };
 $("zFit").onclick=()=>{VIEW.z=1;VIEW.cx=VIEW.cy=null;drawPlan();};
 
 /* ---------- keyboard (computer) ---------- */
 document.addEventListener("keydown",e=>{
   if(e.target.closest?.("input,textarea,select")) return;
-  if(!$("viz").hidden||!$("proj").hidden||!$("cat").hidden) return;
+  if(!$("viz").hidden||!$("proj").hidden||!$("cat").hidden||!$("adv").hidden) return;
   const k=e.key, mod=e.ctrlKey||e.metaKey;
   if(mod&&k.toLowerCase()==="z"){ e.preventDefault(); $("undo").click(); return; }
   if(!sel) return;
@@ -1269,8 +1442,8 @@ async function analyzeSketch(){
 }
 
 /* ---------- 3D visualization ---------- */
-const FELTS={green:["ירוק",0x2fae1f],dgreen:["ירוק כהה",0x1d6b3a],blue:["כחול",0x1f4f8f],red:["בורדו",0x7d1c2a],grey:["אפור",0x5b6369]};
-const FLOORS={wood:["פרקט",0xa0703f],carpet:["שטיח",0x4a2a30],stone:["בטון",0x9c9a94]};
+const FELTS={green:["ירוק",0x23893a],dgreen:["ירוק כהה",0x1d6b3a],blue:["כחול",0x1f4f8f],red:["בורדו",0x7d1c2a],grey:["אפור",0x5b6369]};
+const FLOORS={herring:["פרקט אגוז",0x6b4428],wood:["פרקט",0xa0703f],carpet:["שטיח",0x4a2a30],stone:["בטון",0x9c9a94]};
 const WALLS={light:["בהיר",0xe6e1d8],dark:["כהה",0x34393d],green:["ירוק כהה",0x23382f]};
 let THREE=null, V=null;
 function loadThree(){
@@ -1282,10 +1455,22 @@ function loadThree(){
   });
 }
 $("vizOpen").onclick=openViz;
-$("vizClose").onclick=()=>{ $("viz").hidden=true; if(V) V.looping=false; };
+$("vizClose").onclick=()=>{ stopTour(); $("viz").hidden=true; if(V) V.looping=false; };
 $("vizTitle").value=STYLE.title||"";
 $("vizTitle").oninput=e=>{STYLE.title=e.target.value; saveStyle();};
 document.querySelectorAll("#vizViews button[data-v]").forEach(b=>b.onclick=()=>setView(b.dataset.v));
+// presentation mode: full screen, the camera circles the room slowly until touched
+function startTour(){ if(!V||!V.scene) return; V.tour=true; $("tourBtn").setAttribute("aria-pressed",true); $("viz").classList.add("present");
+  try{ document.documentElement.requestFullscreen?.().catch(()=>{}); }catch(e){}
+  if(V.view==="top") setView("angle");
+  setTimeout(()=>{ resizeViz(); fitRoom(.9); },120);
+  let last=performance.now();
+  const step=now=>{ if(!V.tour) return; const dt=Math.min(.05,(now-last)/1000); last=now; V.orbit.theta+=dt*.12; markView(null); applyCamQuiet(); lampsFor(); if(!V.looping) drawFrame(); requestAnimationFrame(step); };
+  requestAnimationFrame(step); }
+function stopTour(){ if(!V||!V.tour) return; V.tour=false; $("tourBtn").setAttribute("aria-pressed",false); $("viz").classList.remove("present");
+  try{ if(document.fullscreenElement) document.exitFullscreen?.(); }catch(e){} setTimeout(()=>{ resizeViz(); },120); }
+$("tourBtn").onclick=e=>{ e.stopPropagation(); V&&V.tour?stopTour():startTour(); };
+document.addEventListener("fullscreenchange",()=>{ if(!document.fullscreenElement&&V&&V.tour) stopTour(); });
 $("dimToggle").onclick=()=>{ STYLE.dims=!STYLE.dims; saveStyle(); showDims(); };
 function showDims(){ $("dimToggle").setAttribute("aria-pressed",!!STYLE.dims); if(V&&V.dimGroup){ V.dimGroup.visible=!!STYLE.dims; render(); } }
 
@@ -1297,17 +1482,20 @@ async function openViz(){
   $("vizMsg").hidden=true;
   if(!V) initViz();
   buildScene(); resizeViz(); setView(V.view||"angle"); showDims();
+  // the how-to hint shows for a moment, then gets out of the picture
+  const h=document.querySelector(".viz-hint"); h.classList.remove("gone"); clearTimeout(h._t); h._t=setTimeout(()=>h.classList.add("gone"),4500);
 }
 function renderVizBar(){
   const bar=$("vizBar");
   const row=(label,map,key)=>`<div class="opt"><span>${label}</span>${Object.entries(map).map(([k,[n,c]])=>
     `<button type="button" class="sw" data-k="${key}" data-v="${k}" aria-pressed="${STYLE[key]===k}"><i style="background:#${c.toString(16).padStart(6,"0")}"></i>${n}</button>`).join("")}</div>`;
-  bar.innerHTML=row("צבע הבד",FELTS,"felt")+row("רצפה",FLOORS,"floor")+row("קירות",WALLS,"wall")+
-    `<div class="vizacts"><button type="button" class="btn solid" id="vizShare">שליחת ההדמיה ללקוח</button><button type="button" class="btn" id="vizSave">שמירה כתמונה</button></div>
-     ${VIEWER?`<button type="button" class="link" id="vizImport">שמירה כפרויקט שלי</button>`:""}
+  const was=document.querySelector(".vizstyle"), open=was?was.open:isWide();
+  bar.innerHTML=`<details class="vizstyle" ${open?"open":""}><summary>עיצוב החדר</summary><div class="opts">`+row("צבע הבד",FELTS,"felt")+row("רצפה",FLOORS,"floor")+row("קירות",WALLS,"wall")+`</div></details>`+
+    `<div class="vizacts"><button type="button" class="btn solid" id="vizShare">שליחת ההדמיה ללקוח</button><button type="button" class="btn" id="vizSave">שמירה כתמונה</button><button type="button" class="btn offerbtn" id="vizOffer">הצעה ללקוח (דף A4 עם מחירים)</button></div>
+     ${VIEWER?`<p class="vizfoot" dir="rtl">הדמיה מאת <a href="https://www.playon.co.il/" target="_blank" rel="noopener">PlayOn</a> · שולחנות Regiis</p><button type="button" class="link" id="vizImport" style="font-size:.78rem;opacity:.7">שמירה כפרויקט שלי</button>`:""}
      <div class="sharebox" id="shareBox" hidden><input class="text" id="shareUrl" readonly dir="ltr" aria-label="קישור להדמיה"><div class="row"><button type="button" class="btn" id="shareCopy">העתקה</button><a class="btn" id="shareWa" target="_blank" rel="noopener">וואטסאפ</a></div></div>`;
   bar.querySelectorAll(".sw").forEach(b=>b.onclick=()=>{STYLE[b.dataset.k]=b.dataset.v; saveStyle(); renderVizBar(); if(V){buildScene(); render();}});
-  $("vizSave").onclick=saveVizImage;
+  $("vizSave").onclick=saveVizImage; $("vizOffer").onclick=makeOffer;
   $("vizShare").onclick=shareViz;
   if($("vizImport")) $("vizImport").onclick=importShared;
 }
@@ -1322,7 +1510,7 @@ async function packShare(){
   r.tables.forEach(t=>{t.cx=Math.round(t.cx);t.cy=Math.round(t.cy);}); r.furn.forEach(f=>{f.cx=Math.round(f.cx);f.cy=Math.round(f.cy);});
   const o=V?.orbit||{theta:.65,phi:.95,r:0};
   const data={v:1,n:cur.name,t:STYLE.title||cur.name,s:{felt:STYLE.felt,floor:STYLE.floor,wall:STYLE.wall,dims:!!STYLE.dims},r,
-    c:{th:+o.theta.toFixed(3),ph:+o.phi.toFixed(3),r:Math.round(o.r),vw:V?.view||null}};
+    c:{th:+o.theta.toFixed(3),ph:+o.phi.toFixed(3),r:Math.round(o.r),vw:V?(V.view||null):"angle"}};
   let bytes=new TextEncoder().encode(JSON.stringify(data)), tag="j";
   if(window.CompressionStream){ try{ bytes=new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer()); tag="z"; }catch(e){ bytes=new TextEncoder().encode(JSON.stringify(data)); } }
   return SHARE_BASE+"#"+tag+b64u(bytes);
@@ -1358,7 +1546,8 @@ async function openShared(){
   $("vizTitle").value=d.t||d.n||""; $("vizTitle").readOnly=true;
   P=roomPoints(); G=buildGrid(P); renderProjName(); drawPlan();
   await openViz();
-  if(V&&d.c){ V.orbit.theta=d.c.th; V.orbit.phi=d.c.ph; if(d.c.r) V.orbit.r=d.c.r; markView(d.c.vw||null); applyCam(); }
+  // the client's screen may be any shape: a named view is rebuilt for it, a free angle keeps its direction and is re-fitted
+  if(V&&d.c){ if(d.c.vw) setView(d.c.vw); else { V.orbit.theta=d.c.th; V.orbit.phi=d.c.ph; markView(null); applyCam(); fitRoom(.92); } }
 }
 
 const MOBILE=matchMedia("(pointer: coarse)").matches&&Math.min(screen.width,screen.height)<900;
@@ -1371,7 +1560,7 @@ function initViz(){
   $("vizStage").prepend(r.domElement);
   V={r,cam:new THREE.PerspectiveCamera(45,1,5,20000),scene:null,orbit:{theta:.7,phi:1,r:1000,tx:0,tz:0},view:"angle",size:600};
   const el=r.domElement, pts=new Map(); let pinch=0;
-  el.addEventListener("pointerdown",e=>{ if(e.isPrimary) pts.clear(); try{el.setPointerCapture(e.pointerId);}catch(err){} pts.set(e.pointerId,{x:e.clientX,y:e.clientY});});
+  el.addEventListener("pointerdown",e=>{ if(V.tour) stopTour(); if(e.isPrimary) pts.clear(); try{el.setPointerCapture(e.pointerId);}catch(err){} pts.set(e.pointerId,{x:e.clientX,y:e.clientY});});
   el.addEventListener("pointermove",e=>{
     const p=pts.get(e.pointerId); if(!p) return;
     if(pts.size===1){
@@ -1403,8 +1592,24 @@ function setView(v){
   const narrow=Math.max(1,1.15/a);
   if(v==="top"){ o.phi=.03; o.theta=0; o.r=fitTop; }
   else if(v==="eye"){ o.phi=1.38; o.theta=.5; o.r=s*.62*Math.sqrt(narrow); }
-  else { o.phi=.95; o.theta=.65; o.r=s*1.2*Math.sqrt(narrow); }
+  else { o.phi=.95; o.theta=.65; o.r=s*1.2*Math.sqrt(narrow);
+    if(a<.85){ o.phi=.78; o.theta=(V.mx>V.my?Math.PI/2:0)+.32; }   // tall screen: the long side runs into the picture, seen a little more from above
+  }
   markView(v); applyCam();
+  if(v==="angle"||v==="top") fitRoom(v==="top"?.9:.92);
+}
+// Pull the camera in or out until the whole floor (and the wall tops) just fits the picture, on any screen shape.
+function fitRoom(margin){
+  const o=V.orbit, pts=[], v=new THREE.Vector3(), hx=V.mx/2, hz=V.my/2;
+  for(const [x,z] of [[-hx,-hz],[hx,-hz],[hx,hz],[-hx,hz]]) for(const y of [0,o.phi>.2?120:0]) pts.push([x,y,z]);
+  const fits=r=>{ o.r=r; applyCamQuiet(); return pts.every(([x,y,z])=>{ v.set(x,y,z).project(V.cam); return Math.abs(v.x)<=margin&&Math.abs(v.y)<=margin&&v.z<1; }); };
+  let lo=V.size*.2, hi=V.size*6; for(let i=0;i<22;i++){ const mid=(lo+hi)/2; if(fits(mid)) hi=mid; else lo=mid; }
+  o.r=hi; applyCam();
+}
+function applyCamQuiet(){
+  const o=V.orbit, c=V.cam, ty=V.view==="eye"?110:40;
+  c.position.set(o.tx+o.r*Math.sin(o.phi)*Math.sin(o.theta), ty+o.r*Math.cos(o.phi), o.tz+o.r*Math.sin(o.phi)*Math.cos(o.theta));
+  c.lookAt(o.tx,ty*.6,o.tz); c.updateMatrixWorld();
 }
 function lampsFor(){ const show=V.orbit.phi>.35; if(V.lampsOn!==show){ V.lampsOn=show; V.shadowDirty=true; } (V.lamps||[]).forEach(l=>l.visible=show); }
 function applyCam(){
@@ -1422,8 +1627,15 @@ function labelSpots(){
   if(!STYLE.dims||!V.dimLabels) return [];
   const st=$("vizStage"), w=st.clientWidth, h=st.clientHeight, v=new THREE.Vector3(), out=[];
   for(const L of V.dimLabels){ v.set(L.x,L.y,L.z).project(V.cam); if(v.z>1||v.z<-1) continue;
-    const sx=(v.x+1)/2*w, sy=(1-v.y)/2*h; if(sx<-40||sx>w+40||sy<-20||sy>h+20) continue; out.push({...L,sx,sy}); }
-  return out;
+    const sx=(v.x+1)/2*w, sy=(1-v.y)/2*h; if(sx<-40||sx>w+40||sy<-20||sy>h+20) continue; out.push({...L,sx,sy,z:v.z}); }
+  // never let labels pile up: room size first, then table sizes, then distances (nearest to the camera first); a label that would touch one already shown is left out
+  const rank={room:0,size:1}, kept=[];
+  out.sort((a,b)=>(rank[a.cls]??2)-(rank[b.cls]??2)||a.z-b.z);
+  for(const o of out){ const bw=(o.cls==="room"?o.t.length*6:o.t.length*6.6+16)/2+3, bh=11+2;
+    const r={x0:o.sx-bw,x1:o.sx+bw,y0:o.sy-bh,y1:o.sy+bh};
+    if(kept.some(k=>r.x0<k.r.x1&&r.x1>k.r.x0&&r.y0<k.r.y1&&r.y1>k.r.y0)) continue;
+    o.r=r; kept.push(o); }
+  return kept;
 }
 function placeLabels(){
   const box=$("dimLabels"); if(!box) return;
@@ -1483,6 +1695,16 @@ function floorTexture(kind){
           g.beginPath(); g.moveTo(x,y); for(let k=0;k<=pw;k+=16) g.lineTo(x+k,y+Math.sin(k/60+i)*1.6); g.stroke(); }
         g.globalAlpha=1; g.strokeStyle="rgba(45,25,10,.55)"; g.lineWidth=1.4; g.strokeRect(x+.5,r*ph+.5,pw,ph); } }
   },1/320,1/320);
+  if(kind==="herring") return canvasTex("floor-chevron",1024,1024,(g,w,h)=>{
+    // walnut chevron parquet: 8 columns of 20 cm, planks 8 cm deep, alternating direction
+    const cw=w/8, ph=h/20, sk=cw*.55;
+    for(let c=0;c<8;c++) for(let r=-2;r<22;r++){ const x0=c*cw, y=r*ph, up=c%2===0, t=rnd();
+      const col=[78+t*42|0,48+t*26|0,28+t*16|0];
+      const pts=up?[[x0,y],[x0+cw,y-sk],[x0+cw,y-sk+ph],[x0,y+ph]]:[[x0,y-sk],[x0+cw,y],[x0+cw,y+ph],[x0,y-sk+ph]];
+      for(const dy of [0,h]){ g.beginPath(); pts.forEach(([px,py],i)=>i?g.lineTo(px,py-dy):g.moveTo(px,py-dy)); g.closePath(); g.fillStyle=`rgb(${col})`; g.fill();
+        g.save(); g.clip(); for(let i=0;i<7;i++){ g.globalAlpha=.07+rnd()*.1; g.strokeStyle=rnd()<.6?"#2a160a":"#c08a58"; g.lineWidth=.6+rnd()*1.4; const yy=y-dy+rnd()*ph; g.beginPath(); g.moveTo(x0,yy+(up?0:-sk)); g.lineTo(x0+cw,yy+(up?-sk:0)); g.stroke(); } g.restore();
+        g.globalAlpha=1; g.strokeStyle="rgba(20,10,4,.6)"; g.lineWidth=1.3; g.stroke(); } }
+  },1/160,1/160);
   if(kind==="carpet") return noiseTex("floor-carpet","#4a2a30",30,512,1/120);
   return canvasTex("floor-stone",1024,1024,(g,w,h)=>{ g.fillStyle="#9c9a94"; g.fillRect(0,0,w,h);
     for(let i=0;i<60;i++){ const x=rnd()*w,y=rnd()*h,r=40+rnd()*160, gr=g.createRadialGradient(x,y,1,x,y,r); const d=rnd()<.5; gr.addColorStop(0,d?"rgba(60,58,54,.12)":"rgba(255,255,250,.10)"); gr.addColorStop(1,"rgba(0,0,0,0)"); g.fillStyle=gr; g.fillRect(x-r,y-r,2*r,2*r); }
@@ -1791,17 +2013,34 @@ function buildScene(){
 
   // floor
   const shape=new THREE.Shape(Pp.map(p=>new THREE.Vector2(X(p[0]),Z(p[1]))));
-  const fl=new THREE.Mesh(new THREE.ShapeGeometry(shape),M(0xffffff,{map:floorTexture(STYLE.floor),side:THREE.DoubleSide,roughness:STYLE.floor==="wood"?.42:STYLE.floor==="carpet"?.98:.7,envMapIntensity:STYLE.floor==="wood"?.6:.25}));
+  const fl=new THREE.Mesh(new THREE.ShapeGeometry(shape),M(0xffffff,{map:floorTexture(STYLE.floor),side:THREE.DoubleSide,roughness:STYLE.floor==="wood"?.42:STYLE.floor==="herring"?.46:STYLE.floor==="carpet"?.98:.7,envMapIntensity:STYLE.floor==="wood"||STYLE.floor==="herring"?.6:.25}));
   fl.rotation.x=Math.PI/2; fl.receiveShadow=true; S.add(fl);
   // walls: one-sided, facing inward, so the walls nearest the camera disappear (doll-house view)
   const wm=M(wallC,{side:THREE.FrontSide,roughness:.92,map:noiseTex("wall",STYLE.wall==="light"?"#ffffff":"#bbbbbb",10,256,1/90),envMapIntensity:.3});
   const base=M(STYLE.wall==="light"?0x5a2a1c:0x0d0b0a,{side:THREE.FrontSide,roughness:.4});
+  const paintedW=STYLE.wall==="light";
+  const wainsTex=canvasTex(paintedW?"wains-paint":"wains-wood",512,436,(g,w,h)=>{
+    const base=paintedW?"#efe9df":"#3b1d10", lite=paintedW?"rgba(255,255,255,.9)":"rgba(160,96,58,.55)", dark=paintedW?"rgba(120,104,84,.35)":"rgba(10,4,2,.6)";
+    g.fillStyle=base; g.fillRect(0,0,w,h);
+    if(!paintedW) for(let i=0;i<60;i++){ g.globalAlpha=.06+rnd()*.08; g.strokeStyle=rnd()<.5?"#1a0b05":"#7a4426"; g.lineWidth=1+rnd()*2; const y=rnd()*h; g.beginPath(); g.moveTo(0,y); g.bezierCurveTo(w*.3,y+6,w*.6,y-6,w,y); g.stroke(); }
+    g.globalAlpha=1; const m=46, mx2=w-m, my2=h-m;
+    g.fillStyle=dark; g.fillRect(m-4,m-4,mx2-m+8,6); g.fillRect(m-4,m-4,6,my2-m+8);
+    g.fillStyle=lite; g.fillRect(m-4,my2-2,mx2-m+8,6); g.fillRect(mx2-2,m-4,6,my2-m+8);
+    g.fillStyle=lite; g.fillRect(m+10,m+10,mx2-m-20,3); g.fillRect(m+10,m+10,3,my2-m-20);
+    g.fillStyle=dark; g.fillRect(m+10,my2-13,mx2-m-20,3); g.fillRect(mx2-13,m+10,3,my2-m-20);
+  });
+  wainsTex.wrapS=THREE.RepeatWrapping;
+  const chairRail=M(paintedW?0xf7f3ec:0x5a2c18,{roughness:paintedW?.45:.28,side:THREE.FrontSide,emissive:new THREE.Color(paintedW?0x222018:0x120804)});
   for(let i=0;i<Pp.length;i++){
     const a=Pp[i], b=Pp[(i+1)%Pp.length], dx=b[0]-a[0], dz=b[1]-a[1], len=Math.hypot(dx,dz); if(len<1) continue;
     let nx=-dz/len, nz=dx/len; const mxp=(a[0]+b[0])/2, mzp=(a[1]+b[1])/2;
     if(!inPoly(mxp+nx*3,mzp+nz*3,Pp)){nx=-nx;nz=-nz;}
     const w=new THREE.Mesh(new THREE.PlaneGeometry(len+1,H),wm); w.position.set(X(mxp),H/2,Z(mzp)); w.rotation.y=Math.atan2(nx,nz); w.receiveShadow=true; S.add(w);
     const bb=new THREE.Mesh(new THREE.BoxGeometry(len+1,12,1.6),base); bb.position.set(X(mxp)+nx*.8,6,Z(mzp)+nz*.8); bb.rotation.y=w.rotation.y; bb.receiveShadow=true; S.add(bb);
+    // panelled wainscoting up to 110 cm with a chair rail (walnut on dark walls, painted on light ones)
+    const wt=wainsTex.clone(); wt.needsUpdate=true; wt.repeat.set(Math.max(1,Math.round(len/115)),1); wt.wrapS=THREE.RepeatWrapping;
+    const wp=new THREE.Mesh(new THREE.PlaneGeometry(len,98),M(0xffffff,{map:wt,roughness:STYLE.wall==="light"?.55:.35,side:THREE.FrontSide})); wp.position.set(X(mxp)+nx*.5,12+49,Z(mzp)+nz*.5); wp.rotation.y=w.rotation.y; wp.receiveShadow=true; S.add(wp);
+    const cr=new THREE.Mesh(new THREE.PlaneGeometry(len,4.5),chairRail); cr.position.set(X(mxp)+nx*1.6,110,Z(mzp)+nz*1.6); cr.rotation.y=w.rotation.y; cr.receiveShadow=true; S.add(cr);
   }
   for(const c of state.cols){ add(rbox(c.w,H,c.h,1.5,.5),M(0xd8d4cc,{roughness:.85}),X(c.x+c.w/2),H/2,Z(c.y+c.h/2)); }
 
@@ -2245,6 +2484,69 @@ async function saveVizImage(){
   const name=(STYLE.title||"הדמיה").replace(/[\\/:*?"<>|]/g,"").trim()+".png";
   await giveFile(blob,name,"התמונה נשמרה");
 }
+/* ---------- client offer: one A4 page with the 3D picture, the plan, the tables and their prices ---------- */
+async function makeOffer(){
+  if(!V||!V.scene) return;
+  const btn=$("vizOffer"); btn.disabled=true; const old=btn.textContent; btn.textContent="מכין…";
+  try{
+    const Wd=1240, Hd=1754, M=64, c=document.createElement("canvas"); c.width=Wd; c.height=Hd; const g=c.getContext("2d");
+    const title=STYLE.title||cur.name||"הדמיית חדר משחקים", Pp=roomPoints(), mx=Math.max(...Pp.map(p=>p[0])), my=Math.max(...Pp.map(p=>p[1]));
+    g.fillStyle="#fbf7f0"; g.fillRect(0,0,Wd,Hd);
+    // header band
+    g.fillStyle="#2b120d"; g.fillRect(0,0,Wd,170);
+    g.fillStyle="#c9a24d"; g.fillRect(0,170,Wd,4);
+    g.direction="ltr"; g.textAlign="left"; g.textBaseline="middle"; g.fillStyle="#c9a24d"; g.font="italic 600 54px Georgia, 'Times New Roman', serif"; g.fillText("Regiis",M,86);
+    g.direction="rtl"; g.textAlign="right"; g.fillStyle="#fbf3e3"; g.font="700 46px 'Frank Ruhl Libre', Georgia, serif"; g.fillText(title,Wd-M,72);
+    g.fillStyle="#d9c39a"; g.font="400 22px Heebo, Arial, sans-serif"; g.fillText(`הצעת תכנון · ${new Date().toLocaleDateString("he-IL")}`,Wd-M,122);
+    // the 3D picture, rendered sharp
+    const pr0=V.r.getPixelRatio(), st=$("vizStage");
+    V.r.setPixelRatio(Math.min(3,Math.max(pr0,1600/Math.max(1,st.clientWidth)))); V.r.setSize(st.clientWidth,st.clientHeight,false); renderNow();
+    const src=V.r.domElement, boxW=Wd-2*M, boxH=640, y3=210, sc=Math.max(boxW/src.width,boxH/src.height), sw=boxW/sc, sh=boxH/sc;
+    g.save(); g.beginPath(); g.roundRect?g.roundRect(M,y3,boxW,boxH,18):g.rect(M,y3,boxW,boxH); g.clip();
+    g.drawImage(src,(src.width-sw)/2,(src.height-sh)/2,sw,sh,M,y3,boxW,boxH); g.restore();
+    V.r.setPixelRatio(pr0); resizeViz();
+    // plan drawing
+    const yP=y3+boxH+48;
+    g.fillStyle="#2b120d"; g.font="700 30px 'Frank Ruhl Libre', Georgia, serif"; g.fillText("תוכנית החדר",Wd-M,yP);
+    const planW=640, planH=430, img=await svgImage(offerPlanSvg(planW,planH)); g.drawImage(img,M,yP+24,planW,planH);
+    // room details beside the plan
+    const by={}; state.tables.forEach(t=>{ by[t.name]=by[t.name]||{n:0,t}; by[t.name].n++; });
+    const xR=Wd-M; let yy=yP+70; g.font="400 22px Heebo, Arial, sans-serif"; g.fillStyle="#5c4636";
+    const shapeName={rect:"מלבן",round:"עגול",slant:"קיר אלכסוני",L:"צורת L",U:"צורת U",diag:"פינה אלכסונית"}[state.shape]||"";
+    for(const [k,v] of [["גודל החדר",`⁦${Math.round(mx)}×${Math.round(my)}⁩ ס״מ`],["צורה",state.custom?"לפי שרטוט":shapeName],["שולחנות",String(state.tables.length)],["מרחק מהקיר",`${GAP.wall} ס״מ`],["בין שולחנות",`${GAP.table} ס״מ`]]){
+      g.fillStyle="#8a7462"; g.font="400 20px Heebo, Arial, sans-serif"; g.fillText(k,xR,yy); g.fillStyle="#2b120d"; g.font="700 26px Heebo, Arial, sans-serif"; g.fillText(v,xR,yy+32); yy+=82; }
+    // the tables and prices
+    let yT=yP+planH+70; g.fillStyle="#2b120d"; g.font="700 30px 'Frank Ruhl Libre', Georgia, serif"; g.fillText("השולחנות",Wd-M,yT); yT+=26;
+    g.fillStyle="#e9dfcf"; g.fillRect(M,yT,Wd-2*M,2); yT+=36;
+    let total=0, allPriced=true; const rows=Object.values(by);
+    g.font="600 18px Heebo, Arial, sans-serif"; g.fillStyle="#8a7462"; g.fillText("דגם",Wd-M,yT); g.textAlign="center"; g.fillText("כמות",M+300,yT); g.fillText("מחיר ליחידה",M+170,yT); g.textAlign="left"; g.fillText("סה״כ",M,yT); g.textAlign="right"; yT+=40;
+    for(const {n,t} of rows.slice(0,8)){ const r=PLAYON.find(x=>x[0]===t.name), pr=r&&r[7]; if(pr) total+=pr*n; else allPriced=false;
+      g.fillStyle="#2b120d"; g.font="500 23px Heebo, Arial, sans-serif"; g.fillText(t.name,Wd-M,yT);
+      g.fillStyle="#8a7462"; g.font="400 17px Heebo, Arial, sans-serif"; g.fillText(`⁦${t.L}×${t.W}⁩ ס״מ`,Wd-M,yT+25);
+      g.fillStyle="#2b120d"; g.font="600 23px Heebo, Arial, sans-serif"; g.textAlign="center"; g.fillText(String(n),M+300,yT); g.fillText(pr?`₪${pr.toLocaleString("he-IL")}`:"—",M+170,yT);
+      g.textAlign="left"; g.fillText(pr?`₪${(pr*n).toLocaleString("he-IL")}`:"בהצעה",M,yT); g.textAlign="right"; yT+=64; }
+    g.fillStyle="#e9dfcf"; g.fillRect(M,yT-20,Wd-2*M,2);
+    if(total){ g.fillStyle="#2b120d"; g.font="700 30px Heebo, Arial, sans-serif"; g.textAlign="left"; g.fillText(`₪${total.toLocaleString("he-IL")}`,M,yT+20); g.textAlign="right"; g.font="600 22px Heebo, Arial, sans-serif"; g.fillText(allPriced?"סה״כ שולחנות":"סה״כ שולחנות עם מחיר",Wd-M,yT+20); }
+    g.fillStyle="#8a7462"; g.font="400 17px Heebo, Arial, sans-serif"; g.fillText("המחירים לפי אתר PlayOn ביום ההצעה, לפני הובלה, התקנה ואביזרים.",Wd-M,yT+64);
+    // footer
+    g.fillStyle="#2b120d"; g.fillRect(0,Hd-70,Wd,70); g.fillStyle="#d9c39a"; g.font="500 20px Heebo, Arial, sans-serif"; g.textAlign="center"; g.direction="ltr"; g.fillText("PlayOn · playon.co.il",Wd/2,Hd-35);
+    const blob=await new Promise(r=>c.toBlob(r,"image/png"));
+    await giveFile(blob,`הצעה - ${title.replace(/[\\/:*?"<>|]/g,"").trim()}.png`,"ההצעה נשמרה");
+  } finally { btn.disabled=false; btn.textContent=old; }
+}
+function svgImage(svg){ return new Promise((res,rej)=>{ const im=new Image(); const u=URL.createObjectURL(new Blob([svg],{type:"image/svg+xml"})); im.onload=()=>{ URL.revokeObjectURL(u); res(im); }; im.onerror=rej; im.src=u; }); }
+// A clean plan for print: walls, numbered tables, furniture, and the overall size.
+function offerPlanSvg(w,h){
+  const rd=roomData(), Pp=roomPoints(), mx=Math.max(...Pp.map(p=>p[0])), my=Math.max(...Pp.map(p=>p[1])), pad=Math.max(mx,my)*.06;
+  const col={cue:"#2a6a40",foos:"#3a3a3e",air:"#9aa3ab",pong:"#1d4f91",poker:"#1f6b3c"}, u=Math.max(mx,my)/100;
+  const tb=rd.tables.map((t,k)=>{ const b=box(t.cx,t.cy,dims(t).O), fs=Math.min(b.w,b.h)*.32;
+    return `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="${t.kind==="poker"?Math.min(b.w,b.h)/2:u*.6}" fill="${col[t.kind]||"#2a6a40"}" stroke="${t.kind==="cue"?"#6b2a14":"none"}" stroke-width="${t.kind==="cue"?u*1.2:0}"/><text x="${t.cx}" y="${t.cy+fs*.35}" font-size="${fs}" text-anchor="middle" fill="#fff" font-family="Heebo, Arial" font-weight="700">${k+1}</text>`; }).join("");
+  const fu=rd.furn.map(f=>{ const b=fBox(f); return `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="${u*.5}" fill="#8a4a2a" opacity=".8"/>`; }).join("");
+  const co=rd.cols.map(c=>`<rect x="${c.x}" y="${c.y}" width="${c.w}" height="${c.h}" fill="#9a8f84"/>`).join("");
+  const grid=Array.from({length:Math.floor(mx/100)},(_,i)=>`<line x1="${(i+1)*100}" y1="0" x2="${(i+1)*100}" y2="${my}"/>`).join("")+Array.from({length:Math.floor(my/100)},(_,i)=>`<line x1="0" y1="${(i+1)*100}" x2="${mx}" y2="${(i+1)*100}"/>`).join("");
+  const path=`M${Pp.map(q=>q.join(" ")).join("L")}Z`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" width="${w}" height="${h}" viewBox="${-pad} ${-pad} ${mx+2*pad} ${my+2*pad}" preserveAspectRatio="xMidYMid meet"><defs><clipPath id="c"><path d="${path}"/></clipPath></defs><path d="${path}" fill="#f6f0e6"/><g clip-path="url(#c)" stroke="#e6dccb" stroke-width="${u*.25}">${grid}</g><path d="${path}" fill="none" stroke="#2b120d" stroke-width="${u*.9}"/>${co}${fu}${tb}</svg>`;
+}
 async function giveFile(blob,name,okMsg){
   let dl=null; try{ dl=window.claude?.use?await window.claude.use("downloads"):null; }catch(e){}
   if(dl){ try{ await dl.save({filename:name,data:blob}); toast(okMsg); return true; }catch(e){ if(e?.code!=="declined") toast("לא הצלחתי לשמור את הקובץ כאן."); return false; } }
@@ -2252,6 +2554,175 @@ async function giveFile(blob,name,okMsg){
   if(navigator.canShare&&navigator.canShare({files:[file]})){ try{ await navigator.share({files:[file],title:name}); return true; }catch(e){ return false; } }
   const a=document.createElement("a"); a.href=URL.createObjectURL(blob); a.download=name; document.body.append(a); a.click(); a.remove(); toast(okMsg); return true;
 }
+/* ---------- smart planning: describe the room (voice or text), get finished layouts ---------- */
+// The products the advisor works with, taken from the PlayOn catalogue by name.
+const ADV_PICK={s12:"Regiis סנוקר 12 פיט",s10:"Regiis סנוקר 10 פיט",p9:"Regiis Pro 9 פיט",p9b:"Regiis Black 9 פיט",p8:"Regiis 8 פיט",p7:"Regiis Elegance 7 פיט",
+  foos:"כדורגל מקצועי 5 פיט",air:"הוקי אוויר 7 פיט אלומיניום",pong:"פינג פונג פנים מתקפל",poker:"Regiis Pro פוקר",poker8:"Regiis קלפים מתקפל 8 שחקנים"};
+const advRow=k=>PLAYON.find(r=>r[0]===ADV_PICK[k]);
+const advItem=k=>{ const r=advRow(k); return r&&{name:r[0],kind:r[2],L:r[3],W:r[4],fin:r[5]||undefined,sh:r[6]||undefined,price:r[7]}; };
+const HEB_NUM={"אחד":1,"אחת":1,"שניים":2,"שתיים":2,"שני":2,"שתי":2,"שלוש":3,"שלושה":3,"ארבע":4,"ארבעה":4,"חמש":5,"חמישה":5,"שש":6,"שישה":6,"שבע":7,"שבעה":7,"שמונה":8,"תשע":9,"תשעה":9,"עשר":10,"עשרה":10,"אחת עשרה":11,"אחד עשר":11,"שתים עשרה":12,"שנים עשר":12,"חמש עשרה":15,"עשרים":20};
+// Read a free description: "חדר 12 על 8 מטר, מועדון סנוקר עם בר" → room size, shape, purpose, wishes.
+function parseRoom(text){
+  let t=" "+text.replace(/[״"]/g,'"').replace(/,(\d)/g,".$1")+" ";
+  for(const [w,n] of Object.entries(HEB_NUM).sort((a,b)=>b[0].length-a[0].length)) t=t.replace(new RegExp("(^|[\\s\\u05d5\\u05d1])"+w+"(?=[\\s.,]|$)","g"),"$1"+n);
+  const out={};
+  const m=t.match(/(\d+(?:\.\d+)?)\s*(מטר|מ'|מ׳|מ\b|ס"מ|סמ|cm|m)?\s*(?:על|x|X|×|\*|ב-?)\s*(\d+(?:\.\d+)?)\s*(מטר|מ'|מ׳|ס"מ|סמ|cm|m)?/);
+  if(m){ const cm=/ס"מ|סמ|cm/.test((m[2]||"")+(m[4]||"")); let a=+m[1], b=+m[3];
+    const k=cm?1:(a<60&&b<60?100:1); a=Math.round(a*k); b=Math.round(b*k); out.L=Math.max(a,b); out.W=Math.min(a,b); }
+  if(/עגול|אליפס/.test(t)) out.shape="round"; else if(/אלכסון/.test(t)) out.shape="slant"; else if(/צורת\s*(L|אל|ר)\b|\bL\b/.test(t)) out.shape="L"; else if(/צורת\s*(U|ח|יו)\b|\bU\b/.test(t)) out.shape="U";
+  if(/סנוקר/.test(t)) out.purpose="snooker"; else if(/פוקר|קלפים/.test(t)) out.purpose="poker"; else if(/מועדון|פאב|בר ספורט|עסק/.test(t)) out.purpose="pool"; else if(/בית|וילה|משפח|ילדים|מרתף|סלון/.test(t)) out.purpose="home";
+  const ft=t.match(/(\d+)\s*פיט/); if(ft) out.ft=+ft[1];
+  const cnt=t.match(/(\d+)\s*שולחנ/); if(cnt) out.count=+cnt[1];
+  out.bar=/(^|[\s,.ו])בר([\s,.]|$)|ברמן|משקאות|דלפק/.test(t); out.lounge=/ספה|ספות|לאונג|טלוויז|מסך|כורס/.test(t);
+  if(/פינג|טניס שולחן/.test(t)) out.pong=true; if(/כדורגל/.test(t)) out.foos=true; if(/הוקי/.test(t)) out.air=true; if(/פוקר|קלפים/.test(t)&&out.purpose!=="poker") out.pokerToo=true;
+  return out;
+}
+// Work on a scratch copy of the room and hand back the result; the open project is never touched.
+function sandbox(room,fn){
+  const save=JSON.stringify(roomData()), g0={...GAP};
+  Object.assign(state,DEFAULT_ROOM(),room,{tables:[],furn:[],cols:[],custom:null}); P=roomPoints(); G=buildGrid(P);
+  try{ const info=fn()||{}; return {room:clone(roomData()),info}; }
+  finally{ Object.assign(state,JSON.parse(save)); Object.assign(GAP,g0); P=roomPoints(); G=buildGrid(P); }
+}
+// Try several packing orders; most tables wins, and among equals the tidier one (all turned the same way, compact block).
+function packTables(it,limit=100,center=true){
+  const keep=state.tables.slice(); let best=keep, bestSc=-Infinity;
+  const tidy=ts=>{ const nw=ts.slice(keep.length); if(!nw.length) return 0; const bb=nw.map(t=>box(t.cx,t.cy,dims(t).O));
+    const area=(Math.max(...bb.map(b=>b.x+b.w))-Math.min(...bb.map(b=>b.x)))*(Math.max(...bb.map(b=>b.y+b.h))-Math.min(...bb.map(b=>b.y)));
+    const mixed=new Set(nw.map(t=>!!t.rot)).size>1; return -area/1e4-(mixed?400:0); };
+  for(const byCol of [false,true]) for(const rots of [[false],[true],[false,true]]){
+    state.tables=keep.slice();
+    for(let n=0;n<limit;n++){ const t=newTable(it); const s=findSpot(t,byCol,rots); if(!s) break; t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; state.tables.push(t); }
+    const sc=state.tables.length*1e6+tidy(state.tables);
+    if(sc>bestSc){ bestSc=sc; best=state.tables; }
+  }
+  state.tables=best; if(center==="all"||(center&&!keep.length&&best.length)) centerTables(best);
+  return best.length-keep.length;
+}
+function addQuiet(type){ const F=FURN[type], f={type,cx:0,cy:0,w:F.w,h:F.h,rot:0}; const s=smartFurnSpot(f); if(!s) return false; f.rot=s.rot; f.cx=s.cx; f.cy=s.cy; state.furn.push(f); G=buildGrid(P); return true; }
+function addLounge(bar){ let n=0; if(bar){ if(addQuiet("backbar")) n++; if(addQuiet("bar")){ n++; for(let i=0;i<4;i++) addQuiet("stool"); } }
+  if(addQuiet("sofa")){ n++; addQuiet("coffee"); } if(addQuiet("tv")) n++; addQuiet("cuerack"); addQuiet("plant"); addQuiet("plant"); return n; }
+// Build up to three different finished proposals for the described room.
+function makeProposals(q){
+  const upright=!isWide()&&innerHeight>innerWidth*1.15&&q.L>q.W*1.15&&(q.shape||"rect")==="rect";
+  const room={shape:q.shape||"rect",L:upright?q.W:q.L,W:upright?q.L:q.W,a:Math.round(q.L*.3),b:Math.round(q.W*.3)};
+  const purpose=q.purpose||(q.count>1||q.L*q.W>=900*700?"pool":"home"), lim=q.count||100, props=[];
+  const left=()=>Math.max(0,lim-state.tables.length);   // a stated number of tables is the most tables any proposal gets
+  const cue=k=>advItem(k);
+  // a proposal only counts if it really holds what its name promises (need: the kinds of table it must contain)
+  const add=(title,note,fn,need=[])=>{ const r=sandbox(room,fn); if(!r.room.tables.length) return; const has=k=>r.room.tables.some(t=>k==="snk"?t.kind==="cue"&&t.L>330:k==="pool"?t.kind==="cue"&&t.L<=330:t.kind===k);
+    if(need.some(k=>Array.isArray(k)?!k.some(has):!has(k))) return; props.push({title:describeLayout(r.room)||title,concept:title,note,...r}); };
+  const sizeKey=q.ft>=12?"s12":q.ft>=10?"s10":q.ft===9?"p9":q.ft===8?"p8":q.ft===7?"p7":null;
+  if(purpose==="snooker"){
+    add("מועדון סנוקר מלא","כמה שיותר שולחנות 12 פיט במרחקי משחק מלאים",()=>{ packTables(cue(sizeKey||"s12"),lim); if(q.bar||q.lounge) addLounge(q.bar); });
+    add("סנוקר עם בר ולאונג'","פחות שולחן אחד, ובמקומו פינת ישיבה ובר",()=>{ const n=sandboxCount(room,cue(sizeKey||"s12")); packTables(cue(sizeKey||"s12"),Math.max(1,Math.min(lim,n-1))); addLounge(true); });
+    add("סנוקר ופול משולב","שולחנות 12 פיט ולצידם 9 פיט",()=>{ packTables(cue("s12"),Math.max(1,Math.floor(Math.min(lim,sandboxCount(room,cue("s12")))/2)),false); packTables(cue("p9"),left(),"all"); if(q.bar) addLounge(true); },["snk","pool"]);
+  } else if(purpose==="poker"){
+    add("מועדון פוקר","שולחנות פוקר ל-10 שחקנים, מטר פנוי מכל צד",()=>{ GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("poker"),lim); if(q.bar||q.lounge) addLounge(q.bar); },["poker"]);
+    add("פוקר וביליארד","שולחן ביליארד אחד, וסביבו שולחנות פוקר",()=>{ packTables(cue("p9"),1,false); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("poker"),left(),"all"); addLounge(q.bar); },["cue","poker"]);
+    if(q.pong) add("פוקר ופינג פונג","שולחנות פוקר ושולחן טניס",()=>{ GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("pong"),1,false); packTables(cue("poker"),left(),"all"); },["pong","poker"]);
+    add("פוקר עם בר ולאונג'","שולחנות פוקר, בר, ספה ומסך",()=>{ GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); addLounge(true); packTables(cue("poker"),lim); },["poker"]);
+  } else if(purpose==="pool"){
+    const k=sizeKey||"p9";
+    add(`מועדון ביליארד ${PLAYON.find(r=>r[0]===ADV_PICK[k])?.[0]||""}`,"כמה שיותר שולחנות במרחקי משחק מלאים",()=>{ packTables(cue(k),lim); if(q.bar||q.lounge) addLounge(q.bar); });
+    add("ביליארד עם בר ולאונג'","פחות שולחן אחד, ובמקומו בר וישיבה",()=>{ const n=sandboxCount(room,cue(k)); packTables(cue(k),Math.max(1,Math.min(lim,n-1))); addLounge(true); });
+    add("ביליארד ומשחקים","שולחנות ביליארד, ולצידם כדורגל והוקי אוויר",()=>{ const n=sandboxCount(room,cue(k)); packTables(cue(k),Math.max(1,Math.min(lim,n-1)),false); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("foos"),Math.min(2,left()),false); packTables(cue("air"),Math.min(1,left()),"all"); if(q.bar) addLounge(true); },["cue",["foos","air"]]);
+  } else {
+    const main=["p9","p8","p7"].find(k=>sandboxCount(room,cue(k))>0), k=sizeKey||main||"p7";
+    if(!main){ for(const gap of [120,100]){ const g0={...GAP}; GAP.wall=Math.min(GAP.wall,gap); GAP.table=Math.min(GAP.table,gap);
+        const ok=sandboxCount(room,cue("p7"))>0; Object.assign(GAP,g0);
+        if(ok){ add("ביליארד 7 פיט במרחק קצר",`במרחק ${gap} ס״מ מהקיר – מתאים למקל קצר`,()=>{ GAP.wall=Math.min(GAP.wall,gap); GAP.table=Math.min(GAP.table,gap); packTables(cue("p7"),1); addQuiet("tv"); }); break; } } }
+    add("חדר משחקים ביתי",`שולחן ${cue(k).name} במרכז, ספה ומסך`,()=>{ packTables(cue(k),1); addLounge(q.bar); });
+    add("ביליארד וכדורגל והוקי","שולחן ביליארד, כדורגל והוקי אוויר",()=>{ packTables(cue(k),1); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue("foos"),1); packTables(cue("air"),1); addQuiet("sofa"); addQuiet("tv"); },["cue",["foos","air"]]);
+    add(q.pong?"ביליארד ופינג פונג":"ביליארד ופוקר",q.pong?"שולחן ביליארד ושולחן טניס":"שולחן ביליארד ושולחן קלפים לערבי פוקר",()=>{ packTables(cue(k),1); GAP.wall=Math.min(GAP.wall,100); GAP.table=Math.min(GAP.table,100); packTables(cue(q.pong?"pong":"poker8"),1); addQuiet("sofa"); addQuiet("tv"); },["cue",q.pong?"pong":"poker"]);
+  }
+  // the same layout twice is not a choice
+  const seen=new Set(); return props.filter(p=>{ if(seen.size>=3) return false; const k=p.title; if(seen.has(k)) return false; seen.add(k); return true; });
+}
+// "4 שולחנות סנוקר + 2 כדורגל · בר ולאונג'" – a title that says exactly what the layout holds
+function describeLayout(rd){
+  const c={}; for(const t of rd.tables){ const k=t.kind==="cue"?(t.L>330?"סנוקר":"ביליארד"):({foos:"כדורגל",air:"הוקי אוויר",pong:"פינג פונג",poker:"פוקר"}[t.kind]||"שולחן"); c[k]=(c[k]||0)+1; }
+  const parts=Object.entries(c).map(([k,n],i)=>i===0?(n>1?`${n} שולחנות ${k}`:`שולחן ${k}`):(n>1?`${n} ${k}`:k));
+  const has=t=>rd.furn.some(f=>f.type===t), extra=has("bar")?" · בר ולאונג'":(has("sofa")||has("tv"))?" · פינת ישיבה":"";
+  return parts.join(" + ")+extra;
+}
+function sandboxCount(room,it){ return sandbox(room,()=>({n:packTables(it)})).info.n; }
+function propSummary(rd){
+  const by={}; for(const t of rd.tables){ by[t.name]=by[t.name]||{n:0,t}; by[t.name].n++; }
+  let total=0, priced=true;
+  const lines=Object.values(by).map(({n,t})=>{ const r=PLAYON.find(x=>x[0]===t.name), pr=r&&r[7]; if(pr) total+=pr*n; else priced=false;
+    return `<li><span><b>${n} ×</b> ${esc(t.name)}</span><span class="pr">${pr?`₪${(pr*n).toLocaleString("he-IL")}`:"מחיר בהצעה"}</span></li>`; });
+  const fn={}; rd.furn.forEach(f=>fn[FURN[f.type].name]=(fn[FURN[f.type].name]||0)+1);
+  const furnLine=Object.entries(fn).map(([n,k])=>k>1?`${k} ${n}`:n).join(" · ");
+  return {lines:lines.join(""),total,priced,furnLine};
+}
+// A small drawing of a proposal: walls, tables in their colours, furniture in wood.
+function miniPlan(rd){
+  const Pp=roomPoints(rd), mx=Math.max(...Pp.map(p=>p[0])), my=Math.max(...Pp.map(p=>p[1])), pad=Math.max(mx,my)*.04;
+  const col={cue:"#2a6a40",foos:"#3a3a3e",air:"#9aa3ab",pong:"#1d4f91",poker:"#1f6b3c"};
+  const tb=rd.tables.map(t=>{ const b=box(t.cx,t.cy,dims(t).O); return `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="${t.kind==="poker"?Math.min(b.w,b.h)/2:4}" fill="${col[t.kind]||"#2a6a40"}" stroke="${t.kind==="cue"?"#6b2a14":"none"}" stroke-width="${t.kind==="cue"?10:0}"/>`; }).join("");
+  const fu=rd.furn.map(f=>{ const b=fBox(f); return `<rect x="${b.x}" y="${b.y}" width="${b.w}" height="${b.h}" rx="4" fill="#8a4a2a" opacity=".85"/>`; }).join("");
+  return `<svg viewBox="${-pad} ${-pad} ${mx+2*pad} ${my+2*pad}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path d="M${Pp.map(q=>q.join(" ")).join("L")}Z" fill="#f6f0e6" stroke="#2b120d" stroke-width="${Math.max(mx,my)*.008}"/>${tb}${fu}</svg>`;
+}
+let advQ={}, advProps=[];
+function openAdvisor(){ $("adv").hidden=false; $("advText").value=""; advQ={}; advProps=[]; renderAdv(); setTimeout(()=>$("advText").focus(),50); }
+$("advClose").onclick=()=>{ stopListening(); $("adv").hidden=true; };
+$("advText").oninput=()=>{ advQ=Object.assign({},advQ,parseRoom($("advText").value)); renderAdvFields(); };
+$("advGo").onclick=()=>{
+  const L=+$("advL").value, W=+$("advW").value;
+  if(!(L>=200&&W>=200)){ toast("כתבו או אמרו את מידות החדר, למשל 12 על 8 מטר"); return; }
+  advQ.L=Math.max(L,W); advQ.W=Math.min(L,W); advQ.shape=$("advShape").value; advQ.purpose=document.querySelector("#advPurpose [aria-pressed=true]")?.dataset.p||advQ.purpose;
+  $("advGo").disabled=true; $("advGo").textContent="מכין הצעות…";
+  setTimeout(()=>{ try{ advProps=makeProposals(advQ); } finally{ $("advGo").disabled=false; $("advGo").textContent="הצעות לסידור"; } renderAdvProps(); },30);
+};
+function renderAdv(){ renderAdvFields(); $("advProps").innerHTML=""; }
+function renderAdvFields(){
+  if(advQ.L) $("advL").value=advQ.L; if(advQ.W) $("advW").value=advQ.W; if(advQ.shape) $("advShape").value=advQ.shape;
+  document.querySelectorAll("#advPurpose button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.p===advQ.purpose));
+}
+document.querySelectorAll("#advPurpose button").forEach(b=>b.onclick=()=>{ advQ.purpose=b.dataset.p; renderAdvFields(); });
+document.querySelectorAll("#advEx button").forEach(b=>b.onclick=()=>{ $("advText").value=b.textContent; $("advText").dispatchEvent(new Event("input")); });
+function renderAdvProps(){
+  const box=$("advProps");
+  if(!advProps.length){ box.innerHTML=`<p class="hint" style="margin:8px 0">לא נכנס אף שולחן בחדר הזה עם המרחקים שנקבעו. אפשר להקטין מרחקים בלשונית "מרחקים".</p>`; return; }
+  box.innerHTML=advProps.map((p,i)=>{ const s=propSummary(p.room);
+    return `<article class="pcard"><div class="pplan">${miniPlan(p.room)}</div><div class="pbody"><h3>${esc(p.title)}</h3><p class="hint" style="margin:0 0 8px">${esc(p.concept)} · ${esc(p.note)}</p>
+      <ul class="plines">${s.lines}</ul>${s.furnLine?`<p class="pfurn">${esc(s.furnLine)}</p>`:""}
+      ${s.total?`<div class="ptotal"><span>שולחנות לפי מחירי האתר${s.priced?"":" (בלי הדגמים שבהצעת מחיר)"}</span><b>₪${s.total.toLocaleString("he-IL")}</b></div>`:`<div class="ptotal"><span>מחיר השולחנות</span><b style="font-size:.95rem">בהצעת מחיר</b></div>`}
+      <button type="button" class="btn solid" data-use="${i}">${!state.tables.length&&!state.furn.length?"בחירה בסידור הזה":"פתיחה כפרויקט חדש"}</button></div></article>`; }).join("");
+  box.querySelectorAll("[data-use]").forEach(b=>b.onclick=()=>useProposal(advProps[+b.dataset.use]));
+  box.scrollIntoView({behavior:"smooth",block:"start"});
+}
+function useProposal(p){
+  saveRoom(true);
+  for(const t of p.room.tables){ const r=PLAYON.find(x=>x[0]===t.name); if(r) catItem(r); }
+  const empty=!state.tables.length&&!state.furn.length&&!state.cols.length;
+  if(empty){ // the open project is still empty: the proposal goes straight into it
+    pushUndo(true); Object.assign(state,clone(p.room)); P=roomPoints(); G=buildGrid(P); select(null); renderPanel();
+    $("adv").hidden=true; VIEW.z=1; VIEW.cx=VIEW.cy=null; drawPlan(); toast(`הסידור נכנס לפרויקט ${cur.name}`); return; }
+  const name=`${p.concept} ${Math.round(p.room.L/10)/10}×${Math.round(p.room.W/10)/10}`;
+  const np={id:newId(),name,updated:Date.now(),room:clone(p.room),style:Object.assign(DEFAULT_STYLE(),{felt:STYLE.felt,floor:STYLE.floor,wall:STYLE.wall,title:name})};
+  PROJ.list.push(np); cur=np; PROJ.current=np.id; saveProjects(); loadInto(np);
+  $("adv").hidden=true; VIEW.z=1; VIEW.cx=VIEW.cy=null; drawPlan(); toast(`נפתח פרויקט חדש: ${name}`);
+}
+// voice: the phone's speech recognition in Hebrew; the words land in the text box and are read as they come
+let rec=null;
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(!SR) $("advMic").hidden=true;
+function stopListening(){ if(rec){ try{ rec.stop(); }catch(e){} rec=null; } $("advMic").classList.remove("on"); $("advMicL").textContent="הקלטה"; }
+$("advMic").onclick=()=>{
+  if(rec){ stopListening(); return; }
+  rec=new SR(); rec.lang="he-IL"; rec.interimResults=true; rec.continuous=false;
+  const base=$("advText").value?$("advText").value+" ":"";
+  rec.onresult=e=>{ let txt=""; for(const r of e.results) txt+=r[0].transcript; $("advText").value=base+txt; $("advText").dispatchEvent(new Event("input")); };
+  rec.onerror=e=>{ toast(e.error==="not-allowed"?"צריך לאשר גישה למיקרופון בהגדרות הדפדפן":"לא הצלחתי לשמוע. נסו שוב או הקלידו."); stopListening(); };
+  rec.onend=()=>{ stopListening(); if(advQ.L&&advQ.W) $("advGo").click(); };
+  try{ rec.start(); $("advMic").classList.add("on"); $("advMicL").textContent="מקשיב… לחצו לסיום"; }catch(e){ stopListening(); }
+};
+
+function ADV_CARD(id){ return `<button type="button" class="advcard" id="${id}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l1.8 4.6L18 9l-4.2 1.4L12 15l-1.8-4.6L6 9l4.2-1.4z"/><path d="M19 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8z"/></svg><span><b>תכנון חכם</b><small>אמרו או כתבו את גודל החדר, וקבלו סידור מוכן</small></span></button>`; }
+function renderEmptyCta(){ const e=$("emptyCta"); const show=!VIEWER&&!state.tables.length&&!state.furn.length&&$("viz").hidden;
+  if(show&&!e.firstChild){ e.innerHTML=ADV_CARD("advFromEmpty"); $("advFromEmpty").onclick=openAdvisor; } e.hidden=!show; }
 /* ---------- PlayOn catalogue ---------- */
 let catGroup="";
 function openCatalog(){ $("cat").hidden=false; $("catQ").value=""; renderCatalog(); }
@@ -2273,6 +2744,30 @@ function renderCatalog(){
   list.querySelectorAll("[data-i]").forEach(b=>b.onclick=()=>{ const it=catItem(PLAYON[+b.dataset.i]); $("cat").hidden=true; setTab("tables"); toast(`נבחר ${it.name} · עכשיו "הוספת שולחן" או "מילוי החדר"`); });
   list.querySelectorAll("[data-add]").forEach(b=>b.onclick=()=>{ const it=catItem(PLAYON[+b.dataset.add]); $("cat").hidden=true; setTab("tables"); addTable(it); });
 }
+/* ---------- projects sent from the Claude chat: inbox.json, published next to the app ---------- */
+// Each project there carries an id and an "updated" time; a project is taken once per update, so deleting it here keeps it deleted.
+async function checkInbox(){
+  if(VIEWER||!/^https?:/.test(location.protocol)) return;
+  let d; try{ const r=await fetch("inbox.json?t="+Date.now(),{cache:"no-store"}); if(!r.ok) return; d=await r.json(); }catch(e){ return; }
+  if(!d||!Array.isArray(d.projects)) return;
+  const seen=store.get("tf-inbox-seen",{}), got=[];
+  for(const p of d.projects){
+    if(!p||!p.id||!p.room) continue; const u=+p.updated||0; if((seen[p.id]||0)>=u) continue; seen[p.id]=u;
+    const np={id:p.id,name:p.name||"פרויקט",updated:u,room:p.room,style:Object.assign(DEFAULT_STYLE(),p.style||{})};
+    const i=PROJ.list.findIndex(x=>x.id===p.id); if(i<0) PROJ.list.push(np); else PROJ.list[i]=np;
+    if(p.gaps){ Object.assign(GAP,p.gaps); saveGaps(); }
+    if(Array.isArray(p.sizes)) for(const it of p.sizes) if(it&&it.name&&!items.some(x=>x.name===it.name&&x.L===it.L&&x.W===it.W)) items.push({name:it.name,kind:KIND[it.kind]?it.kind:"cue",L:+it.L,W:+it.W,custom:true,fin:it.fin,sh:it.sh});
+    got.push(np);
+  }
+  store.set("tf-inbox-seen",seen);
+  if(!got.length) return;
+  saveSizes(); saveRoom(true);
+  const last=got[got.length-1]; cur=last; PROJ.current=last.id; saveProjects(); loadInto(last);
+  VIEW.z=1; VIEW.cx=VIEW.cy=null; drawPlan();
+  toast(got.length>1?`התקבלו ${got.length} פרויקטים חדשים`:`התקבל פרויקט: ${last.name}`);
+}
+setTimeout(checkInbox,600);
+document.addEventListener("visibilitychange",()=>{ if(!document.hidden) checkInbox(); });
 /* ---------- backup: every project (with its sketch), the table sizes and the clearances in one file ---------- */
 function renderBackupHint(){
   const t=store.get("tf-lastbackup",0);
@@ -2439,7 +2934,7 @@ if(VIEWER){ $("tip").hidden=true; openShared(); }
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="23";
+const APP_VERSION="24";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});

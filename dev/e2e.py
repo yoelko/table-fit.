@@ -12,7 +12,7 @@ with sync_playwright() as p:
     ctx=b.new_context(viewport=vp,service_workers="block",is_mobile=dev=='m',has_touch=dev=='m',device_scale_factor=2 if dev=='m' else 1,accept_downloads=True); pg=ctx.new_page()
     pg.route("**/three.min.js",lambda r:r.fulfill(body=three,content_type="application/javascript"))
     errs=[]; pg.on('pageerror',lambda e:errs.append('PAGE '+str(e))); pg.on('console',lambda m: m.type=='error' and 'Failed to load resource' not in m.text and errs.append('CONSOLE '+m.text))
-    pg.goto("http://127.0.0.1:8770/preview/index.html"); pg.wait_for_timeout(900)
+    pg.goto(sys.argv[2] if len(sys.argv)>2 else "http://127.0.0.1:8770/preview/index.html"); pg.wait_for_timeout(900)
     tap=(lambda sel: pg.locator(sel).first.tap()) if dev=='m' else (lambda sel: pg.locator(sel).first.click())
     def tab(t):
         if dev=='m':
@@ -88,7 +88,7 @@ with sync_playwright() as p:
     step('share link',share)
     step('close viz',lambda:(pg.locator('#vizClose').click(),pg.wait_for_timeout(200)))
     def viewer():
-        u=url['u'].replace('https://yoelko.github.io/table-fit./preview/','http://127.0.0.1:8770/preview/index.html')
+        u=url['u'].replace('https://yoelko.github.io/table-fit./preview/','http://127.0.0.1:8770/preview/index.html').replace('https://yoelko.github.io/table-fit./#','http://127.0.0.1:8770/index.html#')
         p2=ctx.new_page(); p2.route("**/three.min.js",lambda r:r.fulfill(body=three,content_type="application/javascript"))
         e2=[]; p2.on('pageerror',lambda e:e2.append(str(e)))
         p2.goto(u); p2.wait_for_timeout(4500); p2.screenshot(path=f'e2e_viewer_{dev}.png')
