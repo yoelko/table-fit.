@@ -12,7 +12,7 @@ with sync_playwright() as p:
     ctx=b.new_context(viewport=vp,service_workers="block",is_mobile=dev=='m',has_touch=dev=='m',device_scale_factor=2 if dev=='m' else 1,accept_downloads=True); pg=ctx.new_page()
     pg.route("**/three.min.js",lambda r:r.fulfill(body=three,content_type="application/javascript"))
     errs=[]; pg.on('pageerror',lambda e:errs.append('PAGE '+str(e))); pg.on('console',lambda m: m.type=='error' and 'Failed to load resource' not in m.text and errs.append('CONSOLE '+m.text))
-    pg.goto(sys.argv[2] if len(sys.argv)>2 else "http://127.0.0.1:8770/preview/index.html"); pg.wait_for_timeout(900)
+    pg.goto(sys.argv[2] if len(sys.argv)>2 else "http://127.0.0.1:8770/preview/index.html"); pg.wait_for_timeout(2300)
     tap=(lambda sel: pg.locator(sel).first.tap()) if dev=='m' else (lambda sel: pg.locator(sel).first.click())
     def tab(t):
         if dev=='m':
@@ -107,5 +107,5 @@ with sync_playwright() as p:
     def adv():
         pg.evaluate("()=>openAdvisor()"); pg.fill('#advText','חדר 10 על 7 מטר בבית'); pg.locator('#advGo').click(); pg.wait_for_selector('.pcard',timeout=30000); pg.locator('[data-use]').first.click(); pg.wait_for_timeout(300)
     step('advisor',adv)
-    step('reload persists',lambda:(pg.wait_for_timeout(600),pg.reload(),pg.wait_for_timeout(900)))
+    step('reload persists',lambda:(pg.wait_for_timeout(600),pg.reload(),pg.wait_for_timeout(2300)))
     print(dev, json.dumps(log,ensure_ascii=False,indent=0)); print('ERRORS',errs[:10]); b.close()
