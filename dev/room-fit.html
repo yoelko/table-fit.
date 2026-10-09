@@ -520,7 +520,9 @@ let items=store.get("tf-sizes-v1",null);
 if(!Array.isArray(items)||!items.length) items=DEFAULT_SIZES.map(x=>({...x}));
 items.forEach(x=>{ if(x.kind==="foos"&&x.name==="כדורגל שולחן"&&x.L===145){x.name="כדורגל שולחן 5 פיט";x.L=137;} if(!KIND[x.kind]) x.kind="cue"; if(x.name==="ביליארד 9 פיט (תחרותי)"&&x.L===280&&x.W===155){x.L=292;x.W=161;} });
 const saveSizes=()=>store.set("tf-sizes-v1",items.map(({name,kind,L,W,custom,fin,sh,src})=>({name,kind,L,W,custom,fin,sh,src})));
-const GAP=Object.assign({wall:140,table:140},store.get("tf-gaps-v1",{}));
+// Standard: 140 cm from the wall to a table, 120 cm between tables (set once for everyone, then the user's own choice is kept)
+const GAP=Object.assign({wall:140,table:120},store.get("tf-gaps-v1",{}));
+if(!store.get("tf-gaps-std",false)){ GAP.wall=140; GAP.table=120; store.set("tf-gaps-v1",GAP); store.set("tf-gaps-std",true); }
 const saveGaps=()=>store.set("tf-gaps-v1",GAP);
 
 const ELLIPSE=(L,W)=>Array.from({length:72},(_,i)=>{const a=i/72*2*Math.PI;return [Math.round(L/2+L/2*Math.cos(a)),Math.round(W/2+W/2*Math.sin(a))];});
@@ -1238,18 +1240,18 @@ function updateSizeStatus(){
 
 function renderGaps(){
   const p=$("panel"); p.innerHTML="";
-  const presets=[["צפוף",100],["רגיל",140],["מרווח",160]];
+  const presets=[["צפוף",120,100],["רגיל",140,120],["מרווח",160,150]];
   const s1=section("מרחק משפת השולחן"), chips=document.createElement("div"); chips.className="chips";
-  presets.forEach(([n,v])=>{
+  presets.forEach(([n,v,tg])=>{
     const b=document.createElement("button"); b.type="button"; b.className="chip";
-    b.setAttribute("aria-pressed",GAP.wall===v&&GAP.table===v);
-    b.innerHTML=`${n}<small>${v} ס״מ</small>`;
-    b.onclick=()=>{GAP.wall=GAP.table=v; saveGaps(); refreshRoom(); renderGaps();};
+    b.setAttribute("aria-pressed",GAP.wall===v&&GAP.table===tg);
+    b.innerHTML=`${n}<small>קיר ${v} · שולחן ${tg}</small>`;
+    b.onclick=()=>{GAP.wall=v; GAP.table=tg; saveGaps(); refreshRoom(); renderGaps();};
     chips.append(b);
   });
   s1.append(chips); p.append(s1);
   const g=document.createElement("div"); g.className="grid2";
-  const sync=()=>p.querySelectorAll(".chip").forEach((b,i)=>b.setAttribute("aria-pressed",GAP.wall===presets[i][1]&&GAP.table===presets[i][1]));
+  const sync=()=>p.querySelectorAll(".chip").forEach((b,i)=>b.setAttribute("aria-pressed",GAP.wall===presets[i][1]&&GAP.table===presets[i][2]));
   g.append(stepper("gW","מהקיר",GAP.wall,{step:10,min:0,max:400,onChange:v=>{GAP.wall=v;saveGaps();refreshRoom();sync();}}),
            stepper("gT","בין שולחנות",GAP.table,{step:10,min:0,max:400,onChange:v=>{GAP.table=v;saveGaps();drawPlan();sync();}}));
   p.append(g);
@@ -2573,14 +2575,36 @@ function packTables(it,limit=100,center=true){
   const tidy=ts=>{ const nw=ts.slice(keep.length); if(!nw.length) return 0; const bb=nw.map(t=>box(t.cx,t.cy,dims(t).O));
     const area=(Math.max(...bb.map(b=>b.x+b.w))-Math.min(...bb.map(b=>b.x)))*(Math.max(...bb.map(b=>b.y+b.h))-Math.min(...bb.map(b=>b.y)));
     const mixed=new Set(nw.map(t=>!!t.rot)).size>1; return -area/1e4-(mixed?400:0); };
-  for(const byCol of [false,true]) for(const rots of [[false],[true],[false,true]]){
-    state.tables=keep.slice();
-    for(let n=0;n<limit;n++){ const t=newTable(it); const s=findSpot(t,byCol,rots); if(!s) break; t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; state.tables.push(t); }
-    const sc=state.tables.length*1e6+tidy(state.tables);
-    if(sc>bestSc){ bestSc=sc; best=state.tables; }
-  }
+  const greedy=(byCol,rots)=>{ for(let n=state.tables.length-keep.length;n<limit;n++){ const t=newTable(it); const s=findSpot(t,byCol,rots); if(!s) break; t.cx=s.cx;t.cy=s.cy;t.rot=s.rot; state.tables.push(t); } };
+  const consider=bonus=>{ const sc=state.tables.length*1e6+tidy(state.tables)+bonus; if(sc>bestSc){ bestSc=sc; best=state.tables; } };
+  for(const byCol of [false,true]) for(const rots of [[false],[true],[false,true]]){ state.tables=keep.slice(); greedy(byCol,rots); consider(0); }
+  // regular rows and columns at the set distances, tried at every offset; leftover corners are then filled one by one
+  for(const lat of latticeLayouts(it,keep,limit)){ state.tables=keep.concat(lat.ts); greedy(false,[false,true]); consider(lat.balance); }
   state.tables=best; if(center==="all"||(center&&!keep.length&&best.length)) centerTables(best);
   return best.length-keep.length;
+}
+// Every straight grid of tables (rows 120 cm apart, 140 cm from walls, columns and furniture), at each offset;
+// the best few by count, then by how evenly they sit in the room.
+function latticeLayouts(it,keep,limit){
+  const out=[], kb=keep.map(o=>box(o.cx,o.cy,dims(o).O)), step=CELL*4;
+  for(const rot of [false,true]){
+    const t0=newTable(it); t0.rot=rot; const D=dims(t0), O=D.O, px=O[0]+GAP.table, py=O[1]+GAP.table;
+    for(let ox=0;ox<px;ox+=step) for(let oy=0;oy<py;oy+=step){
+      const ts=[];
+      for(let y=GAP.wall+oy+O[1]/2; y+O[1]/2+GAP.wall<=G.maxY+.1; y+=py)
+        for(let x=GAP.wall+ox+O[0]/2; x+O[0]/2+GAP.wall<=G.maxX+.1; x+=px){
+          if(ts.length>=limit) break;
+          const b=box(x,y,O); if(!gridFree(G,box(x,y,D.N))) continue;
+          if(kb.some(k=>hit(k,b)||sep(k,b)<GAP.table-.5)) continue;
+          const t=newTable(it); t.rot=rot; t.cx=x; t.cy=y; ts.push(t);
+        }
+      if(!ts.length) continue;
+      const bb=ts.map(t=>box(t.cx,t.cy,O)), l=Math.min(...bb.map(b=>b.x)), r=G.maxX-Math.max(...bb.map(b=>b.x+b.w)), tp=Math.min(...bb.map(b=>b.y)), bt=G.maxY-Math.max(...bb.map(b=>b.y+b.h));
+      out.push({ts,balance:-(Math.abs(l-r)+Math.abs(tp-bt))/10});
+    }
+  }
+  out.sort((a,b)=>b.ts.length-a.ts.length||b.balance-a.balance);
+  return out.slice(0,4);
 }
 function addQuiet(type){ const F=FURN[type], f={type,cx:0,cy:0,w:F.w,h:F.h,rot:0}; const s=smartFurnSpot(f); if(!s) return false; f.rot=s.rot; f.cx=s.cx; f.cy=s.cy; state.furn.push(f); G=buildGrid(P); return true; }
 function addLounge(bar){ let n=0; if(bar){ if(addQuiet("backbar")) n++; if(addQuiet("bar")){ n++; for(let i=0;i<4;i++) addQuiet("stool"); } }
