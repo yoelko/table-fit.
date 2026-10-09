@@ -77,6 +77,7 @@ with sync_playwright() as p:
         for i in range(n): pg.locator('.sw').nth(i).click(); pg.wait_for_timeout(500)
         pg.locator('#dimToggle').click(); pg.wait_for_timeout(400)
     step('viz',viz)
+    step('presentation',lambda:(pg.locator('#tourBtn').click(),pg.wait_for_timeout(1500),pg.locator('#tourBtn').click(),pg.wait_for_timeout(400)))
     def save():
         with pg.expect_download(timeout=20000) as dl: pg.locator('#vizSave').click()
         dl.value.save_as(f'e2e_img_{dev}.png')

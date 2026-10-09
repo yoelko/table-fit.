@@ -243,6 +243,11 @@ button{font:inherit;color:inherit}
 .dl.room{direction:rtl;background:transparent;color:#5c4636;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;font-weight:500}
 .viz-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);max-width:calc(100% - 20px);text-align:center;font-size:.74rem;font-weight:500;color:#2a1712;background:rgb(255 255 255 / .85);padding:4px 10px;border-radius:999px;pointer-events:none;transition:opacity .6s;z-index:2}
 .viz-hint.gone{opacity:0}
+/* presentation: the 3D room alone, slowly turning */
+.viz.present .viz-top,.viz.present .viz-bar,.viz.present .viz-hint{display:none}
+.viz.present .viz-stage{margin:0;border:0;border-radius:0}
+.viz.present .viz-views{opacity:.25;transition:opacity .3s}.viz.present .viz-views:hover{opacity:1}
+.viz.present .viz-views button:not(#tourBtn):not(#dimToggle){display:none}.viz.present .vsep{display:none}
 .viz-bar{padding:12px 16px 14px;display:flex;flex-direction:column;gap:10px;max-height:40vh;overflow:auto}
 .opt{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .opt>span{font-size:.8rem;font-weight:700;color:var(--muted);min-width:60px}
@@ -415,6 +420,7 @@ button{font:inherit;color:inherit}
         <button type="button" data-v="eye">גובה העיניים</button>
         <span class="vsep" aria-hidden="true"></span>
         <button type="button" id="dimToggle" aria-pressed="false" title="הצגת מידות ומרחקים מהקיר">מידות</button>
+        <button type="button" id="tourBtn" aria-pressed="false" title="סיבוב איטי ומסך מלא, להצגה מול הלקוח">הצגה</button>
       </div>
       <div class="dimlabels" id="dimLabels" aria-hidden="true"></div>
       <div class="viz-hint">גוררים לסיבוב · צביטה או גלגלת להתקרבות</div>
@@ -1043,7 +1049,7 @@ function tablePlan(t,o,p,sw){
   if(t.kind==="poker"){ const sh=t.sh||"oval"; return planShape(sh,o,`fill="#1a1716"`,sw)+planShape(sh,p,`fill="${t.fin==="black"?"#2c2c2c":"#1f6b3c"}"`,sw); }
   const sh=`<rect x="${o.x+sw*1.2}" y="${o.y+sw*1.8}" width="${o.w}" height="${o.h}" rx="${sw*3}" fill="#000" opacity=".12"/>`;
   let pk="";
-  if(t.kind==="cue"){ const r=Math.min(6.5,Math.min(p.w,p.h)*.06), lw=p.w>=p.h;
+  if(t.kind==="cue"){ const r=Math.min(4.6,Math.min(p.w,p.h)*.045), lw=p.w>=p.h;
     const pts=[[p.x,p.y],[p.x+p.w,p.y],[p.x,p.y+p.h],[p.x+p.w,p.y+p.h], lw?[p.x+p.w/2,p.y-r*.3]:[p.x-r*.3,p.y+p.h/2], lw?[p.x+p.w/2,p.y+p.h+r*.3]:[p.x+p.w+r*.3,p.y+p.h/2]];
     pk=pts.map(([x,y])=>`<circle cx="${x}" cy="${y}" r="${r}" fill="#160b07"/>`).join(""); }
   return sh+`<rect x="${o.x}" y="${o.y}" width="${o.w}" height="${o.h}" rx="${sw*2.5}" fill="var(--wood)"/><rect x="${p.x}" y="${p.y}" width="${p.w}" height="${p.h}" fill="var(--felt)"/>`+pk;
@@ -1291,7 +1297,8 @@ svgEl.addEventListener("pointermove",e=>{
   if(!drag.moved){ pushUndo(true); drag.moved=true; }
   const q=toRoom(e), snap=v=>Math.round(v), o=drag.o;
   if(drag.kind==="rs"){
-    const F=FURN[o.type]||{}, pw=Math.max(10,Math.round(q.x-drag.bx)), ph=Math.max(5,Math.round(q.y-drag.by));
+    // grows toward the pointer but never through the wall
+    const F=FURN[o.type]||{}, pw=Math.max(10,Math.min(G.maxX-drag.bx,Math.round(q.x-drag.bx))), ph=Math.max(5,Math.min(G.maxY-drag.by,Math.round(q.y-drag.by)));
     if(F.round){ const d=Math.max(pw,ph); o.w=o.h=d; o.cx=drag.bx+d/2; o.cy=drag.by+d/2; }
     else { const sw90=o.rot%180!==0; o.w=sw90?ph:pw; o.h=sw90?pw:ph; o.cx=drag.bx+pw/2; o.cy=drag.by+ph/2; }
     G=buildGrid(P); redraw(); return;
@@ -1418,10 +1425,22 @@ function loadThree(){
   });
 }
 $("vizOpen").onclick=openViz;
-$("vizClose").onclick=()=>{ $("viz").hidden=true; if(V) V.looping=false; };
+$("vizClose").onclick=()=>{ stopTour(); $("viz").hidden=true; if(V) V.looping=false; };
 $("vizTitle").value=STYLE.title||"";
 $("vizTitle").oninput=e=>{STYLE.title=e.target.value; saveStyle();};
 document.querySelectorAll("#vizViews button[data-v]").forEach(b=>b.onclick=()=>setView(b.dataset.v));
+// presentation mode: full screen, the camera circles the room slowly until touched
+function startTour(){ if(!V||!V.scene) return; V.tour=true; $("tourBtn").setAttribute("aria-pressed",true); $("viz").classList.add("present");
+  try{ document.documentElement.requestFullscreen?.().catch(()=>{}); }catch(e){}
+  if(V.view==="top") setView("angle");
+  setTimeout(()=>{ resizeViz(); fitRoom(.9); },120);
+  let last=performance.now();
+  const step=now=>{ if(!V.tour) return; const dt=Math.min(.05,(now-last)/1000); last=now; V.orbit.theta+=dt*.12; markView(null); applyCamQuiet(); lampsFor(); if(!V.looping) drawFrame(); requestAnimationFrame(step); };
+  requestAnimationFrame(step); }
+function stopTour(){ if(!V||!V.tour) return; V.tour=false; $("tourBtn").setAttribute("aria-pressed",false); $("viz").classList.remove("present");
+  try{ if(document.fullscreenElement) document.exitFullscreen?.(); }catch(e){} setTimeout(()=>{ resizeViz(); },120); }
+$("tourBtn").onclick=e=>{ e.stopPropagation(); V&&V.tour?stopTour():startTour(); };
+document.addEventListener("fullscreenchange",()=>{ if(!document.fullscreenElement&&V&&V.tour) stopTour(); });
 $("dimToggle").onclick=()=>{ STYLE.dims=!STYLE.dims; saveStyle(); showDims(); };
 function showDims(){ $("dimToggle").setAttribute("aria-pressed",!!STYLE.dims); if(V&&V.dimGroup){ V.dimGroup.visible=!!STYLE.dims; render(); } }
 
@@ -1511,7 +1530,7 @@ function initViz(){
   $("vizStage").prepend(r.domElement);
   V={r,cam:new THREE.PerspectiveCamera(45,1,5,20000),scene:null,orbit:{theta:.7,phi:1,r:1000,tx:0,tz:0},view:"angle",size:600};
   const el=r.domElement, pts=new Map(); let pinch=0;
-  el.addEventListener("pointerdown",e=>{ if(e.isPrimary) pts.clear(); try{el.setPointerCapture(e.pointerId);}catch(err){} pts.set(e.pointerId,{x:e.clientX,y:e.clientY});});
+  el.addEventListener("pointerdown",e=>{ if(V.tour) stopTour(); if(e.isPrimary) pts.clear(); try{el.setPointerCapture(e.pointerId);}catch(err){} pts.set(e.pointerId,{x:e.clientX,y:e.clientY});});
   el.addEventListener("pointermove",e=>{
     const p=pts.get(e.pointerId); if(!p) return;
     if(pts.size===1){
