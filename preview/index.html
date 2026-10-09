@@ -257,6 +257,19 @@ button{font:inherit;color:inherit}
 .dl.room{direction:rtl;background:transparent;color:#5c4636;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;font-weight:500}
 .viz-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);max-width:calc(100% - 20px);text-align:center;font-size:.74rem;font-weight:500;color:#2a1712;background:rgb(255 255 255 / .85);padding:4px 10px;border-radius:999px;pointer-events:none;transition:opacity .6s;z-index:2}
 .viz-hint.gone{opacity:0}
+.viz-views button{white-space:nowrap}
+.sml{display:none}
+@media (max-width:420px){ .lgl{display:none} .sml{display:inline} .viz-views{inset-inline:8px;justify-content:space-between;gap:0} .viz-views button{padding:6px 7px;font-size:.78rem} }
+/* phone on its side: the 3D picture takes the height, the options sit beside it */
+@media (max-height:520px) and (orientation:landscape){
+  .viz-main{flex-direction:row}
+  .viz-stage{margin:8px 8px 8px 0}
+  .viz-bar{width:250px;max-height:none;padding:8px 12px}
+  .viz-top{padding:4px 12px}
+  .viz-bar .vizacts{grid-template-columns:1fr;gap:6px}
+  .viz-bar .vizacts .btn{padding:8px 10px}
+  .viz .viz-bar{overflow:auto;max-height:none}
+}
 /* presentation: the 3D room alone, slowly turning */
 .viz.present .viz-top,.viz.present .viz-bar,.viz.present .viz-hint{display:none}
 .viz.present .viz-stage{margin:0;border:0;border-radius:0}
@@ -433,7 +446,7 @@ button{font:inherit;color:inherit}
       <div class="viz-views" id="vizViews">
         <button type="button" data-v="angle">זווית</button>
         <button type="button" data-v="top">מלמעלה</button>
-        <button type="button" data-v="eye">גובה העיניים</button>
+        <button type="button" data-v="eye"><span class="lgl">גובה העיניים</span><span class="sml">עיניים</span></button>
         <span class="vsep" aria-hidden="true"></span>
         <button type="button" id="dimToggle" aria-pressed="false" title="הצגת מידות ומרחקים מהקיר">מידות</button>
         <button type="button" id="tourBtn" aria-pressed="false" title="סיבוב איטי ומסך מלא, להצגה מול הלקוח">הצגה</button>
@@ -2896,7 +2909,7 @@ if(VIEWER){ $("tip").hidden=true; openShared(); }
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="r3";
+const APP_VERSION="r4";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
@@ -2911,6 +2924,6 @@ async function checkUpdate(){
 
 checkUpdate();
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") checkUpdate(); });
-</script><div style="position:fixed;left:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:99;background:#c9a24d;color:#1b120c;font:700 11px Heebo,Arial,sans-serif;padding:3px 8px;border-radius:99px;pointer-events:none;opacity:.9">גרסת ניסיון r3</div>
+</script><div style="position:fixed;left:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:99;background:#c9a24d;color:#1b120c;font:700 11px Heebo,Arial,sans-serif;padding:3px 8px;border-radius:99px;pointer-events:none;opacity:.9">גרסת ניסיון r4</div>
 </body>
 </html>
