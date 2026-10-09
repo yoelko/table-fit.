@@ -241,7 +241,8 @@ button{font:inherit;color:inherit}
 .dl{direction:ltr;unicode-bidi:isolate;position:absolute;transform:translate(-50%,-50%);white-space:nowrap;font:600 11px/1 Heebo,system-ui,sans-serif;color:#fbf3e3;background:rgb(28 14 9 / .72);padding:3px 7px 3px;border-radius:999px;letter-spacing:.02em;font-variant-numeric:tabular-nums;-webkit-backdrop-filter:blur(3px);backdrop-filter:blur(3px);box-shadow:0 1px 4px rgb(0 0 0 / .25)}
 .dl.size{background:rgb(250 244 232 / .88);color:#3a1a10;border:1px solid rgb(156 114 36 / .55)}
 .dl.room{direction:rtl;background:transparent;color:#5c4636;box-shadow:none;backdrop-filter:none;-webkit-backdrop-filter:none;font-weight:500}
-.viz-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);max-width:calc(100% - 20px);text-align:center;font-size:.74rem;font-weight:500;color:#2a1712;background:rgb(255 255 255 / .85);padding:4px 10px;border-radius:999px;pointer-events:none}
+.viz-hint{position:absolute;bottom:10px;left:50%;transform:translateX(-50%);max-width:calc(100% - 20px);text-align:center;font-size:.74rem;font-weight:500;color:#2a1712;background:rgb(255 255 255 / .85);padding:4px 10px;border-radius:999px;pointer-events:none;transition:opacity .6s;z-index:2}
+.viz-hint.gone{opacity:0}
 .viz-bar{padding:12px 16px 14px;display:flex;flex-direction:column;gap:10px;max-height:40vh;overflow:auto}
 .opt{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
 .opt>span{font-size:.8rem;font-weight:700;color:var(--muted);min-width:60px}
@@ -249,7 +250,11 @@ button{font:inherit;color:inherit}
 .sw i{width:14px;height:14px;border-radius:50%;border:1px solid rgb(0 0 0 / .2)}
 .vizacts{display:grid;grid-template-columns:1.3fr 1fr;gap:8px}
 .vizacts .offerbtn{grid-column:1/-1;border-color:#c9a24d;color:var(--ink)}
-.viewer .offerbtn{display:none}
+.viewer .offerbtn,.viewer #vizShare{display:none}
+.viewer .vizacts{grid-template-columns:1fr}
+.vizfoot{display:none;text-align:center;font-size:.8rem;color:var(--muted);padding-top:2px}
+.viewer .vizfoot{display:block}
+.vizfoot a{color:inherit}
 .sharebox{display:flex;flex-direction:column;gap:8px}
 .sharebox .row .btn{flex:1}
 .viewer #vizClose,.viewer .viz-bar .opt,.viewer .vizstyle{display:none}
@@ -1428,6 +1433,8 @@ async function openViz(){
   $("vizMsg").hidden=true;
   if(!V) initViz();
   buildScene(); resizeViz(); setView(V.view||"angle"); showDims();
+  // the how-to hint shows for a moment, then gets out of the picture
+  const h=document.querySelector(".viz-hint"); h.classList.remove("gone"); clearTimeout(h._t); h._t=setTimeout(()=>h.classList.add("gone"),4500);
 }
 function renderVizBar(){
   const bar=$("vizBar");
@@ -1436,7 +1443,7 @@ function renderVizBar(){
   const was=document.querySelector(".vizstyle"), open=was?was.open:isWide();
   bar.innerHTML=`<details class="vizstyle" ${open?"open":""}><summary>עיצוב החדר</summary><div class="opts">`+row("צבע הבד",FELTS,"felt")+row("רצפה",FLOORS,"floor")+row("קירות",WALLS,"wall")+`</div></details>`+
     `<div class="vizacts"><button type="button" class="btn solid" id="vizShare">שליחת ההדמיה ללקוח</button><button type="button" class="btn" id="vizSave">שמירה כתמונה</button><button type="button" class="btn offerbtn" id="vizOffer">הצעה ללקוח (דף A4 עם מחירים)</button></div>
-     ${VIEWER?`<button type="button" class="link" id="vizImport">שמירה כפרויקט שלי</button>`:""}
+     ${VIEWER?`<p class="vizfoot" dir="rtl">הדמיה מאת <a href="https://www.playon.co.il/" target="_blank" rel="noopener">PlayOn</a> · שולחנות Regiis</p><button type="button" class="link" id="vizImport" style="font-size:.78rem;opacity:.7">שמירה כפרויקט שלי</button>`:""}
      <div class="sharebox" id="shareBox" hidden><input class="text" id="shareUrl" readonly dir="ltr" aria-label="קישור להדמיה"><div class="row"><button type="button" class="btn" id="shareCopy">העתקה</button><a class="btn" id="shareWa" target="_blank" rel="noopener">וואטסאפ</a></div></div>`;
   bar.querySelectorAll(".sw").forEach(b=>b.onclick=()=>{STYLE[b.dataset.k]=b.dataset.v; saveStyle(); renderVizBar(); if(V){buildScene(); render();}});
   $("vizSave").onclick=saveVizImage; $("vizOffer").onclick=makeOffer;
@@ -1454,7 +1461,7 @@ async function packShare(){
   r.tables.forEach(t=>{t.cx=Math.round(t.cx);t.cy=Math.round(t.cy);}); r.furn.forEach(f=>{f.cx=Math.round(f.cx);f.cy=Math.round(f.cy);});
   const o=V?.orbit||{theta:.65,phi:.95,r:0};
   const data={v:1,n:cur.name,t:STYLE.title||cur.name,s:{felt:STYLE.felt,floor:STYLE.floor,wall:STYLE.wall,dims:!!STYLE.dims},r,
-    c:{th:+o.theta.toFixed(3),ph:+o.phi.toFixed(3),r:Math.round(o.r),vw:V?.view||null}};
+    c:{th:+o.theta.toFixed(3),ph:+o.phi.toFixed(3),r:Math.round(o.r),vw:V?(V.view||null):"angle"}};
   let bytes=new TextEncoder().encode(JSON.stringify(data)), tag="j";
   if(window.CompressionStream){ try{ bytes=new Uint8Array(await new Response(new Blob([bytes]).stream().pipeThrough(new CompressionStream("deflate-raw"))).arrayBuffer()); tag="z"; }catch(e){ bytes=new TextEncoder().encode(JSON.stringify(data)); } }
   return SHARE_BASE+"#"+tag+b64u(bytes);
@@ -1490,7 +1497,8 @@ async function openShared(){
   $("vizTitle").value=d.t||d.n||""; $("vizTitle").readOnly=true;
   P=roomPoints(); G=buildGrid(P); renderProjName(); drawPlan();
   await openViz();
-  if(V&&d.c){ V.orbit.theta=d.c.th; V.orbit.phi=d.c.ph; if(d.c.r) V.orbit.r=d.c.r; markView(d.c.vw||null); applyCam(); }
+  // the client's screen may be any shape: a named view is rebuilt for it, a free angle keeps its direction and is re-fitted
+  if(V&&d.c){ if(d.c.vw) setView(d.c.vw); else { V.orbit.theta=d.c.th; V.orbit.phi=d.c.ph; markView(null); applyCam(); fitRoom(.92); } }
 }
 
 const MOBILE=matchMedia("(pointer: coarse)").matches&&Math.min(screen.width,screen.height)<900;
