@@ -677,7 +677,7 @@ function buildGrid(P){
   const maxX=Math.max(...P.map(p=>p[0])), maxY=Math.max(...P.map(p=>p[1]));
   const nx=Math.ceil(maxX/CELL), ny=Math.ceil(maxY/CELL);
   const S=new Int32Array((nx+1)*(ny+1));
-  const obs=[...state.cols,...state.furn.filter(f=>!ON_WALL[f.type]).map(fBox)];
+  const obs=[...state.cols,...state.furn.filter(f=>!ON_WALL[f.type]&&!f.aisle).map(fBox)];
   for(let j=0;j<ny;j++){
     let rowSum=0; const y=(j+.5)*CELL, xs=[];
     for(let a=0,b=P.length-1;a<P.length;b=a++){ const [xi,yi]=P[a],[xj,yj]=P[b]; if((yi>y)!==(yj>y)) xs.push((xj-xi)*(y-yi)/(yj-yi)+xi); }
@@ -733,14 +733,14 @@ function sizeStatus(it){
 function tableStatus(t){
   const D=dims(t), body=box(t.cx,t.cy,D.O);
   const others=state.tables.filter(o=>o!==t).map(o=>box(o.cx,o.cy,dims(o).O));
-  if(!gridFree(G,body)||others.some(o=>hit(o,body))) return "bad";
+  if(!gridFree(G,body)||others.some(o=>hit(o,body))||state.furn.some(f=>f.aisle&&hit(fBox(f),body))) return "bad";
   const wallOk=gridFree(G,box(t.cx,t.cy,D.N)), tableOk=others.every(o=>sep(o,body)>=GAP.table-1);
   return wallOk&&tableOk?"ok":"warn";
 }
 // First free spot scanning from the top-left corner, so repeated adds pack the room in rows.
 function findSpot(t,byCol=false,rots=[false,true]){
   let best=null;
-  const bodies=state.tables.filter(o=>o!==t).map(o=>box(o.cx,o.cy,dims(o).O));
+  const bodies=state.tables.filter(o=>o!==t).map(o=>box(o.cx,o.cy,dims(o).O)).concat(state.furn.filter(f=>f.aisle).map(fBox));
   for(const rot of rots){
     const D=dims(t,rot), Z=D.N, w=Math.ceil(Z[0]/CELL), h=Math.ceil(Z[1]/CELL);
     const A=byCol?G.nx-w:G.ny-h, B=byCol?G.ny-h:G.nx-w;
@@ -1158,7 +1158,7 @@ function tablePlan(t,o,p,sw){
     const [cx,cy]=at(L*.25,Wd/2); g+=`<circle cx="${cx}" cy="${cy}" r="${br}" fill="#f6f2e8"/>`; }
   return g;
 }
-function newTable(it){ const t={name:it.name,kind:it.kind,L:it.L,W:it.W,cx:0,cy:0,rot:false}; if(it.fin) t.fin=it.fin; if(it.sh) t.sh=it.sh; return t; }
+function newTable(it){ const t={name:it.name,kind:it.kind,L:it.L,W:it.W,cx:0,cy:0,rot:false}; if(it.fin) t.fin=it.fin; if(it.sh) t.sh=it.sh; if(it.realW) t.realW=it.realW; return t; }
 const landing=new Set();
 function markLanding(ts){ ts.forEach(t=>landing.add(t)); setTimeout(()=>{ ts.forEach(t=>landing.delete(t)); },600); }
 function addTable(it){
@@ -2734,16 +2734,41 @@ function parseRoom(text){
   if(/פינג|טניס שולחן/.test(t)) out.pong=true; if(/כדורגל/.test(t)) out.foos=true; if(/הוקי/.test(t)) out.air=true; if(/פוקר|קלפים/.test(t)&&out.purpose!=="poker") out.pokerToo=true;
   return out;
 }
+// Snooker clubs: between every two snooker tables standing side by side there is a seat for the players —
+// a high bar table with two chairs, or a sofa. The advisor plans those tables a little wider (SEAT_EXTRA on the long side),
+// then gives them back their real size and puts the seat in the middle of the wider gap.
+const SEAT_EXTRA=150;
+const seatWrap=it=>it&&it.kind==="cue"&&(it.L>330||/סנוקר/.test(it.name))?{...it,W:it.W+SEAT_EXTRA,realW:it.W}:it;
+function seatsBetween(){
+  const ts=state.tables.filter(t=>t.realW); if(!ts.length) return 0;
+  for(const t of ts){ t.W=t.realW; delete t.realW; }
+  let n=0;
+  for(const a of ts) for(const b of ts){
+    if(a===b||a.rot!==b.rot) continue;
+    const along=a.rot?"cy":"cx", across=a.rot?"cx":"cy";
+    if(Math.abs(a[along]-b[along])>40||b[across]<=a[across]) continue;
+    const gap=(b[across]-a[across])-a.W/2-b.W/2; if(gap<GAP.table+60||gap>GAP.table+SEAT_EXTRA+40) continue;
+    const mid=(a[across]+b[across])/2, ax=(a[along]+b[along])/2, at=(u,v)=>a.rot?[v,u]:[u,v];
+    const kind=n%2?"sofa":"hightable";
+    if(kind==="sofa"){ const [x,y]=at(ax,mid), f=putFurn("sofa",x,y,a.rot?90:0); if(f){ f.aisle=1; n++; } }
+    else { const [x,y]=at(ax,mid), f=putFurn("hightable",x,y,0); if(f){ f.aisle=1; n++;
+        for(const sgn of [-1,1]){ const [cx,cy]=at(ax+sgn*(FURN.hightable.w/2+FURN.chair.h/2+4),mid), c=putFurn("chair",cx,cy,a.rot?(sgn<0?0:180):(sgn<0?270:90)); if(c) c.aisle=1; } } }
+  }
+  return n;
+}
 // Work on a scratch copy of the room and hand back the result; the open project is never touched.
 function sandbox(room,fn){
   const save=JSON.stringify(roomData()), g0={...GAP};
   Object.assign(state,DEFAULT_ROOM(),room,{tables:[],furn:[],cols:[],custom:null}); P=roomPoints(); G=buildGrid(P);
-  try{ const info=fn()||{}; return {room:clone(roomData()),info}; }
+  try{ const info=fn()||{}; seatsBetween(); return {room:clone(roomData()),info}; }
   finally{ Object.assign(state,JSON.parse(save)); Object.assign(GAP,g0); P=roomPoints(); G=buildGrid(P); }
 }
 // Try several packing orders; most tables wins, and among equals the tidier one (all turned the same way, compact block).
 function packTables(it,limit=100,center=true){
   const keep=state.tables.slice(); let best=keep, bestSc=-Infinity;
+  if(it.realW){   // snooker with seats between: straight rows only, so every neighbour pair shares a seat
+    const lat=latticeLayouts(it,keep,limit)[0];
+    if(lat){ state.tables=keep.concat(lat.ts); if(center==="all"||(center&&!keep.length)) centerTables(state.tables); return lat.ts.length; } }
   const tidy=ts=>{ const nw=ts.slice(keep.length); if(!nw.length) return 0; const bb=nw.map(t=>box(t.cx,t.cy,dims(t).O));
     const area=(Math.max(...bb.map(b=>b.x+b.w))-Math.min(...bb.map(b=>b.x)))*(Math.max(...bb.map(b=>b.y+b.h))-Math.min(...bb.map(b=>b.y)));
     const mixed=new Set(nw.map(t=>!!t.rot)).size>1; return -area/1e4-(mixed?400:0); };
@@ -2758,7 +2783,7 @@ function packTables(it,limit=100,center=true){
 // Every straight grid of tables (rows 120 cm apart, 140 cm from walls, columns and furniture), at each offset;
 // the best few by count, then by how evenly they sit in the room.
 function latticeLayouts(it,keep,limit){
-  const out=[], kb=keep.map(o=>box(o.cx,o.cy,dims(o).O)), step=CELL*4;
+  const out=[], kb=keep.map(o=>box(o.cx,o.cy,dims(o).O)).concat(state.furn.filter(f=>f.aisle).map(fBox)), step=CELL*4;
   for(const rot of [false,true]){
     const t0=newTable(it); t0.rot=rot; const D=dims(t0), O=D.O, px=O[0]+GAP.table, py=O[1]+GAP.table;
     for(let ox=0;ox<px;ox+=step) for(let oy=0;oy<py;oy+=step){
@@ -2831,8 +2856,11 @@ function packMix(mix,cue,lim){
   const trySplit=x=>{ x=Math.round(Math.max(300,Math.min(L-300,x))/10)*10; if(tried.has(x)) return null; tried.add(x);
     state.tables=keep.slice();
     const wall={x,y:-10,w:L-x+10,h:W+20}; state.cols.push(wall); G=buildGrid(P);
-    const a=packTables(big,lim,false); state.cols.pop(); G=buildGrid(P);
-    const b=packTables(small,Math.max(0,lim-a),false), tot=a+b, sc=tot*10-Math.abs(a-p*tot)*30;
+    const a=packTables(big,lim,false); state.cols.pop();
+    // the small tables keep to their own section too
+    const bb=state.tables.slice(keep.length).map(t=>box(t.cx,t.cy,dims(t).O)), edge=bb.length?Math.max(...bb.map(q=>q.x+q.w))+GAP.table-GAP.wall:0;
+    if(edge>0) state.cols.push({x:-10,y:-10,w:edge+10,h:W+20}); G=buildGrid(P);
+    const b=packTables(small,Math.max(0,lim-a),false); if(edge>0){ state.cols.pop(); G=buildGrid(P); } const tot=a+b, sc=tot*10-Math.abs(a-p*tot)*30;
     const r={sc,a,tot,x,ts:state.tables}; if(!best||sc>best.sc) best=r; return r; };
   let r=trySplit(L*share);
   for(let i=0;i<4&&r;i++){ const off=r.a/r.tot-p; if(Math.abs(off)*r.tot<.6) break; r=trySplit(r.x-off/p*r.x*.8); }
@@ -2867,18 +2895,18 @@ function detailedProposals(q,cue,lim){
 }
 // Build up to three different finished proposals for the described room.
 function makeProposals(q){
-  if(isDetailed(q)) return detailedProposals(q,k=>advItem(k),q.count||200);
+  if(isDetailed(q)) return detailedProposals(q,k=>seatWrap(advItem(k)),q.count||200);
   const upright=!isWide()&&innerHeight>innerWidth*1.15&&q.L>q.W*1.15&&(q.shape||"rect")==="rect";
   const room={shape:q.shape||"rect",L:upright?q.W:q.L,W:upright?q.L:q.W,a:Math.round(q.L*.3),b:Math.round(q.W*.3)};
   const purpose=q.purpose||(q.count>1||q.L*q.W>=900*700?"pool":"home"), lim=q.count||100, props=[];
   const left=()=>Math.max(0,lim-state.tables.length);   // a stated number of tables is the most tables any proposal gets
-  const cue=k=>advItem(k);
+  const cue=k=>seatWrap(advItem(k));
   // a proposal only counts if it really holds what its name promises (need: the kinds of table it must contain)
   const add=(title,note,fn,need=[])=>{ const r=sandbox(room,fn); if(!r.room.tables.length) return; const has=k=>r.room.tables.some(t=>k==="snk"?isSnk(t):k==="pool"?t.kind==="cue"&&!isSnk(t):t.kind===k);
     if(need.some(k=>Array.isArray(k)?!k.some(has):!has(k))) return; props.push({title:describeLayout(r.room)||title,concept:title,note,...r}); };
   const sizeKey=q.ft>=12?"s12":q.ft>=10?"s10":q.ft===9?"p9":q.ft===8?"p8":q.ft===7?"p7":null;
   if(purpose==="snooker"){
-    add("מועדון סנוקר מלא","כמה שיותר שולחנות 12 פיט במרחקי משחק מלאים",()=>{ packTables(cue(sizeKey||"s12"),lim); if(q.bar||q.lounge) addLounge(q.bar); });
+    add("מועדון סנוקר מלא",`כמה שיותר שולחנות ${sizeKey==="s10"?10:12} פיט במרחקי משחק מלאים`,()=>{ packTables(cue(sizeKey||"s12"),lim); if(q.bar||q.lounge) addLounge(q.bar); });
     add("סנוקר עם בר ולאונג'","פחות שולחן אחד, ובמקומו פינת ישיבה ובר",()=>{ const n=sandboxCount(room,cue(sizeKey||"s12")); packTables(cue(sizeKey||"s12"),Math.max(1,Math.min(lim,n-1))); addLounge(true); });
     add("סנוקר ופול משולב","שולחנות 12 פיט ולצידם 9 פיט",()=>{ packTables(cue("s12"),Math.max(1,Math.floor(Math.min(lim,sandboxCount(room,cue("s12")))/2)),false); packTables(cue("p9"),left(),"all"); if(q.bar) addLounge(true); },["snk","pool"]);
   } else if(purpose==="poker"){
@@ -2908,8 +2936,8 @@ const isSnk=t=>t.kind==="cue"&&(t.L>330||/סנוקר/.test(t.name||""));
 function describeLayout(rd){
   const c={}; for(const t of rd.tables){ const k=t.kind==="cue"?(isSnk(t)?`סנוקר${/10 פיט/.test(t.name)?" 10 פיט":""}`:`ביליארד${/(\d+) פיט/.test(t.name)?" "+t.name.match(/(\d+) פיט/)[1]+" פיט":""}`):({foos:"כדורגל",air:"הוקי אוויר",pong:"פינג פונג",poker:"פוקר"}[t.kind]||"שולחן"); c[k]=(c[k]||0)+1; }
   const parts=Object.entries(c).map(([k,n],i)=>i===0?(n>1?`${n} שולחנות ${k}`:`שולחן ${k}`):(n>1?`${n} ${k}`:k));
-  const has=t=>rd.furn.some(f=>f.type===t), extra=has("bar")&&(has("sofa")||has("armchair"))?" · בר ולאונג'":has("bar")?" · בר":(has("sofa")||has("armchair")||has("tv"))?" · פינת ישיבה":"";
-  return parts.join(" + ")+extra;
+  const has=t=>rd.furn.some(f=>f.type===t&&!f.aisle), extra=has("bar")&&(has("sofa")||has("armchair"))?" · בר ולאונג'":has("bar")?" · בר":(has("sofa")||has("armchair")||has("tv"))?" · פינת ישיבה":"";
+  return parts.join(" + ")+extra+(rd.furn.some(f=>f.aisle)?" · ישיבה בין השולחנות":"");
 }
 function sandboxCount(room,it){ return sandbox(room,()=>({n:packTables(it)})).info.n; }
 function propSummary(rd){
@@ -3210,7 +3238,7 @@ if(VIEWER){ $("tip").hidden=true; openShared(); }
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="29";
+const APP_VERSION="30";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});

@@ -93,3 +93,9 @@
 - TVs and cue racks hang on the wall and no longer push tables away.
 - 3D: the camera far plane follows the distance, so very long halls (70 m) show instead of an empty view.
 - Project "אולם סנוקר 70×20" sent to the app via inbox.json.
+
+## v30 — 11.10
+- Smart planning: between every two snooker tables standing side by side there is a seat — a high bar table with 2 chairs or a sofa, alternating. Snooker tables are planned 150 cm wider apart on the long side to make room (270 cm between them), in straight rows so every pair shares a seat.
+- Seats between tables don't count as walls for the clearance rule, and a fill never puts a table on them.
+- In a size mix, each size stays in its own section.
+- Project "אולם סנוקר 70×20 עם ישיבה" sent to the app.
