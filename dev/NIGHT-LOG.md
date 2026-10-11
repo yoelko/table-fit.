@@ -109,3 +109,7 @@
 - Grids also try rows spread evenly over the room, so a line of columns sits in a wide middle aisle.
 - Seated layouts also try pairs: two tables with the seat between them, pairs 120 apart.
 - 70×20 hall with seats: 45 -> 56 tables, every table with a seat.
+
+## v33 — 11.10
+- Snooker seating: every table gets its own high bar table with 2 chairs (no sofas). A third layout keeps the normal distances and puts each seat in the free floor beside the table (by the wall or in the column aisle); between paired tables two bar tables, one per table.
+- Project "מועדון סנוקר 50×20 נטו" (70 m hall minus 10 m kitchen and 10 m toilets): 39 tables, bar, lounge, TVs.

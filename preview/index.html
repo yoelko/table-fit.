@@ -2751,21 +2751,47 @@ const SEAT_EXTRA=150;
 // in a snooker club every cue table gets the seat, the 9 ft pool tables too
 const seatWrap=(it,all)=>it&&it.kind==="cue"&&(all||it.L>330||/סנוקר/.test(it.name))?{...it,W:it.W+SEAT_EXTRA,realW:it.W}:it;
 function seatsBetween(){
-  const ts=state.tables.filter(t=>t.realW||t.seat); if(!ts.length) return 0;
-  for(const t of ts){ if(t.realW) t.W=t.realW; delete t.realW; delete t.seat; }
+  const ts=state.tables.filter(t=>t.realW||t.seat||t.free); if(!ts.length) return 0;
+  const fr=ts.filter(t=>t.free);
+  for(const t of ts){ if(t.realW) t.W=t.realW; delete t.realW; delete t.seat; delete t.free; }
   let n=0;
-  for(const a of ts) for(const b of ts){
+  // tables with their own seat: a high table and two chairs beside the long side, wherever the floor is free
+  for(const sp of seatPlan(state.tables,fr)){
+    state.furn.push({type:"hightable",cx:Math.round(sp.x),cy:Math.round(sp.y),w:FURN.hightable.w,h:FURN.hightable.h,rot:0,aisle:1}); n++;
+    for(const sg of [-1,1]){ const o=sg*(FURN.hightable.w/2+FURN.chair.h/2+4);
+      state.furn.push({type:"chair",cx:Math.round(sp.x+(sp.alongX?o:0)),cy:Math.round(sp.y+(sp.alongX?0:o)),w:FURN.chair.w,h:FURN.chair.h,rot:sp.alongX?(sg<0?270:90):(sg<0?0:180),aisle:1}); } }
+  const ts2=ts.filter(t=>!fr.includes(t));
+  for(const a of ts2) for(const b of ts2){
     if(a===b||a.rot!==b.rot) continue;
     const along=a.rot?"cy":"cx", across=a.rot?"cx":"cy";
     if(Math.abs(a[along]-b[along])>40||b[across]<=a[across]) continue;
     const gap=(b[across]-a[across])-a.W/2-b.W/2; if(gap<GAP.table+60||gap>GAP.table+SEAT_EXTRA+40) continue;
     const mid=(a[across]+b[across])/2, ax=(a[along]+b[along])/2, at=(u,v)=>a.rot?[v,u]:[u,v];
-    const kind=n%2?"sofa":"hightable";
-    if(kind==="sofa"){ const [x,y]=at(ax,mid), f=putFurn("sofa",x,y,a.rot?90:0); if(f){ f.aisle=1; n++; } }
-    else { const [x,y]=at(ax,mid), f=putFurn("hightable",x,y,0); if(f){ f.aisle=1; n++;
-        for(const sgn of [-1,1]){ const [cx,cy]=at(ax+sgn*(FURN.hightable.w/2+FURN.chair.h/2+4),mid), c=putFurn("chair",cx,cy,a.rot?(sgn<0?0:180):(sgn<0?270:90)); if(c) c.aisle=1; } } }
+    // one high bar table with two chairs for each of the two tables, side by side in the gap between them
+    for(const off of [-(SEAT_U[0]/2+3),SEAT_U[0]/2+3]){ const [x,y]=at(ax+off,mid), f=putFurn("hightable",x,y,0); if(!f) continue; f.aisle=1; n++;
+      for(const sgn of [-1,1]){ const [cx,cy]=at(ax+off+sgn*(FURN.hightable.w/2+FURN.chair.h/2+4),mid), c=putFurn("chair",cx,cy,a.rot?(sgn<0?0:180):(sgn<0?270:90)); if(c) c.aisle=1; } }
   }
   return n;
+}
+// A seat for each table in the free floor beside one of its long sides: 70 cm from its own table, 60 from any other,
+// clear of columns, furniture and the other seats; the wall may be right behind it. Tables with no room are skipped.
+const SEAT_U=[FURN.hightable.w+2*(FURN.chair.h+4),FURN.hightable.h];   // along the table × across
+function seatPlan(all,mine){
+  const out=[], bodies=all.map(t=>({t,b:box(t.cx,t.cy,dims(t).O)})), placed=state.furn.filter(f=>f.aisle||ON_WALL[f.type]).map(fBox);
+  for(const t of mine){
+    const alongX=!t.rot, D=dims(t).O, Lh=(alongX?D[0]:D[1])/2, Wh=(alongX?D[1]:D[0])/2, ok=[];
+    for(const sd of [1,-1]) for(const d of [0,-60,60,-110,110,-160,160]){
+      if(Math.abs(d)>Lh-SEAT_U[0]/2+10) continue;
+      const ac=sd*(Wh+70+SEAT_U[1]/2), x=t.cx+(alongX?d:ac), y=t.cy+(alongX?ac:d);
+      const b=box(x,y,alongX?SEAT_U:[SEAT_U[1],SEAT_U[0]]);
+      if(!gridFree(G,b)||state.cols.some(c=>hit(c,b))) continue;
+      if(bodies.some(o=>o.t!==t&&(hit(o.b,b)||sep(o.b,b)<60))) continue;
+      if(placed.some(p=>hit(p,b)||sep(p,b)<20)) continue;
+      ok.push({x,y,alongX,b}); break;
+    }
+    if(ok.length){ out.push(ok[0]); placed.push(ok[0].b); }
+  }
+  return out;
 }
 // Work on a scratch copy of the room and hand back the result; the open project is never touched.
 function sandbox(room,fn){
@@ -2782,7 +2808,11 @@ function packTables(it,limit=100,center=true){
     const pit={...it,W:2*it.realW+seatGap}; delete pit.realW;
     const pl=limit>=2?latticeLayouts(pit,keep,Math.floor(limit/2))[0]:null;
     let ts=lat?lat.ts:[];
-    if(pl&&pl.ts.length*2>ts.length){ ts=[];
+    let free=null; const bestAB=Math.max(ts.length,pl?pl.ts.length*2:0), plain={...it,W:it.realW}; delete plain.realW;
+    for(const c of latticeLayouts(plain,keep,limit,true)){ if(c.ts.length<bestAB) break;
+      if(seatPlan(keep.concat(c.ts),c.ts).length>=Math.ceil(c.ts.length*.9)){ free=c; break; } }
+    if(free){ ts=free.ts; ts.forEach(t=>{ delete t.realW; t.free=1; }); }
+    else if(pl&&pl.ts.length*2>ts.length){ ts=[];
       for(const p of pl.ts) for(const sg of [-1,1]){ const t=newTable({...it,W:it.realW}); delete t.realW; t.seat=1; t.rot=p.rot;
         const off=sg*(it.realW+seatGap)/2; if(p.rot){ t.cx=p.cx+off; t.cy=p.cy; } else { t.cx=p.cx; t.cy=p.cy+off; } ts.push(t); } }
     if(ts.length){ state.tables=keep.concat(ts); if(center==="all"||(center&&!keep.length)) centerTables(state.tables); return ts.length; } }
@@ -2799,7 +2829,7 @@ function packTables(it,limit=100,center=true){
 }
 // Every straight grid of tables (rows 120 cm apart, 140 cm from walls, columns and furniture), at each offset;
 // the best few by count, then by how evenly they sit in the room.
-function latticeLayouts(it,keep,limit){
+function latticeLayouts(it,keep,limit,all=false){
   const out=[], kb=keep.map(o=>box(o.cx,o.cy,dims(o).O)).concat(state.furn.filter(f=>f.aisle).map(fBox),colBoxes()), step=CELL*4;
   for(const rot of [false,true]){
     const t0=newTable(it); t0.rot=rot; const D=dims(t0), O=D.O, px=O[0]+GAP.table, py=O[1]+GAP.table;
@@ -2828,7 +2858,7 @@ function latticeLayouts(it,keep,limit){
     }
   }
   out.sort((a,b)=>b.ts.length-a.ts.length||b.balance-a.balance);
-  return out.slice(0,4);
+  return all?out:out.slice(0,4);
 }
 function addQuiet(type){ const F=FURN[type], f={type,cx:0,cy:0,w:F.w,h:F.h,rot:0}; const s=smartFurnSpot(f); if(!s) return false; f.rot=s.rot; f.cx=s.cx; f.cy=s.cy; state.furn.push(f); G=buildGrid(P); return true; }
 function addLounge(bar){ let n=0; if(bar){ if(addQuiet("backbar")) n++; if(addQuiet("bar")){ n++; for(let i=0;i<4;i++) addQuiet("stool"); } }
@@ -3266,7 +3296,7 @@ if(VIEWER){ $("tip").hidden=true; openShared(); }
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="32";
+const APP_VERSION="33";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
@@ -3281,6 +3311,6 @@ async function checkUpdate(){
 
 checkUpdate();
 document.addEventListener("visibilitychange",()=>{ if(document.visibilityState==="visible") checkUpdate(); });
-</script><div style="position:fixed;left:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:99;background:#c9a24d;color:#1b120c;font:700 11px Heebo,Arial,sans-serif;padding:3px 8px;border-radius:99px;pointer-events:none;opacity:.9">גרסת ניסיון 32</div>
+</script><div style="position:fixed;left:8px;bottom:calc(env(safe-area-inset-bottom,0px) + 8px);z-index:99;background:#c9a24d;color:#1b120c;font:700 11px Heebo,Arial,sans-serif;padding:3px 8px;border-radius:99px;pointer-events:none;opacity:.9">גרסת ניסיון 33</div>
 </body>
 </html>
