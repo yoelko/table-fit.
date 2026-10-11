@@ -1249,8 +1249,10 @@ function renderRoom(){
 
   const s3=section("");
   s3.insertAdjacentHTML("beforeend",`<div class="row"><button type="button" class="btn" id="addCol">+ עמוד</button><button type="button" class="btn" id="rotRoom" title="סיבוב כל החדר ברבע סיבוב">סיבוב החדר</button>
-    <label class="btn" for="skFile">${cur.bg?"החלפת שרטוט":"העלאת שרטוט"}<input id="skFile" type="file" accept="image/*" hidden></label></div>`);
+    <label class="btn" for="skFile">${cur.bg?"החלפת שרטוט":"העלאת שרטוט"}<input id="skFile" type="file" accept="image/*" hidden></label></div>
+    <div style="margin-top:10px">${ADV_CARD("advFromRoom")}</div>`);
   p.append(s3);
+  $("advFromRoom").onclick=openAdvisor;
   $("rotRoom").onclick=rotateRoom;
   $("addCol").onclick=()=>{pushUndo(true); const c={x:Math.round(G.maxX/2-20),y:Math.round(G.maxY/2-20),w:40,h:40}; state.cols.push(c); refreshRoom(); select({type:"c",o:c});};
   $("skFile").onchange=e=>{ const f=e.target.files?.[0]; if(f) loadSketch(f); };
@@ -1310,8 +1312,6 @@ function renderTables(){
     list.append(r);
   });
   p.append(list);
-  p.insertAdjacentHTML("afterbegin",ADV_CARD("advFromTables"));
-  $("advFromTables").onclick=openAdvisor;
   p.insertAdjacentHTML("beforeend",`<button type="button" class="btn catbtn" id="catOpen"><span>קטלוג PlayOn</span><small>${PLAYON.length} דגמים במידות מהאתר</small></button>`);
   $("catOpen").onclick=openCatalog;
   p.insertAdjacentHTML("beforeend",`<div class="links"><button type="button" class="link" id="addSize">+ גודל משלי</button><button type="button" class="link" id="clearAll" ${state.tables.length?"":"disabled"}>הוצאת כל השולחנות</button></div>`);
@@ -2169,7 +2169,11 @@ function buildScene(){
   const chrome=M(0xffffff,{metalness:1,roughness:.12});
   const brass=M(0xd9b46a,{metalness:1,roughness:.25});
   const shadeGreen=M(0x1f7a46,{metalness:.2,roughness:.3,envMapIntensity:1.2,side:THREE.DoubleSide});
-  const shadeWhite=new THREE.MeshBasicMaterial({color:0xfff6e4,side:THREE.DoubleSide});
+  const shadeWhite=new THREE.MeshBasicMaterial({color:STYLE.night?0xffeec4:0xfff6e4,side:THREE.DoubleSide});
+  const glowM=new THREE.MeshBasicMaterial({color:0xfff0c8,side:THREE.DoubleSide});
+  const poolTex=canvasTex("lamp-pool",256,128,(x,w,h)=>{ const g=x.createRadialGradient(w/2,h/2,4,w/2,h/2,w/2); g.addColorStop(0,"rgba(255,236,190,.9)"); g.addColorStop(.55,"rgba(255,220,160,.35)"); g.addColorStop(1,"rgba(255,210,150,0)"); x.fillStyle=g; x.fillRect(0,0,w,h); });
+  const poolM=new THREE.MeshBasicMaterial({map:poolTex,transparent:true,depthWrite:false,blending:THREE.AdditiveBlending,opacity:.55});
+  const coneM=new THREE.MeshBasicMaterial({color:0xffe2b0,transparent:true,opacity:.07,depthWrite:false,blending:THREE.AdditiveBlending,side:THREE.DoubleSide});
   const BRAND="Regiis"; let brandMat=null, brandRatio=4;
   {
     const c=document.createElement("canvas"); c.height=200; let g2=c.getContext("2d"); g2.font="italic 600 150px Georgia, 'Times New Roman', serif";
@@ -2279,7 +2283,11 @@ function buildScene(){
         const inn=new THREE.Mesh(new THREE.LatheGeometry([[3.6,-.6],[7.3,-3.5],[14.2,-9.4],[19.6,-15.2]].map(([a,b])=>new THREE.Vector2(a,b)),28),shadeWhite); sh.add(inn);
         const rim=new THREE.Mesh(new THREE.TorusGeometry(20.7,.45,8,48),chrome); rim.rotation.x=Math.PI/2; rim.position.y=-15.4; sh.add(rim);
         const bulb=new THREE.Mesh(new THREE.SphereGeometry(4.2,16,12),new THREE.MeshBasicMaterial({color:0xfff2d2})); bulb.position.y=-9; sh.add(bulb);
+        if(NIGHT){ // the lamp is on: a glowing opening and a soft beam down to the cloth
+          const disc=new THREE.Mesh(new THREE.CircleGeometry(19.4,32),glowM); disc.rotation.x=Math.PI/2; disc.position.y=-15.1; sh.add(disc);
+          const beamH=barY-6-15-top; const cone=new THREE.Mesh(new THREE.CylinderGeometry(19,46,beamH,24,1,true),coneM); cone.position.y=-15-beamH/2; cone.castShadow=cone.receiveShadow=false; sh.add(cone); }
       }
+      if(NIGHT){ const pool=new THREE.Mesh(new THREE.PlaneGeometry(pl[0]*1.05,pl[1]*1.25),poolM); pool.rotation.x=-Math.PI/2; pool.position.y=top+.9; pool.renderOrder=2; g.add(pool); }
       if(lights<6){
         const sp=new THREE.SpotLight(NIGHT?0xffd9a8:0xffeccc,NIGHT?2.6:1.25,NIGHT?420:380,.95,NIGHT?.6:.55,1.6); sp.position.set(0,barY-26,0); sp.target.position.set(0,top,0); lamp.add(sp); lamp.add(sp.target);
         if(shadowLights<3){ sp.castShadow=true; sp.shadow.mapSize.set(MOBILE?512:1024,MOBILE?512:1024); sp.shadow.bias=-.0006; sp.shadow.radius=4; shadowLights++; }
@@ -3076,7 +3084,7 @@ if(VIEWER){ $("tip").hidden=true; openShared(); }
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="27";
+const APP_VERSION="28";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});
