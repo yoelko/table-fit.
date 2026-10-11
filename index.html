@@ -2738,7 +2738,8 @@ function parseRoom(text){
 // a high bar table with two chairs, or a sofa. The advisor plans those tables a little wider (SEAT_EXTRA on the long side),
 // then gives them back their real size and puts the seat in the middle of the wider gap.
 const SEAT_EXTRA=150;
-const seatWrap=it=>it&&it.kind==="cue"&&(it.L>330||/סנוקר/.test(it.name))?{...it,W:it.W+SEAT_EXTRA,realW:it.W}:it;
+// in a snooker club every cue table gets the seat, the 9 ft pool tables too
+const seatWrap=(it,all)=>it&&it.kind==="cue"&&(all||it.L>330||/סנוקר/.test(it.name))?{...it,W:it.W+SEAT_EXTRA,realW:it.W}:it;
 function seatsBetween(){
   const ts=state.tables.filter(t=>t.realW); if(!ts.length) return 0;
   for(const t of ts){ t.W=t.realW; delete t.realW; }
@@ -2895,12 +2896,12 @@ function detailedProposals(q,cue,lim){
 }
 // Build up to three different finished proposals for the described room.
 function makeProposals(q){
-  if(isDetailed(q)) return detailedProposals(q,k=>seatWrap(advItem(k)),q.count||200);
+  if(isDetailed(q)) return detailedProposals(q,k=>seatWrap(advItem(k),q.purpose==="snooker"),q.count||200);
   const upright=!isWide()&&innerHeight>innerWidth*1.15&&q.L>q.W*1.15&&(q.shape||"rect")==="rect";
   const room={shape:q.shape||"rect",L:upright?q.W:q.L,W:upright?q.L:q.W,a:Math.round(q.L*.3),b:Math.round(q.W*.3)};
   const purpose=q.purpose||(q.count>1||q.L*q.W>=900*700?"pool":"home"), lim=q.count||100, props=[];
   const left=()=>Math.max(0,lim-state.tables.length);   // a stated number of tables is the most tables any proposal gets
-  const cue=k=>seatWrap(advItem(k));
+  const cue=k=>seatWrap(advItem(k),q.purpose==="snooker");
   // a proposal only counts if it really holds what its name promises (need: the kinds of table it must contain)
   const add=(title,note,fn,need=[])=>{ const r=sandbox(room,fn); if(!r.room.tables.length) return; const has=k=>r.room.tables.some(t=>k==="snk"?isSnk(t):k==="pool"?t.kind==="cue"&&!isSnk(t):t.kind===k);
     if(need.some(k=>Array.isArray(k)?!k.some(has):!has(k))) return; props.push({title:describeLayout(r.room)||title,concept:title,note,...r}); };
@@ -3238,7 +3239,7 @@ if(VIEWER){ $("tip").hidden=true; openShared(); }
 
 <script>
 /* Auto-update: when a newer version is published, reload into it. */
-const APP_VERSION="30";
+const APP_VERSION="31";
 async function checkUpdate(){
   try{
     const r=await fetch("version.json?t="+Date.now(),{cache:"no-store"});

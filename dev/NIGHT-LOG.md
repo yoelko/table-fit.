@@ -99,3 +99,6 @@
 - Seats between tables don't count as walls for the clearance rule, and a fill never puts a table on them.
 - In a size mix, each size stays in its own section.
 - Project "אולם סנוקר 70×20 עם ישיבה" sent to the app.
+
+## v31 — 11.10
+- In a snooker club every pair of neighbouring cue tables gets a seat, the 9 ft pool tables too (before: snooker models only).
