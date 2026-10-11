@@ -85,3 +85,11 @@
 ## 11.10 – גרסה 28
 - "תכנון חכם" עבר ללשונית "חדר", מתחת לכפתור "העלאת שרטוט".
 - מצב ערב: כל מנורות השולחנות דולקות – פתח המנורה זוהר, אלומת אור עדינה ושלולית אור על הבד בכל שולחן (גם בחדר עם עשרות שולחנות).
+
+## v29 — 11.10
+- Smart planning understands detailed requests: "70/20 מטר", columns every N m along the length (rows/size optional), bar depth / length / distance from the wall, sofas, armchairs, TVs, a share of sizes ("30% 10 פיט, 70% 9 פיט").
+- Detailed requests are built as asked: columns, bar with back bar and stools at one end wall, lounge (TV, sofa, armchairs, coffee table) at the other, each size in its own section of neat rows, screens and cue racks on the long walls.
+- A "הבנתי" line in the advisor shows what was understood.
+- TVs and cue racks hang on the wall and no longer push tables away.
+- 3D: the camera far plane follows the distance, so very long halls (70 m) show instead of an empty view.
+- Project "אולם סנוקר 70×20" sent to the app via inbox.json.

@@ -185,7 +185,7 @@ button{font:inherit;color:inherit}
 .micbtn svg{width:24px;height:24px}
 .micbtn.on{background:#b3261e;animation:micpulse 1.2s infinite}
 @keyframes micpulse{0%,100%{box-shadow:0 0 0 0 rgb(179 38 30 / .45)}50%{box-shadow:0 0 0 10px rgb(179 38 30 / 0)}}
-#advEx{margin:10px 0 4px}#advEx button{font-size:.8rem;color:var(--muted)}
+#advEx{margin:10px 0 4px}.advgot{margin:10px 0 2px;display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:.8rem;color:var(--muted)}.advgot span{background:color-mix(in srgb,var(--accent) 12%,transparent);color:var(--ink);border-radius:999px;padding:3px 10px}#advEx button{font-size:.8rem;color:var(--muted)}
 .advf{display:grid;grid-template-columns:1fr 1fr 1.2fr;gap:8px;margin:12px 0 10px}
 .advf label{display:flex;flex-direction:column;gap:4px;font-size:.78rem;font-weight:700;color:var(--muted)}
 .advf .text{width:100%;box-sizing:border-box;font-size:1rem}
@@ -413,10 +413,11 @@ button{font:inherit;color:inherit}
     <div class="proj-head"><h2>תכנון חכם</h2><button type="button" class="btn ghost" id="advClose">סגירה</button></div>
     <p class="lead">ספרו לי על החדר, ואציע סידור מוכן עם השולחנות של PlayOn.</p>
     <div class="advin">
-      <textarea class="text" id="advText" rows="2" placeholder="למשל: חדר 12 על 8 מטר, מועדון סנוקר עם בר"></textarea>
+      <textarea class="text" id="advText" rows="3" placeholder="למשל: חדר 12 על 8 מטר, מועדון סנוקר עם בר"></textarea>
       <button type="button" class="micbtn" id="advMic" aria-label="הקלטה"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg><span id="advMicL">הקלטה</span></button>
     </div>
     <div class="ctags" id="advEx"><button type="button">חדר 12 על 8 מטר, מועדון סנוקר עם בר</button><button type="button">מרתף 7 על 5 מטר בבית, עם ספה וטלוויזיה</button><button type="button">אולם 15 על 10 מטר, מועדון ביליארד 9 פיט</button><button type="button">חדר 6 על 5 מטר לערבי פוקר</button></div>
+    <div class="advgot" id="advGot" hidden></div>
     <div class="advf">
       <label>אורך (ס״מ)<input class="text" id="advL" type="number" inputmode="numeric" min="200" step="10"></label>
       <label>רוחב (ס״מ)<input class="text" id="advW" type="number" inputmode="numeric" min="200" step="10"></label>
@@ -654,11 +655,12 @@ function inPoly(x,y,P){
 }
 // A 5 cm grid of the floor, blocked outside the walls and under columns.
 // A prefix sum answers "is this rectangle free floor?" in constant time.
+const ON_WALL={tv:1,cuerack:1};   // hung on the wall above the floor: they never block a table or a cue
 function buildGrid(P){
   const maxX=Math.max(...P.map(p=>p[0])), maxY=Math.max(...P.map(p=>p[1]));
   const nx=Math.ceil(maxX/CELL), ny=Math.ceil(maxY/CELL);
   const S=new Int32Array((nx+1)*(ny+1));
-  const obs=[...state.cols,...state.furn.map(fBox)];
+  const obs=[...state.cols,...state.furn.filter(f=>!ON_WALL[f.type]).map(fBox)];
   for(let j=0;j<ny;j++){
     let rowSum=0; const y=(j+.5)*CELL, xs=[];
     for(let a=0,b=P.length-1;a<P.length;b=a++){ const [xi,yi]=P[a],[xj,yj]=P[b]; if((yi>y)!==(yj>y)) xs.push((xj-xi)*(y-yi)/(yj-yi)+xi); }
@@ -897,14 +899,18 @@ let VB={x:0,y:0,w:1,h:1};
 // Turn the whole room a quarter turn (walls, tables, furniture, columns) — handy on a phone held upright.
 function rotateRoom(){
   pushUndo(true);
+  turnState();
+  if(cur.bg&&cur.bg.show){ cur.bg.show=false; saveProjects(); toast("השרטוט הוסתר כי הוא לא מסתובב עם החדר"); }
+  VIEW.z=1; VIEW.cx=VIEW.cy=null; select(null); refreshRoom(); renderPanel();
+}
+function turnState(){
   const H=G.maxY, f=(x,y)=>[H-y,x];
   if(state.shape==="rect"||state.shape==="round"){ if(!state.custom){ [state.L,state.W]=[state.W,state.L]; } }
   if(state.custom||!(state.shape==="rect"||state.shape==="round")){ state.custom=P.map(([x,y])=>f(x,y)); }
   for(const t of state.tables){ [t.cx,t.cy]=f(t.cx,t.cy); t.rot=!t.rot; }
   for(const o of state.furn){ [o.cx,o.cy]=f(o.cx,o.cy); o.rot=(o.rot+90)%360; }
   for(const c of state.cols){ const [nx,ny]=f(c.x,c.y+c.h); [c.x,c.y,c.w,c.h]=[nx,ny,c.h,c.w]; }
-  if(cur.bg&&cur.bg.show){ cur.bg.show=false; saveProjects(); toast("השרטוט הוסתר כי הוא לא מסתובב עם החדר"); }
-  VIEW.z=1; VIEW.cx=VIEW.cy=null; select(null); refreshRoom(); renderPanel();
+  P=roomPoints(); G=buildGrid(P);
 }
 function refreshRoom(){ P=roomPoints(); G=buildGrid(P); drawPlan(); updateSizeStatus(); }
 function cmPerPx(){ const r=svgEl.getBoundingClientRect(); return Math.max(VB.w/Math.max(1,r.width),VB.h/Math.max(1,r.height)); }
@@ -1661,14 +1667,16 @@ function fitRoom(margin){
   let lo=V.size*.2, hi=V.size*6; for(let i=0;i<22;i++){ const mid=(lo+hi)/2; if(fits(mid)) hi=mid; else lo=mid; }
   o.r=hi; applyCam();
 }
+// the far plane follows the camera, so a 70 m hall seen from afar is not cut away
+function camFar(){ const c=V.cam, f=Math.max(20000,V.orbit.r*1.6+(V.size||0)*2); if(Math.abs(c.far-f)>1){ c.far=f; c.updateProjectionMatrix(); } }
 function applyCamQuiet(){
-  const o=V.orbit, c=V.cam, ty=V.view==="eye"?110:40;
+  const o=V.orbit, c=V.cam, ty=V.view==="eye"?110:40; camFar();
   c.position.set(o.tx+o.r*Math.sin(o.phi)*Math.sin(o.theta), ty+o.r*Math.cos(o.phi), o.tz+o.r*Math.sin(o.phi)*Math.cos(o.theta));
   c.lookAt(o.tx,ty*.6,o.tz); c.updateMatrixWorld();
 }
 function lampsFor(){ const show=V.orbit.phi>.35; if(V.lampsOn!==show){ V.lampsOn=show; V.shadowDirty=true; } (V.lamps||[]).forEach(l=>l.visible=show); }
 function applyCam(){
-  const o=V.orbit, c=V.cam, ty=V.view==="eye"?110:40;
+  const o=V.orbit, c=V.cam, ty=V.view==="eye"?110:40; camFar();
   c.position.set(o.tx+o.r*Math.sin(o.phi)*Math.sin(o.theta), ty+o.r*Math.cos(o.phi), o.tz+o.r*Math.sin(o.phi)*Math.cos(o.theta));
   c.lookAt(o.tx,ty*.6,o.tz); lampsFor(); render();
 }
@@ -2677,14 +2685,35 @@ function parseRoom(text){
   let t=" "+text.replace(/[״"]/g,'"').replace(/,(\d)/g,".$1")+" ";
   for(const [w,n] of Object.entries(HEB_NUM).sort((a,b)=>b[0].length-a[0].length)) t=t.replace(new RegExp("(^|[\\s\\u05d5\\u05d1])"+w+"(?=[\\s.,]|$)","g"),"$1"+n);
   const out={};
-  const m=t.match(/(\d+(?:\.\d+)?)\s*(מטר|מ'|מ׳|מ\b|ס"מ|סמ|cm|m)?\s*(?:על|x|X|×|\*|ב-?)\s*(\d+(?:\.\d+)?)\s*(מטר|מ'|מ׳|ס"מ|סמ|cm|m)?/);
+  const m=t.match(/(\d+(?:\.\d+)?)\s*(מטר|מ'|מ׳|מ\b|ס"מ|סמ|cm|m)?\s*(?:על|x|X|×|\*|\/|ב-?)\s*(\d+(?:\.\d+)?)\s*(מטר|מ'|מ׳|ס"מ|סמ|cm|m)?/);
   if(m){ const cm=/ס"מ|סמ|cm/.test((m[2]||"")+(m[4]||"")); let a=+m[1], b=+m[3];
-    const k=cm?1:(a<60&&b<60?100:1); a=Math.round(a*k); b=Math.round(b*k); out.L=Math.max(a,b); out.W=Math.min(a,b); }
+    const meters=/מטר|מ'|מ׳|מ\b|^m$/.test((m[2]||"")+(m[4]||"")), k=cm?1:(meters||a<60&&b<60?100:1); a=Math.round(a*k); b=Math.round(b*k); out.L=Math.max(a,b); out.W=Math.min(a,b); }
   if(/עגול|אליפס/.test(t)) out.shape="round"; else if(/אלכסון/.test(t)) out.shape="slant"; else if(/צורת\s*(L|אל|ר)\b|\bL\b/.test(t)) out.shape="L"; else if(/צורת\s*(U|ח|יו)\b|\bU\b/.test(t)) out.shape="U";
   if(/סנוקר/.test(t)) out.purpose="snooker"; else if(/פוקר|קלפים/.test(t)) out.purpose="poker"; else if(/מועדון|פאב|בר ספורט|עסק/.test(t)) out.purpose="pool"; else if(/בית|וילה|משפח|ילדים|מרתף|סלון/.test(t)) out.purpose="home";
   const ft=t.match(/(\d+)\s*פיט/); if(ft) out.ft=+ft[1];
   const cnt=t.match(/(\d+)\s*שולחנ/); if(cnt) out.count=+cnt[1];
   out.bar=/(^|[\s,.ו])בר([\s,.]|$)|ברמן|משקאות|דלפק/.test(t); out.lounge=/ספה|ספות|לאונג|טלוויז|מסך|כורס/.test(t);
+  const len=(v,u,def)=>{ v=+v; if(/ס"מ|סמ|cm/.test(u||"")) return Math.round(v); if(/מטר|מ'|מ׳|^m$/.test(u||"")) return Math.round(v*100); return Math.round(def==="m"||(def!=="cm"&&v<30)?v*100:v); };
+  const U=`(מטר|מ'|מ׳|ס"מ|סמ|cm|m)?`;
+  // columns: "עמוד כל 10 מטר", "עמודים במרווח של 8 מטר", "2 שורות עמודים", "עמודים 50 על 50"
+  const ce=t.match(new RegExp(`עמוד\\S*\\s*(?:\\S+\\s*){0,2}?(?:כל|במרווח(?:\\s*של)?|במרחק(?:\\s*של)?|במרווחים\\s*של)\\s*(\\d+(?:\\.\\d+)?)\\s*${U}`));
+  if(ce){ out.colEvery=len(ce[1],ce[2],"m"); if(out.colEvery<150) delete out.colEvery; }
+  const cr=t.match(/(\d+)\s*שורות\s*(?:של\s*)?עמוד/); if(cr) out.colRows=Math.min(4,+cr[1]);
+  const cs=t.match(/עמוד\S*\s*(?:בגודל|במידה|במידות|של)?\s*(\d+)\s*(?:על|x|X|×)\s*(\d+)\s*(?:ס"מ|סמ|cm)/); if(cs) out.colSize=Math.max(20,Math.min(150,+cs[1]));
+  // the bar: depth, length, distance from the wall
+  const bseg=(t.match(/(?:בר|דלפק)(?:[^.;]|\.(?=\d))*/)||[""])[0];
+  const bd=bseg.match(new RegExp(`בעומק\\s*(?:של\\s*)?(\\d+(?:\\.\\d+)?)\\s*${U}`)); if(bd) out.barDepth=Math.max(25,Math.min(150,len(bd[1],bd[2],"cm")));
+  const bl=bseg.match(new RegExp(`באורך\\s*(?:של\\s*)?(\\d+(?:\\.\\d+)?)\\s*${U}`)); if(bl) out.barLen=Math.max(150,len(bl[1],bl[2]));
+  const bf=bseg.match(new RegExp(`(?:במרחק|ברווח)\\s*(?:של\\s*)?(\\d+(?:\\.\\d+)?)\\s*${U}\\s*(?:מה?קיר|מהקיר|מקיר)`)); if(bf) out.barFrom=Math.max(0,Math.min(600,len(bf[1],bf[2],"m")));
+  if(out.barDepth||out.barFrom!==undefined||out.barLen) out.bar=true;
+  // seating and screens
+  if(/ספה|ספות/.test(t)) out.sofa=true; if(/כורס/.test(t)) out.arm=true;
+  const tvn=t.match(/(\d+)\s*(?:טלוויזיות|מסכים)/); if(/טלוויז|מסכ|מסך/.test(t)) out.tv=tvn?Math.min(40,+tvn[1]):true;
+  // a mix of sizes: "30% שולחנות 10 פיט 70% שולחנות 9 פיט" / "30 אחוז 10 פיט"
+  const mix=[...t.matchAll(/(\d+(?:\.\d+)?)\s*(?:%|אחוז)\s*(?:מה|של\s*)?(?:שולחנות|שולחן|מהשולחנות)?\s*(?:של\s*|ב-?)?(\d+)\s*פיט/g)].map(m=>({ft:+m[2],pct:+m[1]}));
+  if(!mix.length) for(const m of t.matchAll(/(\d+)\s*פיט\s*(?:-|–)?\s*(\d+(?:\.\d+)?)\s*(?:%|אחוז)/g)) mix.push({ft:+m[1],pct:+m[2]});
+  const fts=[...new Set(mix.map(m=>m.ft))];
+  if(fts.length>=2){ const sum=mix.reduce((s,m)=>s+m.pct,0)||1; out.mix=fts.map(ft=>({ft,pct:mix.filter(m=>m.ft===ft).reduce((s,m)=>s+m.pct,0)/sum})).sort((a,b)=>b.ft-a.ft); delete out.count; }
   if(/פינג|טניס שולחן/.test(t)) out.pong=true; if(/כדורגל/.test(t)) out.foos=true; if(/הוקי/.test(t)) out.air=true; if(/פוקר|קלפים/.test(t)&&out.purpose!=="poker") out.pokerToo=true;
   return out;
 }
@@ -2735,15 +2764,100 @@ function latticeLayouts(it,keep,limit){
 function addQuiet(type){ const F=FURN[type], f={type,cx:0,cy:0,w:F.w,h:F.h,rot:0}; const s=smartFurnSpot(f); if(!s) return false; f.rot=s.rot; f.cx=s.cx; f.cy=s.cy; state.furn.push(f); G=buildGrid(P); return true; }
 function addLounge(bar){ let n=0; if(bar){ if(addQuiet("backbar")) n++; if(addQuiet("bar")){ n++; for(let i=0;i<4;i++) addQuiet("stool"); } }
   if(addQuiet("sofa")){ n++; addQuiet("coffee"); } if(addQuiet("tv")) n++; addQuiet("cuerack"); addQuiet("plant"); addQuiet("plant"); return n; }
+// A request with details (columns, a bar at a set distance, seating, a mix of sizes) is built exactly as asked:
+// columns first, the bar along one end wall, the lounge at the other end, tables in between, screens on the long walls.
+const FT_KEY=(ft,snk)=>ft>=12?"s12":ft>=10?(snk?"s10":"s10"):ft===9?"p9":ft===8?"p8":"p7";
+const isDetailed=q=>!!(q.colEvery||q.colRows||q.mix||q.barDepth||q.barFrom!==undefined||q.barLen||(q.purpose==="snooker"||q.purpose==="pool")&&(q.sofa?1:0)+(q.arm?1:0)+(q.tv?1:0)>=2);
+function putFurn(type,cx,cy,rot,w,h){ const D=FURN[type], f={type,cx:Math.round(cx),cy:Math.round(cy),w:Math.round(w||D.w),h:Math.round(h||D.h),rot};
+  const b=fBox(f); if(b.x<-1||b.y<-1||b.x+b.w>state.L+1||b.y+b.h>state.W+1) return null;
+  if(state.cols.some(c=>hit(c,b))||state.furn.some(o=>hit(fBox(o),b))||state.tables.some(t=>hit(box(t.cx,t.cy,dims(t).O),b))) return null;
+  state.furn.push(f); return f; }
+function addColumns(q){
+  const L=state.L, W=state.W, s=q.colSize||40, every=q.colEvery||1000, rows=q.colRows||1;
+  for(let r=1;r<=rows;r++){ const y=W*r/(rows+1); for(let x=every;x<L-s;x+=every) state.cols.push({x:Math.round(x-s/2),y:Math.round(y-s/2),w:s,h:s}); }
+}
+function addBarEnd(q){   // the bar along the left end wall, facing the room
+  const W=state.W, depth=q.barDepth||FURN.bar.h, from=q.barFrom??105, len=Math.min(q.barLen||Math.max(300,Math.min(800,Math.round(W*.35/10)*10)),W-120), cy=W/2;
+  if(from>=FURN.backbar.h+50) putFurn("backbar",FURN.backbar.h/2,cy,270,Math.max(200,len-40));
+  if(!putFurn("bar",from+depth/2,cy,270,len,depth)) return 0;
+  const n=Math.max(2,Math.floor(len/65)); for(let i=0;i<n;i++) putFurn("stool",from+depth+28,cy-len/2+(i+.5)*len/n,0);
+  return 1;
+}
+function addLoungeEnd(q){   // sofa facing a screen, armchairs either side, a coffee table between — at the right end wall
+  const L=state.L, W=state.W, groups=W>=1100?2:1; let n=0;
+  for(let g=0;g<groups;g++){ const gy=W*(g+.5)/groups;
+    if(q.tv||!q.sofa&&!q.arm) putFurn("tv",L-FURN.tv.h/2,gy,90);
+    const seat=q.sofa||!q.arm?"sofa":"armchair";
+    if(putFurn(seat,L-370,gy,270)){ n++; putFurn("coffee",L-370+FURN[seat].h/2+40+FURN.coffee.h/2,gy,270); }
+    if(q.arm&&seat==="sofa"){ const cx=L-370+FURN.sofa.h/2+40+FURN.coffee.h/2, off=FURN.coffee.w/2+35+FURN.armchair.h/2;
+      putFurn("armchair",cx,gy-off,0); putFurn("armchair",cx,gy+off,180); n++; }
+  }
+  putFurn("plant",L-35,35,0); putFurn("plant",L-35,W-35,0);
+  return n;
+}
+function addWallScreens(q,want){   // screens and cue racks on the long walls, spread over the playing area
+  const L=state.L, W=state.W, xs=state.tables.map(t=>box(t.cx,t.cy,dims(t).O)), x0=xs.length?Math.min(...xs.map(b=>b.x)):0, x1=xs.length?Math.max(...xs.map(b=>b.x+b.w)):L;
+  const per=typeof want==="number"?Math.ceil(want/2):Math.max(1,Math.round((x1-x0)/1000));
+  let n=0;
+  for(const [y,rot] of [[FURN.tv.h/2,0],[W-FURN.tv.h/2,180]]) for(let i=0;i<per;i++){ const x=x0+(x1-x0)*(i+.5)/per; if(putFurn("tv",x,y,rot)) n++; }
+  for(const [y,rot] of [[FURN.cuerack.h/2,0],[W-FURN.cuerack.h/2,180]]) { const x=x0+(x1-x0)*(per>1?1/per:.25); putFurn("cuerack",x,y,rot)||putFurn("cuerack",x+120,y,rot); }
+  return n;
+}
+// Two sizes at a set share: the bigger tables are packed first (up to their share), the smaller fill the rest;
+// a few shares are tried and the one with the most tables, closest to the asked ratio, wins.
+// Each size gets its own section of the hall (the bigger tables at the bar end), so both sections are neat rows;
+// the border between them is moved until the share of big tables is as asked.
+function packMix(mix,cue,lim){
+  const keep=state.tables.slice(), big=cue(mix[0].key), small=cue(mix[1].key), p=mix[0].pct, L=state.L, W=state.W;
+  const fp=it=>(it.L+GAP.table)*(it.W+GAP.table), share=p*fp(big)/(p*fp(big)+(1-p)*fp(small));
+  let best=null; const tried=new Set();
+  const trySplit=x=>{ x=Math.round(Math.max(300,Math.min(L-300,x))/10)*10; if(tried.has(x)) return null; tried.add(x);
+    state.tables=keep.slice();
+    const wall={x,y:-10,w:L-x+10,h:W+20}; state.cols.push(wall); G=buildGrid(P);
+    const a=packTables(big,lim,false); state.cols.pop(); G=buildGrid(P);
+    const b=packTables(small,Math.max(0,lim-a),false), tot=a+b, sc=tot*10-Math.abs(a-p*tot)*30;
+    const r={sc,a,tot,x,ts:state.tables}; if(!best||sc>best.sc) best=r; return r; };
+  let r=trySplit(L*share);
+  for(let i=0;i<4&&r;i++){ const off=r.a/r.tot-p; if(Math.abs(off)*r.tot<.6) break; r=trySplit(r.x-off/p*r.x*.8); }
+  state.tables=best?best.ts:keep; centerTables(state.tables.slice(keep.length));
+  return state.tables.length-keep.length;
+}
+function detailedProposals(q,cue,lim){
+  const room={shape:q.shape||"rect",L:q.L,W:q.W,a:Math.round(q.L*.3),b:Math.round(q.W*.3)};
+  const upright=!isWide()&&innerHeight>innerWidth*1.15&&q.L>q.W*1.15&&room.shape==="rect";
+  const snk=q.purpose==="snooker";
+  const mix=q.mix?q.mix.map(m=>({...m,key:FT_KEY(m.ft,snk)})):null;
+  const one=FT_KEY(q.ft||(snk?12:9),snk);
+  const props=[];
+  const run=(title,note,o)=>{ const r=sandbox(room,()=>{
+      if(q.colEvery||q.colRows) addColumns(q);
+      if(o.bar) addBarEnd(q);
+      if(o.lounge) addLoungeEnd(q);
+      G=buildGrid(P);
+      if(o.mix) packMix(o.mix,cue,lim); else packTables(cue(o.one),lim,"all");
+      G=buildGrid(P);
+      if(q.tv&&o.screens) addWallScreens(q,q.tv);
+      if(upright) turnState();
+    });
+    if(r.room.tables.length) props.push({title:describeLayout(r.room)||title,concept:title,note,...r}); };
+  const wantLounge=!!(q.sofa||q.arm||q.tv&&!q.bar), wantBar=!!q.bar;
+  const asked=[q.colEvery&&`עמודים כל ${q.colEvery/100} מ׳`,wantBar&&`בר${q.barDepth?` בעומק ${q.barDepth} ס״מ`:""}${q.barFrom!==undefined?` ${q.barFrom/100} מ׳ מהקיר`:""}`,mix&&mix.map(m=>`${Math.round(m.pct*100)}% ${m.ft} פיט`).join(" / ")].filter(Boolean).join(" · ");
+  run("בדיוק לפי הבקשה",asked||"כל מה שביקשתם",{bar:wantBar,lounge:wantLounge,screens:true,mix,one});
+  if(wantLounge) run("יותר שולחנות","בלי פינת הישיבה – במקומה עוד שולחנות",{bar:wantBar,lounge:false,screens:true,mix,one});
+  if(mix) run(`הכל ${mix[1].ft} פיט`,"גודל אחד – הכי הרבה שולחנות",{bar:wantBar,lounge:wantLounge,screens:true,mix:null,one:mix[1].key});
+  else if(wantBar) run("בלי בר","כל המקום לשולחנות ולישיבה",{bar:false,lounge:wantLounge,screens:true,mix,one});
+  return props;
+}
 // Build up to three different finished proposals for the described room.
 function makeProposals(q){
+  if(isDetailed(q)) return detailedProposals(q,k=>advItem(k),q.count||200);
   const upright=!isWide()&&innerHeight>innerWidth*1.15&&q.L>q.W*1.15&&(q.shape||"rect")==="rect";
   const room={shape:q.shape||"rect",L:upright?q.W:q.L,W:upright?q.L:q.W,a:Math.round(q.L*.3),b:Math.round(q.W*.3)};
   const purpose=q.purpose||(q.count>1||q.L*q.W>=900*700?"pool":"home"), lim=q.count||100, props=[];
   const left=()=>Math.max(0,lim-state.tables.length);   // a stated number of tables is the most tables any proposal gets
   const cue=k=>advItem(k);
   // a proposal only counts if it really holds what its name promises (need: the kinds of table it must contain)
-  const add=(title,note,fn,need=[])=>{ const r=sandbox(room,fn); if(!r.room.tables.length) return; const has=k=>r.room.tables.some(t=>k==="snk"?t.kind==="cue"&&t.L>330:k==="pool"?t.kind==="cue"&&t.L<=330:t.kind===k);
+  const add=(title,note,fn,need=[])=>{ const r=sandbox(room,fn); if(!r.room.tables.length) return; const has=k=>r.room.tables.some(t=>k==="snk"?isSnk(t):k==="pool"?t.kind==="cue"&&!isSnk(t):t.kind===k);
     if(need.some(k=>Array.isArray(k)?!k.some(has):!has(k))) return; props.push({title:describeLayout(r.room)||title,concept:title,note,...r}); };
   const sizeKey=q.ft>=12?"s12":q.ft>=10?"s10":q.ft===9?"p9":q.ft===8?"p8":q.ft===7?"p7":null;
   if(purpose==="snooker"){
@@ -2773,10 +2887,11 @@ function makeProposals(q){
   const seen=new Set(); return props.filter(p=>{ if(seen.size>=3) return false; const k=p.title; if(seen.has(k)) return false; seen.add(k); return true; });
 }
 // "4 שולחנות סנוקר + 2 כדורגל · בר ולאונג'" – a title that says exactly what the layout holds
+const isSnk=t=>t.kind==="cue"&&(t.L>330||/סנוקר/.test(t.name||""));
 function describeLayout(rd){
-  const c={}; for(const t of rd.tables){ const k=t.kind==="cue"?(t.L>330?"סנוקר":"ביליארד"):({foos:"כדורגל",air:"הוקי אוויר",pong:"פינג פונג",poker:"פוקר"}[t.kind]||"שולחן"); c[k]=(c[k]||0)+1; }
+  const c={}; for(const t of rd.tables){ const k=t.kind==="cue"?(isSnk(t)?`סנוקר${/10 פיט/.test(t.name)?" 10 פיט":""}`:`ביליארד${/(\d+) פיט/.test(t.name)?" "+t.name.match(/(\d+) פיט/)[1]+" פיט":""}`):({foos:"כדורגל",air:"הוקי אוויר",pong:"פינג פונג",poker:"פוקר"}[t.kind]||"שולחן"); c[k]=(c[k]||0)+1; }
   const parts=Object.entries(c).map(([k,n],i)=>i===0?(n>1?`${n} שולחנות ${k}`:`שולחן ${k}`):(n>1?`${n} ${k}`:k));
-  const has=t=>rd.furn.some(f=>f.type===t), extra=has("bar")?" · בר ולאונג'":(has("sofa")||has("tv"))?" · פינת ישיבה":"";
+  const has=t=>rd.furn.some(f=>f.type===t), extra=has("bar")&&(has("sofa")||has("armchair"))?" · בר ולאונג'":has("bar")?" · בר":(has("sofa")||has("armchair")||has("tv"))?" · פינת ישיבה":"";
   return parts.join(" + ")+extra;
 }
 function sandboxCount(room,it){ return sandbox(room,()=>({n:packTables(it)})).info.n; }
@@ -2798,9 +2913,10 @@ function miniPlan(rd){
   return `<svg viewBox="${-pad} ${-pad} ${mx+2*pad} ${my+2*pad}" preserveAspectRatio="xMidYMid meet" aria-hidden="true"><path d="M${Pp.map(q=>q.join(" ")).join("L")}Z" fill="#f6f0e6" stroke="#2b120d" stroke-width="${Math.max(mx,my)*.008}"/>${tb}${fu}</svg>`;
 }
 let advQ={}, advProps=[];
-function openAdvisor(){ $("adv").hidden=false; $("advText").value=""; advQ={}; advProps=[]; renderAdv(); setTimeout(()=>$("advText").focus(),50); }
+function openAdvisor(){ $("adv").hidden=false; $("advText").value=""; advQ={}; advPurposeHand=null; advProps=[]; renderAdv(); setTimeout(()=>$("advText").focus(),50); }
 $("advClose").onclick=()=>{ stopListening(); $("adv").hidden=true; };
-$("advText").oninput=()=>{ advQ=Object.assign({},advQ,parseRoom($("advText").value)); renderAdvFields(); };
+let advPurposeHand=null;
+$("advText").oninput=()=>{ const q=parseRoom($("advText").value); if(advPurposeHand) q.purpose=advPurposeHand; advQ=q; renderAdvFields(); };
 $("advGo").onclick=()=>{
   const L=+$("advL").value, W=+$("advW").value;
   if(!(L>=200&&W>=200)){ toast("כתבו או אמרו את מידות החדר, למשל 12 על 8 מטר"); return; }
@@ -2812,8 +2928,18 @@ function renderAdv(){ renderAdvFields(); $("advProps").innerHTML=""; }
 function renderAdvFields(){
   if(advQ.L) $("advL").value=advQ.L; if(advQ.W) $("advW").value=advQ.W; if(advQ.shape) $("advShape").value=advQ.shape;
   document.querySelectorAll("#advPurpose button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.p===advQ.purpose));
+  const q=advQ, m=v=>`${Math.round(v)/100} מ׳`, got=[
+    q.L&&q.W&&`${m(q.L)} × ${m(q.W)}`,
+    ({snooker:"סנוקר",pool:"מועדון ביליארד",home:"חדר ביתי",poker:"פוקר"})[q.purpose],
+    q.colEvery&&`עמוד כל ${m(q.colEvery)}${q.colRows>1?` · ${q.colRows} שורות`:""}`,
+    !q.colEvery&&q.colRows&&`${q.colRows} שורות עמודים`,
+    q.bar&&["דלפק בר",q.barDepth&&`בעומק ${q.barDepth} ס״מ`,q.barFrom!==undefined&&`${m(q.barFrom)} מהקיר`,q.barLen&&`באורך ${m(q.barLen)}`].filter(Boolean).join(" "),
+    q.sofa&&"ספות", q.arm&&"כורסאות", q.tv&&(typeof q.tv==="number"?`${q.tv} טלוויזיות`:"טלוויזיות"),
+    ...(q.mix?q.mix.map(x=>`${Math.round(x.pct*100)}% ${x.ft} פיט`):[!q.mix&&q.ft&&`${q.ft} פיט`]),
+    q.count&&`${q.count} שולחנות`].filter(Boolean);
+  const el=$("advGot"); el.hidden=!got.length; el.innerHTML=got.length?`הבנתי: ${got.map(g=>`<span>${esc(g)}</span>`).join("")}`:"";
 }
-document.querySelectorAll("#advPurpose button").forEach(b=>b.onclick=()=>{ advQ.purpose=b.dataset.p; renderAdvFields(); });
+document.querySelectorAll("#advPurpose button").forEach(b=>b.onclick=()=>{ advQ.purpose=advPurposeHand=b.dataset.p; renderAdvFields(); });
 document.querySelectorAll("#advEx button").forEach(b=>b.onclick=()=>{ $("advText").value=b.textContent; $("advText").dispatchEvent(new Event("input")); });
 function renderAdvProps(){
   const box=$("advProps");
