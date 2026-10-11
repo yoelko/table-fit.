@@ -102,3 +102,10 @@
 
 ## v31 — 11.10
 - In a snooker club every pair of neighbouring cue tables gets a seat, the 9 ft pool tables too (before: snooker models only).
+
+## v32 — 11.10
+- Regiis 9 ft tables are 292×160 everywhere (catalog, size list, saved projects are corrected on load).
+- Columns keep the table distance (120) from tables, not the wall distance.
+- Grids also try rows spread evenly over the room, so a line of columns sits in a wide middle aisle.
+- Seated layouts also try pairs: two tables with the seat between them, pairs 120 apart.
+- 70×20 hall with seats: 45 -> 56 tables, every table with a seat.

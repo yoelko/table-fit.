@@ -8,7 +8,7 @@ with sync_playwright() as p:
     b.close()
 inb=json.load(open('/home/claude/table-fit./inbox.json'))
 inb['projects']=[x for x in inb['projects'] if x['id']!='p-hall70b']
-sizes=[{'name':'Regiis סנוקר 10 פיט','kind':'cue','L':320,'W':176},{'name':'Regiis Pro 9 פיט','kind':'cue','L':284,'W':155}]
+sizes=[{'name':'Regiis סנוקר 10 פיט','kind':'cue','L':320,'W':176},{'name':'Regiis Pro 9 פיט','kind':'cue','L':292,'W':160}]
 inb['projects'].append({'id':'p-hall70b','name':'אולם סנוקר 70×20 עם ישיבה','updated':int(time.time()*1000),'room':r['room'],'style':r['style'],'gaps':{'wall':140,'table':120},'sizes':sizes})
 for f in ['/home/claude/table-fit./inbox.json','/home/claude/table-fit./preview/inbox.json']: json.dump(inb,open(f,'w'),ensure_ascii=False)
 print(len(r['room']['tables']),len(r['room']['furn']),len(r['room']['cols']))
