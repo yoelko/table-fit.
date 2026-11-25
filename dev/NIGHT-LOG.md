@@ -113,3 +113,10 @@
 ## v33 — 11.10
 - Snooker seating: every table gets its own high bar table with 2 chairs (no sofas). A third layout keeps the normal distances and puts each seat in the free floor beside the table (by the wall or in the column aisle); between paired tables two bar tables, one per table.
 - Project "מועדון סנוקר 50×20 נטו" (70 m hall minus 10 m kitchen and 10 m toilets): 39 tables, bar, lounge, TVs.
+
+## 25.11 — client project "הדמיה ללקוח – אולם 21×18"
+- From the architect's plan: 21.2 × 18.2 m hall (inner walls removed), six 30×30 columns at 7.1 / 13.0 m across and 4.3 / 8.95 / 14.15 m along.
+- Laid out by hand in straight rows between the column lines, all at 140 from walls / 120 between tables, every table "ok":
+  12 × Regiis Pro 9 ft, 2 × snooker 10 ft, 1 × snooker 12 ft (the 12 ft in the middle row between the two 10 ft).
+- Bar 8 m with back bar and 12 stools on the 18.2 m wall near the stairs, two high tables by the bar, plants, 6 TVs, 2 cue racks.
+- Sent to the app via inbox.json.
